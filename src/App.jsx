@@ -318,6 +318,7 @@ export default function WorkflowApp() {
   const [cloneToTabMenu, setCloneToTabMenu] = useState(null);
 
   const fileInputRef = useRef(null);
+  const fullBackupInputRef = useRef(null);
 
   // --- History (Undo/Redo) States ---
   const pastRef = useRef([]);
@@ -1428,6 +1429,27 @@ export default function WorkflowApp() {
     setCardMenuOpenId(null);
   };
 
+  // Export all projects as a full backup
+  const exportAllData = () => {
+    const strippedProjects = projects.map(p => ({ ...p, password: '' }));
+    const backupData = {
+      type: 'nexus-full-backup',
+      version: 1,
+      exportDate: new Date().toISOString(),
+      defaultProjectId,
+      projects: strippedProjects
+    };
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nexus-full-backup-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   // Helper: relative time display
   const formatRelativeTime = (timestamp) => {
     if (!timestamp) return '';
@@ -1563,6 +1585,45 @@ export default function WorkflowApp() {
         }
       } catch (err) {
         setErrorMessage("Failed to read file.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = null;
+  };
+
+  // Import full backup data
+  const importAllData = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const importedData = JSON.parse(event.target.result);
+        if (importedData.type === 'nexus-full-backup' && Array.isArray(importedData.projects)) {
+          if (!window.confirm('This will replace all existing data. Continue?')) {
+            e.target.value = null;
+            return;
+          }
+          const restoredProjects = importedData.projects;
+          const restoredDefault = importedData.defaultProjectId || restoredProjects[0]?.id;
+          setProjects(restoredProjects);
+          setDefaultProjectId(restoredDefault);
+          setActiveProjectId(restoredDefault);
+          localStorage.setItem('nexus-app-state', JSON.stringify(restoredProjects));
+          localStorage.setItem('nexus-active-project', restoredDefault);
+          localStorage.setItem('nexus-default-project', restoredDefault);
+          const defaultProj = restoredProjects.find(p => p.id === restoredDefault) || restoredProjects[0];
+          if (defaultProj) {
+            setWorkspaces(defaultProj.workspaces || []);
+            setActiveTab(defaultProj.activeTab || defaultProj.workspaces?.[0]?.id || '');
+            setNextId(defaultProj.nextId || 10);
+          }
+        } else {
+          setErrorMessage("Invalid backup file format.");
+        }
+      } catch (err) {
+        setErrorMessage("Invalid backup file format.");
       }
     };
     reader.readAsText(file);
@@ -2753,6 +2814,12 @@ export default function WorkflowApp() {
                   <button onClick={() => { setProjectPanelMode('create'); setProjectError(''); setProjectNameInput(''); setProjectDescriptionInput(''); setProjectThumbnailInput(null); setProjectPasswordInput(''); setProjectPasswordEnabled(false); setProjectDefaultToggle(false); }} className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
                     <Plus className="w-4 h-4" /> New Project
                   </button>
+                  <button onClick={exportAllData} className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition-colors">
+                    <Download className="w-4 h-4" /> Export All
+                  </button>
+                  <button onClick={() => fullBackupInputRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition-colors">
+                    <Upload className="w-4 h-4" /> Import All
+                  </button>
                   <button onClick={() => setShowProjectPanel(false)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
                     <X className="w-4 h-4" />
                   </button>
@@ -3034,6 +3101,7 @@ export default function WorkflowApp() {
           <div className="w-px h-5 sm:h-6 bg-slate-200 mx-0.5 sm:mx-1"></div>
 
           <input type="file" accept=".json" ref={fileInputRef} onChange={handleImport} className="hidden" />
+          <input type="file" accept=".json" ref={fullBackupInputRef} onChange={importAllData} className="hidden" />
           <button
             onClick={() => setShowMoreMenu(!showMoreMenu)}
             className="p-1.5 sm:p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
@@ -3067,6 +3135,13 @@ export default function WorkflowApp() {
               </button>
               <button onClick={() => { addNode(undefined, undefined, null, 'concept'); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-violet-700 hover:bg-violet-50 transition-colors">
                 <Sparkles className="w-4 h-4 mr-2.5" /> Add Concept Node
+              </button>
+              <div className="h-px bg-slate-100 my-1 mx-3"></div>
+              <button onClick={() => { exportAllData(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                <Download className="w-4 h-4 mr-2.5 text-blue-500" /> Export All Data
+              </button>
+              <button onClick={() => { fullBackupInputRef.current?.click(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                <Upload className="w-4 h-4 mr-2.5 text-green-500" /> Import All Data
               </button>
             </div>
             </>
