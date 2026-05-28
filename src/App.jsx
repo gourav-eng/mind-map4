@@ -660,10 +660,13 @@ export default function WorkflowApp() {
   useEffect(() => {
     if (initialized && activeProjectId) {
       setProjects(prev => {
-        const updated = prev.map(p => p.id === activeProjectId 
-          ? { ...p, workspaces, activeTab, nextId, lastModified: Date.now() }
-          : p
-        );
+        const updated = prev.map(p => {
+          if (p.id !== activeProjectId) return p;
+          const now = Date.now();
+          const lastMod = p.lastModified || 0;
+          const shouldUpdateTime = (now - lastMod) > 60000;
+          return { ...p, workspaces, activeTab, nextId, ...(shouldUpdateTime ? { lastModified: now } : {}) };
+        });
         return updated;
       });
       // Debounced localStorage write (outside state updater)
@@ -1392,6 +1395,7 @@ export default function WorkflowApp() {
       ...JSON.parse(JSON.stringify(target)),
       id: `proj-${Date.now()}`,
       name: `${target.name} (Copy)`,
+      password: '',
       lastModified: Date.now()
     };
     setProjects(prev => {
@@ -1406,7 +1410,8 @@ export default function WorkflowApp() {
   const exportSingleProject = (targetId) => {
     const target = projects.find(p => p.id === targetId);
     if (!target) return;
-    const blob = new Blob([JSON.stringify(target, null, 2)], { type: 'application/json' });
+    const exportData = { ...target, password: '' };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -2822,7 +2827,7 @@ export default function WorkflowApp() {
                     )}
                     <label className="px-3 py-2 text-sm text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg cursor-pointer transition-colors">
                       <span>Upload Image</span>
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => setProjectThumbnailInput(ev.target.result); reader.readAsDataURL(file); e.target.value = null; }} />
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { const img = new Image(); img.onload = () => { const MAX = 300; let w = img.width, h = img.height; if (w > MAX || h > MAX) { if (w > h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } } const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); setProjectThumbnailInput(canvas.toDataURL('image/jpeg', 0.7)); }; img.src = ev.target.result; }; reader.readAsDataURL(file); e.target.value = null; }} />
                     </label>
                   </div>
                 </div>
