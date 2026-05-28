@@ -1588,6 +1588,64 @@ export default function WorkflowApp() {
     URL.revokeObjectURL(url);
   };
 
+  const exportSelectedNodes = (nodeIds) => {
+    if (!nodeIds || nodeIds.length === 0) return;
+
+    // Collect all selected nodes and their descendants via edges
+    const collectedIds = new Set(nodeIds);
+    const visited = new Set();
+
+    // BFS to find all descendants via edges
+    const queue = [...nodeIds];
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (visited.has(current)) continue;
+      visited.add(current);
+      collectedIds.add(current);
+      // Find edges where current is the source
+      const childEdges = edges.filter(e => e.source === current);
+      childEdges.forEach(e => {
+        if (!visited.has(e.target)) {
+          queue.push(e.target);
+        }
+      });
+    }
+
+    const exportNodes = nodes.filter(n => collectedIds.has(n.id));
+    const exportNodeIds = new Set(exportNodes.map(n => n.id));
+    const exportEdges = edges.filter(e => exportNodeIds.has(e.source) && exportNodeIds.has(e.target));
+
+    // Collect groups that contain exported nodes
+    const groupIds = new Set(exportNodes.map(n => n.groupId).filter(Boolean));
+    const exportGroups = groups.filter(g => groupIds.has(g.id));
+
+    const exportPayload = {
+      type: 'nexus-partial-export',
+      version: 1,
+      metadata: {
+        sourceWorkspace: activeWs?.name || 'Unknown',
+        sourceWorkspaceId: activeTab,
+        exportDate: new Date().toISOString(),
+        nodeCount: exportNodes.length,
+        edgeCount: exportEdges.length
+      },
+      nodes: exportNodes,
+      edges: exportEdges,
+      groups: exportGroups
+    };
+
+    const wsName = (activeWs?.name || 'workspace').replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nexus-partial-${wsName}-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleImport = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -4001,6 +4059,9 @@ export default function WorkflowApp() {
               <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 text-xs font-semibold text-slate-700 flex items-center" onClick={() => { disconnectNodeLinks(nodeContextMenu.nodeId); setNodeContextMenu(null); }}>
                 <Link2 className="w-3.5 h-3.5 mr-2 text-slate-500" /> Break Connections
               </button>
+              <button className="w-full text-left px-4 py-2 hover:bg-blue-50 text-xs font-semibold text-slate-700 flex items-center" onClick={() => { exportSelectedNodes([nodeContextMenu.nodeId]); setNodeContextMenu(null); }}>
+                <Download className="w-3.5 h-3.5 mr-2 text-blue-500" /> Export Branch
+              </button>
               
               <div className="h-px bg-slate-150 my-1 w-full" />
               
@@ -4378,7 +4439,7 @@ export default function WorkflowApp() {
           <button onClick={() => { takeSnapshot(); const selectedNodes = nodes.filter(n => selectedNodeIds.includes(n.id)); const selectedEdges = edges.filter(e => selectedNodeIds.includes(e.source) && selectedNodeIds.includes(e.target)); let currentId = nextId; const idMap = {}; const newNodes = selectedNodes.map(n => { const newId = currentId.toString(); idMap[n.id] = newId; currentId++; return { ...n, id: newId, x: n.x + 40, y: n.y + 40, cloneSourceId: null }; }); const newEdges = selectedEdges.map(e => ({ id: `e-${currentId++}`, source: idMap[e.source], target: idMap[e.target] })); updateActiveWorkspace(ws => { const updatedNodes = [...ws.nodes, ...newNodes]; return { nodes: updatedNodes, edges: [...ws.edges, ...newEdges], groups: computeLayout(ws.groups, updatedNodes) }; }); setNextId(currentId); setSelectedNodeIds(newNodes.map(n => n.id)); }} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Duplicate Selected">
             <Copy className="w-4 h-4" /> Duplicate
           </button>
-          <button onClick={() => {}} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Export Selected" id="export-selected-btn">
+          <button onClick={() => exportSelectedNodes(selectedNodeIds)} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Export Selected" id="export-selected-btn">
             <Download className="w-4 h-4" /> Export
           </button>
           <div className="w-px h-5 bg-slate-200"></div>
