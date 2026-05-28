@@ -1686,23 +1686,44 @@ export default function WorkflowApp() {
       try {
         const importedData = JSON.parse(event.target.result);
         if (importedData.type === 'nexus-full-backup' && Array.isArray(importedData.projects)) {
+          // Validate each project has required structure
+          const isValid = importedData.projects.every(p =>
+            p && typeof p.id === 'string' && Array.isArray(p.workspaces)
+          );
+          if (!isValid) {
+            setErrorMessage("Backup file contains invalid project data.");
+            e.target.value = null;
+            return;
+          }
+
           if (!window.confirm('This will replace all existing data. Continue?')) {
             e.target.value = null;
             return;
           }
-          const restoredProjects = importedData.projects;
-          const restoredDefault = importedData.defaultProjectId || restoredProjects[0]?.id;
-          setProjects(restoredProjects);
-          setDefaultProjectId(restoredDefault);
-          setActiveProjectId(restoredDefault);
-          localStorage.setItem('nexus-app-state', JSON.stringify(restoredProjects));
-          localStorage.setItem('nexus-active-project', restoredDefault);
-          localStorage.setItem('nexus-default-project', restoredDefault);
-          const defaultProj = restoredProjects.find(p => p.id === restoredDefault) || restoredProjects[0];
-          if (defaultProj) {
-            setWorkspaces(defaultProj.workspaces || []);
-            setActiveTab(defaultProj.activeTab || defaultProj.workspaces?.[0]?.id || '');
-            setNextId(defaultProj.nextId || 10);
+
+          // Save current state for rollback
+          const previousProjects = projects;
+
+          try {
+            const restoredProjects = importedData.projects;
+            const restoredDefault = importedData.defaultProjectId || restoredProjects[0]?.id;
+            setProjects(restoredProjects);
+            setDefaultProjectId(restoredDefault);
+            setActiveProjectId(restoredDefault);
+            localStorage.setItem('nexus-app-state', JSON.stringify(restoredProjects));
+            localStorage.setItem('nexus-active-project', restoredDefault);
+            localStorage.setItem('nexus-default-project', restoredDefault);
+            const defaultProj = restoredProjects.find(p => p.id === restoredDefault) || restoredProjects[0];
+            if (defaultProj) {
+              setWorkspaces(defaultProj.workspaces || []);
+              setActiveTab(defaultProj.activeTab || defaultProj.workspaces?.[0]?.id || '');
+              setNextId(defaultProj.nextId || 10);
+            }
+          } catch (restoreErr) {
+            // Rollback to previous state
+            setProjects(previousProjects);
+            localStorage.setItem('nexus-app-state', JSON.stringify(previousProjects));
+            setErrorMessage("Import failed. Previous data has been restored.");
           }
         } else {
           setErrorMessage("Invalid backup file format.");
@@ -1831,11 +1852,13 @@ export default function WorkflowApp() {
       cloneSourceId: null
     }));
 
-    const newEdges = importedEdges.map(e => ({
-      id: `e-${currentId++}`,
-      source: nodeIdMap[e.source] || e.source,
-      target: nodeIdMap[e.target] || e.target
-    }));
+    const newEdges = importedEdges
+      .filter(e => nodeIdMap[e.source] && nodeIdMap[e.target])
+      .map(e => ({
+        id: `e-${currentId++}`,
+        source: nodeIdMap[e.source],
+        target: nodeIdMap[e.target]
+      }));
 
     const newGroups = importedGroups.map(g => ({
       ...g,
