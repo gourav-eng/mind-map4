@@ -319,6 +319,7 @@ export default function WorkflowApp() {
 
   const fileInputRef = useRef(null);
   const fullBackupInputRef = useRef(null);
+  const partialImportInputRef = useRef(null);
 
   // --- History (Undo/Redo) States ---
   const pastRef = useRef([]);
@@ -338,6 +339,11 @@ export default function WorkflowApp() {
   const [selectedNodeIds, setSelectedNodeIds] = useState([]);
   const [selectionBox, setSelectionBox] = useState(null);
   const [isMultiSelecting, setIsMultiSelecting] = useState(false);
+
+  // --- Partial Import States ---
+  const [partialImportData, setPartialImportData] = useState(null);
+  const [showPartialImportDialog, setShowPartialImportDialog] = useState(false);
+  const [partialImportPlacement, setPartialImportPlacement] = useState('center');
 
 
   // --- Dual Viewport Engine ---
@@ -1707,6 +1713,152 @@ export default function WorkflowApp() {
     };
     reader.readAsText(file);
     e.target.value = null;
+  };
+
+  // --- Partial Import ---
+  const handlePartialImportFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (data.type !== 'nexus-partial-export' || !data.nodes || !Array.isArray(data.nodes)) {
+          setErrorMessage("Invalid partial export file format.");
+          return;
+        }
+        setPartialImportData(data);
+        setPartialImportPlacement('center');
+        setShowPartialImportDialog(true);
+      } catch (err) {
+        setErrorMessage("Failed to read partial export file.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = null;
+  };
+
+  const executePartialImport = () => {
+    if (!partialImportData) return;
+    takeSnapshot();
+
+    const importedNodes = partialImportData.nodes || [];
+    const importedEdges = partialImportData.edges || [];
+    const importedGroups = partialImportData.groups || [];
+
+    if (importedNodes.length === 0) {
+      setErrorMessage("No nodes to import.");
+      setShowPartialImportDialog(false);
+      setPartialImportData(null);
+      return;
+    }
+
+    // Calculate bounding box of imported content
+    const minX = Math.min(...importedNodes.map(n => n.x));
+    const minY = Math.min(...importedNodes.map(n => n.y));
+
+    // Calculate target position based on placement
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (partialImportPlacement === 'center') {
+      if (workspaceRef.current) {
+        const rect = workspaceRef.current.getBoundingClientRect();
+        const centerX = (rect.width / 2 - transform.x) / transform.scale;
+        const centerY = (rect.height / 2 - transform.y) / transform.scale;
+        offsetX = centerX - minX - 170;
+        offsetY = centerY - minY - 80;
+      }
+    } else if (partialImportPlacement === 'inside-selected' && focusedNodeId) {
+      const targetNode = nodes.find(n => n.id === focusedNodeId);
+      if (targetNode) {
+        offsetX = targetNode.x - minX;
+        offsetY = targetNode.y + 200 - minY;
+      }
+    } else if (partialImportPlacement === 'left' && focusedNodeId) {
+      const targetNode = nodes.find(n => n.id === focusedNodeId);
+      if (targetNode) {
+        offsetX = targetNode.x - 400 - minX;
+        offsetY = targetNode.y - minY;
+      }
+    } else if (partialImportPlacement === 'right' && focusedNodeId) {
+      const targetNode = nodes.find(n => n.id === focusedNodeId);
+      if (targetNode) {
+        offsetX = targetNode.x + 400 - minX;
+        offsetY = targetNode.y - minY;
+      }
+    } else if (partialImportPlacement === 'top' && focusedNodeId) {
+      const targetNode = nodes.find(n => n.id === focusedNodeId);
+      if (targetNode) {
+        offsetX = targetNode.x - minX;
+        offsetY = targetNode.y - 250 - minY;
+      }
+    } else if (partialImportPlacement === 'bottom' && focusedNodeId) {
+      const targetNode = nodes.find(n => n.id === focusedNodeId);
+      if (targetNode) {
+        offsetX = targetNode.x - minX;
+        offsetY = targetNode.y + 250 - minY;
+      }
+    } else if (partialImportPlacement === 'separate-branch') {
+      const maxExistingX = nodes.length > 0 ? Math.max(...nodes.map(n => n.x)) : 0;
+      offsetX = maxExistingX + 500 - minX;
+      offsetY = -minY + 100;
+    }
+
+    // Generate new IDs and remap references
+    let currentId = nextId;
+    const nodeIdMap = {};
+    const groupIdMap = {};
+
+    importedGroups.forEach(g => {
+      const newId = `g-imported-${currentId}`;
+      groupIdMap[g.id] = newId;
+      currentId++;
+    });
+
+    importedNodes.forEach(n => {
+      const newId = currentId.toString();
+      nodeIdMap[n.id] = newId;
+      currentId++;
+    });
+
+    const newNodes = importedNodes.map(n => ({
+      ...n,
+      id: nodeIdMap[n.id],
+      x: n.x + offsetX,
+      y: n.y + offsetY,
+      groupId: n.groupId ? (groupIdMap[n.groupId] || null) : null,
+      cloneSourceId: null
+    }));
+
+    const newEdges = importedEdges.map(e => ({
+      id: `e-${currentId++}`,
+      source: nodeIdMap[e.source] || e.source,
+      target: nodeIdMap[e.target] || e.target
+    }));
+
+    const newGroups = importedGroups.map(g => ({
+      ...g,
+      id: groupIdMap[g.id],
+      x: g.x + offsetX,
+      y: g.y + offsetY,
+      parentGroupId: g.parentGroupId ? (groupIdMap[g.parentGroupId] || null) : null
+    }));
+
+    updateActiveWorkspace(ws => {
+      const updatedNodes = [...ws.nodes, ...newNodes];
+      const updatedGroups = [...ws.groups, ...newGroups];
+      return {
+        nodes: updatedNodes,
+        edges: [...ws.edges, ...newEdges],
+        groups: computeLayout(updatedGroups, updatedNodes)
+      };
+    });
+
+    setNextId(currentId);
+    setSelectedNodeIds(newNodes.map(n => n.id));
+    setShowPartialImportDialog(false);
+    setPartialImportData(null);
   };
 
 
@@ -3209,6 +3361,7 @@ export default function WorkflowApp() {
 
           <input type="file" accept=".json" ref={fileInputRef} onChange={handleImport} className="hidden" />
           <input type="file" accept=".json" ref={fullBackupInputRef} onChange={importAllData} className="hidden" />
+          <input type="file" accept=".json" ref={partialImportInputRef} onChange={handlePartialImportFile} className="hidden" />
           <button
             onClick={() => setShowMoreMenu(!showMoreMenu)}
             className="p-1.5 sm:p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
@@ -3250,6 +3403,9 @@ export default function WorkflowApp() {
               <button onClick={() => { fullBackupInputRef.current?.click(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                 <Upload className="w-4 h-4 mr-2.5 text-green-500" /> Import All Data
               </button>
+              <button onClick={() => { partialImportInputRef.current?.click(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                <ClipboardPaste className="w-4 h-4 mr-2.5 text-purple-500" /> Partial Import
+              </button>
             </div>
             </>
           )}
@@ -3279,6 +3435,11 @@ export default function WorkflowApp() {
                   </button>
                   <button onClick={exportData} className="flex-1 flex items-center justify-center px-3 py-2 hover:bg-slate-100 text-slate-600 text-sm font-medium rounded-lg border border-slate-200 transition-colors" title="Export Map JSON">
                     <Download className="w-4 h-4 mr-1.5" /> Export
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => partialImportInputRef.current?.click()} className="flex-1 flex items-center justify-center px-3 py-2 hover:bg-slate-100 text-slate-600 text-sm font-medium rounded-lg border border-slate-200 transition-colors" title="Partial Import (Insert into canvas)">
+                    <ClipboardPaste className="w-4 h-4 mr-1.5" /> Partial
                   </button>
                 </div>
                 <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-0.5">
@@ -4451,6 +4612,63 @@ export default function WorkflowApp() {
 
       {/* --- Secret Project Panel --- */}
       {showProjectPanel && renderProjectPanel(false)}
+
+      {/* --- Partial Import Placement Dialog --- */}
+      {showPartialImportDialog && partialImportData && (
+        <>
+          <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm" onClick={() => { setShowPartialImportDialog(false); setPartialImportData(null); }} />
+          <div className="fixed inset-0 z-[201] flex items-center justify-center pointer-events-none">
+            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md mx-4 pointer-events-auto">
+              <div className="flex items-center justify-between p-5 border-b border-slate-100">
+                <h2 className="text-lg font-bold text-slate-800">Import Partial Map</h2>
+                <button onClick={() => { setShowPartialImportDialog(false); setPartialImportData(null); }} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-5 space-y-4">
+                <div className="bg-slate-50 rounded-lg p-3 text-sm text-slate-600">
+                  <p className="font-medium text-slate-800 mb-1">Source: {partialImportData.metadata?.sourceWorkspace || 'Unknown'}</p>
+                  <p>{partialImportData.metadata?.nodeCount || 0} nodes, {partialImportData.metadata?.edgeCount || 0} connections</p>
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-slate-700 block mb-2">Placement</span>
+                  <div className="grid grid-cols-1 gap-2">
+                    {[
+                      { value: 'center', label: 'Add to center of canvas', always: true },
+                      { value: 'separate-branch', label: 'Add as separate branch (right side)', always: true },
+                      { value: 'inside-selected', label: 'Add below selected node', always: false },
+                      { value: 'left', label: 'Insert left of selected node', always: false },
+                      { value: 'right', label: 'Insert right of selected node', always: false },
+                      { value: 'top', label: 'Insert above selected node', always: false },
+                      { value: 'bottom', label: 'Insert below selected node', always: false },
+                    ].map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setPartialImportPlacement(opt.value)}
+                        disabled={!opt.always && !focusedNodeId}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all border ${
+                          partialImportPlacement === opt.value
+                            ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                            : !opt.always && !focusedNodeId
+                              ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed'
+                              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                        }`}
+                      >
+                        {opt.label}
+                        {!opt.always && !focusedNodeId && <span className="text-xs text-slate-400 ml-2">(select a node first)</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-100">
+                <button onClick={() => { setShowPartialImportDialog(false); setPartialImportData(null); }} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                <button onClick={executePartialImport} className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">Import</button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes dash { to { stroke-dashoffset: -14; } }
