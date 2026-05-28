@@ -654,10 +654,10 @@ export default function WorkflowApp() {
     setFocusedNodeId(null);
   }, [activeTab]);
 
-  // --- Secret Keyboard Shortcuts (Ctrl+Shift+P toggle, Ctrl+Shift+/ boss key, Escape dismiss) ---
+  // --- Secret Keyboard Shortcuts (Alt+Shift+X toggle, Ctrl+Shift+/ boss key, Escape dismiss) ---
   useEffect(() => {
     const handleSecretKey = (e) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+      if (e.altKey && e.shiftKey && e.key === 'X') {
         e.preventDefault();
         setShowProjectPanel(prev => {
           if (prev) return false;
@@ -2775,7 +2775,7 @@ export default function WorkflowApp() {
             {showSidebar ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeft className="w-5 h-5" />}
           </button>
           
-          <div className="p-2 sm:p-2.5 bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-lg sm:rounded-xl text-white shadow-md shadow-indigo-100 shrink-0 cursor-pointer select-none" onClick={handleLogoTap}>
+          <div className="p-2 sm:p-2.5 bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-lg sm:rounded-xl text-white shadow-md shadow-indigo-100 shrink-0">
             <Network className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
 
@@ -2955,7 +2955,7 @@ export default function WorkflowApp() {
 
             <div className="p-4 border-b border-slate-100">
               <span className="text-xs font-bold text-slate-400 tracking-wider uppercase block mb-3">Task Completion Stats</span>
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-3">
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-3 cursor-pointer select-none" onClick={handleLogoTap}>
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-xs font-bold text-slate-500">Progress</span>
                   <span className="text-sm font-bold text-indigo-600">{stats.progressPercent}%</span>
