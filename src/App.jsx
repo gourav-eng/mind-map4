@@ -334,6 +334,11 @@ export default function WorkflowApp() {
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
+  // --- Multi-Selection States ---
+  const [selectedNodeIds, setSelectedNodeIds] = useState([]);
+  const [selectionBox, setSelectionBox] = useState(null);
+  const [isMultiSelecting, setIsMultiSelecting] = useState(false);
+
 
   // --- Dual Viewport Engine ---
   const [viewMode, setViewMode] = useState('canvas');
@@ -1130,6 +1135,22 @@ export default function WorkflowApp() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [performUndo, performRedo, copyNode, cutNode, pasteNode, copyGroup, cutGroup, pasteGroup, focusedNodeId, focusedGroupId]);
 
+  // --- Escape key clears multi-selection ---
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape' && selectedNodeIds.length > 0) {
+        setSelectedNodeIds([]);
+      }
+    };
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => window.removeEventListener('keydown', handleEscapeKey);
+  }, [selectedNodeIds]);
+
+  // --- Clear selection on workspace tab change ---
+  useEffect(() => {
+    setSelectedNodeIds([]);
+  }, [activeTab]);
+
 
   // --- Workspace (Tab) Operations ---
   const addWorkspace = () => {
@@ -1756,13 +1777,36 @@ export default function WorkflowApp() {
 
     const isClickBg = e.target === workspaceRef.current || e.target.classList.contains('canvas-grid-clickable');
     if (isClickBg) {
-      setIsPanning(true);
-      setPanStart({ x: e.clientX - transform.x, y: e.clientY - transform.y });
+      if (e.ctrlKey || e.metaKey) {
+        const coords = getWorkspaceCoords(e);
+        setIsMultiSelecting(true);
+        setSelectionBox({ startX: coords.x, startY: coords.y, endX: coords.x, endY: coords.y });
+      } else {
+        setSelectedNodeIds([]);
+        setIsPanning(true);
+        setPanStart({ x: e.clientX - transform.x, y: e.clientY - transform.y });
+      }
     }
   };
 
 
   const handlePointerMove = useCallback((e) => {
+    if (isMultiSelecting && selectionBox) {
+      const coords = getWorkspaceCoords(e);
+      setSelectionBox(prev => prev ? { ...prev, endX: coords.x, endY: coords.y } : null);
+      const minX = Math.min(selectionBox.startX, coords.x);
+      const maxX = Math.max(selectionBox.startX, coords.x);
+      const minY = Math.min(selectionBox.startY, coords.y);
+      const maxY = Math.max(selectionBox.startY, coords.y);
+      const NODE_W = 340;
+      const NODE_H = 160;
+      const insideNodes = nodes.filter(n => {
+        const nx = n.x, ny = n.y;
+        return (nx + NODE_W > minX && nx < maxX && ny + NODE_H > minY && ny < maxY);
+      });
+      setSelectedNodeIds(insideNodes.map(n => n.id));
+      return;
+    }
     if (isPanning) {
       setTransform(prev => ({
         ...prev,
@@ -1831,10 +1875,15 @@ export default function WorkflowApp() {
       const coords = getWorkspaceCoords(e);
       setConnecting(prev => ({ ...prev, currentX: coords.x, currentY: coords.y }));
     }
-  }, [draggingNode, draggingGroup, resizingGroup, isPanning, panStart, transform.scale, getWorkspaceCoords, getSpatiallyHoveredGroup, getSpatiallyHoveredGroupForGroup, updateActiveWorkspace]);
+  }, [draggingNode, draggingGroup, resizingGroup, isPanning, panStart, transform.scale, getWorkspaceCoords, getSpatiallyHoveredGroup, getSpatiallyHoveredGroupForGroup, updateActiveWorkspace, isMultiSelecting, selectionBox, nodes]);
 
 
   const handlePointerUp = useCallback(() => {
+    if (isMultiSelecting) {
+      setIsMultiSelecting(false);
+      setSelectionBox(null);
+      return;
+    }
     if (draggingNode) {
       const movement = Math.hypot(
         draggingNode.currentX - draggingNode.initialX,
@@ -1952,7 +2001,7 @@ export default function WorkflowApp() {
     setConnecting(null);
     setIsPanning(false);
     dragSnapshot.current = null;
-  }, [draggingNode, draggingGroup, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory]);
+  }, [draggingNode, draggingGroup, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory, isMultiSelecting]);
 
 
   // --- Node, Edge, and Group Creators ---
@@ -3569,7 +3618,7 @@ export default function WorkflowApp() {
                     isDragging ? 'shadow-2xl scale-[1.03] ring-2 ring-indigo-500' : 'transition-all duration-150 shadow-md'
                   } ${dragOverNodeId === node.id ? 'ring-4 ring-indigo-400 ring-opacity-50 scale-[1.02]' : ''} ${
                     isFocused ? 'ring-4 ring-indigo-500 animate-[pulse_1.5s_infinite]' : ''
-                  }`}
+                  } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
@@ -3629,6 +3678,13 @@ export default function WorkflowApp() {
                     onPointerDown={(e) => {
                       e.stopPropagation();
                       if (e.target.tagName === 'INPUT' || e.target.closest('button') || e.target.closest('select')) return;
+                      if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        setSelectedNodeIds(prev => 
+                          prev.includes(node.id) ? prev.filter(id => id !== node.id) : [...prev, node.id]
+                        );
+                        return;
+                      }
                       nodeTapRef.current = { id: node.id, startX: e.clientX, startY: e.clientY, time: Date.now(), pointerType: e.pointerType };
                       dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
                       bringToFront(node.id);
@@ -3809,6 +3865,19 @@ export default function WorkflowApp() {
                 </div>
               );
             })}
+
+            {/* --- Selection Box --- */}
+            {selectionBox && (
+              <div
+                className="absolute border-2 border-blue-500 bg-blue-500/10 rounded-sm pointer-events-none z-[60]"
+                style={{
+                  left: Math.min(selectionBox.startX, selectionBox.endX),
+                  top: Math.min(selectionBox.startY, selectionBox.endY),
+                  width: Math.abs(selectionBox.endX - selectionBox.startX),
+                  height: Math.abs(selectionBox.endY - selectionBox.startY),
+                }}
+              />
+            )}
           </div>
 
 
@@ -4297,6 +4366,27 @@ export default function WorkflowApp() {
           </div>
         );
       })()}
+
+      {/* --- Multi-Select Floating Action Bar --- */}
+      {selectedNodeIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-xl border border-slate-200">
+          <span className="text-sm font-semibold text-slate-600">{selectedNodeIds.length} selected</span>
+          <div className="w-px h-5 bg-slate-200"></div>
+          <button onClick={() => { takeSnapshot(); updateActiveWorkspace(ws => { const filtered = ws.nodes.filter(n => !selectedNodeIds.includes(n.id)); return { nodes: filtered, edges: ws.edges.filter(e => !selectedNodeIds.includes(e.source) && !selectedNodeIds.includes(e.target)), groups: computeLayout(ws.groups, filtered) }; }); setSelectedNodeIds([]); }} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Selected">
+            <Trash2 className="w-4 h-4" /> Delete
+          </button>
+          <button onClick={() => { takeSnapshot(); const selectedNodes = nodes.filter(n => selectedNodeIds.includes(n.id)); const selectedEdges = edges.filter(e => selectedNodeIds.includes(e.source) && selectedNodeIds.includes(e.target)); let currentId = nextId; const idMap = {}; const newNodes = selectedNodes.map(n => { const newId = currentId.toString(); idMap[n.id] = newId; currentId++; return { ...n, id: newId, x: n.x + 40, y: n.y + 40, cloneSourceId: null }; }); const newEdges = selectedEdges.map(e => ({ id: `e-${currentId++}`, source: idMap[e.source], target: idMap[e.target] })); updateActiveWorkspace(ws => { const updatedNodes = [...ws.nodes, ...newNodes]; return { nodes: updatedNodes, edges: [...ws.edges, ...newEdges], groups: computeLayout(ws.groups, updatedNodes) }; }); setNextId(currentId); setSelectedNodeIds(newNodes.map(n => n.id)); }} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Duplicate Selected">
+            <Copy className="w-4 h-4" /> Duplicate
+          </button>
+          <button onClick={() => {}} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Export Selected" id="export-selected-btn">
+            <Download className="w-4 h-4" /> Export
+          </button>
+          <div className="w-px h-5 bg-slate-200"></div>
+          <button onClick={() => setSelectedNodeIds([])} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="Clear Selection">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* --- Secret Project Panel --- */}
       {showProjectPanel && renderProjectPanel(false)}
