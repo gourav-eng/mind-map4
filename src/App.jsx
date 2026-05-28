@@ -1344,7 +1344,10 @@ export default function WorkflowApp() {
     if (!existing) return;
 
     let newPass = existing.password;
-    if (projectPasswordEnabled && projectPasswordInput.trim()) {
+    if (editingProjectId === defaultProjectId) {
+      // Default project cannot be password-protected
+      newPass = '';
+    } else if (projectPasswordEnabled && projectPasswordInput.trim()) {
       newPass = await hashPassword(projectPasswordInput.trim());
     } else if (!projectPasswordEnabled) {
       newPass = '';
@@ -1356,6 +1359,19 @@ export default function WorkflowApp() {
         : p
       );
       localStorage.setItem('nexus-app-state', JSON.stringify(updated));
+
+      // Handle default toggle inside updater to avoid stale reference
+      if (projectDefaultToggle) {
+        setDefaultProjectId(editingProjectId);
+        localStorage.setItem('nexus-default-project', editingProjectId);
+      } else if (defaultProjectId === editingProjectId) {
+        // Find fallback: first project in prev that is not the one being edited
+        const fallback = prev.find(p => p.id !== editingProjectId);
+        const fallbackId = fallback ? fallback.id : prev[0].id;
+        setDefaultProjectId(fallbackId);
+        localStorage.setItem('nexus-default-project', fallbackId);
+      }
+
       return updated;
     });
 
@@ -1363,17 +1379,6 @@ export default function WorkflowApp() {
     if (editingProjectId === activeProjectId) {
       setStoredPassword(newPass);
       setPasswordEnabled(!!newPass);
-    }
-
-    // Handle default toggle
-    if (projectDefaultToggle) {
-      setDefaultProjectId(editingProjectId);
-      localStorage.setItem('nexus-default-project', editingProjectId);
-    } else if (defaultProjectId === editingProjectId) {
-      // If we're un-toggling default from this project, set default to projects[0]
-      const fallbackId = projects[0].id;
-      setDefaultProjectId(fallbackId);
-      localStorage.setItem('nexus-default-project', fallbackId);
     }
 
     setProjectError('');
@@ -2753,7 +2758,7 @@ export default function WorkflowApp() {
                   </button>
                 </div>
               </div>
-              <div className="p-5 overflow-y-auto custom-scrollbar">
+              <div className="p-5 overflow-y-auto custom-scrollbar" onClick={() => setCardMenuOpenId(null)}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {projects.map(p => {
                     const isDefProj = p.id === defaultProjectId;
@@ -2834,9 +2839,13 @@ export default function WorkflowApp() {
                 <div>
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-slate-700">Password Protection</label>
-                    <button onClick={() => setProjectPasswordEnabled(!projectPasswordEnabled)} className={`relative w-10 h-5 rounded-full transition-colors ${projectPasswordEnabled ? 'bg-indigo-600' : 'bg-slate-200'}`}><span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${projectPasswordEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} /></button>
+                    {projectPanelMode === 'edit' && editingProjectId === defaultProjectId ? (
+                      <span className="text-xs text-slate-400 italic">Default workspace cannot be password-protected</span>
+                    ) : (
+                      <button onClick={() => setProjectPasswordEnabled(!projectPasswordEnabled)} className={`relative w-10 h-5 rounded-full transition-colors ${projectPasswordEnabled ? 'bg-indigo-600' : 'bg-slate-200'}`}><span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${projectPasswordEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} /></button>
+                    )}
                   </div>
-                  {projectPasswordEnabled && (<input type="password" value={projectPasswordInput} onChange={(e) => setProjectPasswordInput(e.target.value)} placeholder={projectPanelMode === 'edit' ? 'New password (leave empty to keep current)' : 'Enter password'} className="w-full mt-2 px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />)}
+                  {projectPasswordEnabled && !(projectPanelMode === 'edit' && editingProjectId === defaultProjectId) && (<input type="password" value={projectPasswordInput} onChange={(e) => setProjectPasswordInput(e.target.value)} placeholder={projectPanelMode === 'edit' ? 'New password (leave empty to keep current)' : 'Enter password'} className="w-full mt-2 px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />)}
                 </div>
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium text-slate-700">Set as Default Workspace</label>
