@@ -6,8 +6,9 @@ import {
   Sparkles, CheckSquare, Clock, AlertCircle, BarChart2, PanelLeftClose, PanelLeft,
   Grid, Move, Copy, ArrowUp, ArrowDown, RefreshCw, LayoutList, MonitorSpeaker,
   MoreVertical, ImageIcon, ChevronUp, Scissors, ClipboardPaste, Minimize2, Maximize2,
-  Lock, Shield, Eye, EyeOff, GitBranch
+  Lock, Shield, Eye, EyeOff, GitBranch, Map
 } from 'lucide-react';
+import MiniMap from './MiniMap';
 
 // --- Premium Color Themes ---
 const THEMES = {
@@ -335,6 +336,10 @@ export default function WorkflowApp() {
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
+  // --- Mini Map States ---
+  const [showMiniMap, setShowMiniMap] = useState(false);
+  const [miniMapOpenedViaShortcut, setMiniMapOpenedViaShortcut] = useState(false);
 
   // --- Multi-Selection States ---
   const [selectedNodeIds, setSelectedNodeIds] = useState([]);
@@ -1153,6 +1158,23 @@ export default function WorkflowApp() {
     window.addEventListener('keydown', handleEscapeKey);
     return () => window.removeEventListener('keydown', handleEscapeKey);
   }, [selectedNodeIds]);
+
+  // --- M key toggles mini map ---
+  useEffect(() => {
+    const handleMiniMapKey = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'm' || e.key === 'M') {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        setShowMiniMap(prev => {
+          const next = !prev;
+          setMiniMapOpenedViaShortcut(next);
+          return next;
+        });
+      }
+    };
+    window.addEventListener('keydown', handleMiniMapKey);
+    return () => window.removeEventListener('keydown', handleMiniMapKey);
+  }, []);
 
   // --- Arrow key movement for selected nodes ---
   useEffect(() => {
@@ -4172,6 +4194,17 @@ export default function WorkflowApp() {
           </div>
 
 
+          {/* --- Mini Map Panel --- */}
+          <MiniMap
+            nodes={nodes}
+            groups={groups}
+            transform={transform}
+            setTransform={setTransform}
+            workspaceRef={workspaceRef}
+            visible={showMiniMap}
+            openedViaShortcut={miniMapOpenedViaShortcut}
+          />
+
           {/* --- Bottom-Right Floating Zoom and Guides --- */}
           <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-center gap-2 sm:gap-3 z-50">
             <div className="hidden sm:flex bg-white rounded-lg shadow-lg border border-slate-200 px-3.5 py-2.5 text-xs text-slate-500 font-medium items-center gap-2 max-w-sm">
@@ -4185,6 +4218,8 @@ export default function WorkflowApp() {
               <button onClick={() => setTransform({x:0, y:0, scale:1})} className="p-1.5 sm:p-2 hover:bg-slate-100 text-slate-600 rounded-md transition-colors" title="Reset View"><Focus className="w-4 h-4 sm:w-5 sm:h-5"/></button>
               <div className="w-full h-[1px] bg-slate-200 my-0.5 sm:my-1" />
               <button onClick={() => handleZoom(-0.25)} className="p-1.5 sm:p-2 hover:bg-slate-100 text-slate-600 rounded-md transition-colors" title="Zoom Out"><ZoomOut className="w-4 h-4 sm:w-5 sm:h-5"/></button>
+              <div className="w-full h-[1px] bg-slate-200 my-0.5 sm:my-1" />
+              <button onClick={() => { setShowMiniMap(prev => !prev); setMiniMapOpenedViaShortcut(false); }} className={`p-1.5 sm:p-2 hover:bg-slate-100 rounded-md transition-colors ${showMiniMap ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600'}`} title="Toggle Mini Map (M)"><Map className="w-4 h-4 sm:w-5 sm:h-5"/></button>
             </div>
           </div>
 
