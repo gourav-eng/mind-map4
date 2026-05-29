@@ -329,6 +329,7 @@ export default function WorkflowApp() {
   
   const stateRef = useRef({ workspaces: defaultWorkspaces, activeTab: 'ws-1', nextId: 10 });
   const dragSnapshot = useRef(null);
+  const draggingNodeRef = useRef(null);
 
   // --- Pan & Zoom States ---
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -1936,15 +1937,16 @@ export default function WorkflowApp() {
 
   const getLiveCoordinates = useCallback((item, isGroup) => {
     if (!isGroup) {
-      if (draggingNode && draggingNode.id === item.id) {
-        return { x: draggingNode.currentX, y: draggingNode.currentY };
+      const dragRef = draggingNodeRef.current;
+      if (dragRef && dragRef.id === item.id) {
+        return { x: dragRef.currentX, y: dragRef.currentY };
       }
       // Multi-drag: move other selected nodes by the same delta as the dragged node
-      if (draggingNode && multiDragStartRef.current && multiDragStartRef.current.nodeId === draggingNode.id) {
+      if (dragRef && multiDragStartRef.current && multiDragStartRef.current.nodeId === dragRef.id) {
         const initPositions = multiDragStartRef.current.initialPositions;
-        if (initPositions[item.id] && item.id !== draggingNode.id) {
-          const dx = draggingNode.currentX - draggingNode.initialX;
-          const dy = draggingNode.currentY - draggingNode.initialY;
+        if (initPositions[item.id] && item.id !== dragRef.id) {
+          const dx = dragRef.currentX - dragRef.initialX;
+          const dy = dragRef.currentY - dragRef.initialY;
           return { x: initPositions[item.id].x + dx, y: initPositions[item.id].y + dy };
         }
       }
@@ -1957,7 +1959,7 @@ export default function WorkflowApp() {
       const offset = getLiveOffset(item, 'parentGroupId');
       return { x: item.x + offset.dx, y: item.y + offset.dy };
     }
-  }, [draggingNode, draggingGroup, getLiveOffset]);
+  }, [draggingGroup, getLiveOffset]);
 
   // --- Helper: Node Group Intersection Checker ---
   const getSpatiallyHoveredGroup = useCallback((nodeX, nodeY) => {
@@ -2091,6 +2093,12 @@ export default function WorkflowApp() {
       const newX = draggingNode.initialX + dx;
       const newY = draggingNode.initialY + dy;
 
+      draggingNodeRef.current = {
+        ...draggingNodeRef.current,
+        currentX: newX,
+        currentY: newY
+      };
+
       setDraggingNode(prev => ({
         ...prev,
         currentX: newX,
@@ -2156,9 +2164,10 @@ export default function WorkflowApp() {
       return;
     }
     if (draggingNode) {
+      const dragRef = draggingNodeRef.current || draggingNode;
       const movement = Math.hypot(
-        draggingNode.currentX - draggingNode.initialX,
-        draggingNode.currentY - draggingNode.initialY
+        dragRef.currentX - dragRef.initialX,
+        dragRef.currentY - dragRef.initialY
       );
 
       if (movement >= 5) {
@@ -2168,8 +2177,8 @@ export default function WorkflowApp() {
         updateActiveWorkspace(ws => {
           if (isMultiDrag) {
             // Multi-node drag: move all selected nodes by the same delta
-            const dx = draggingNode.currentX - draggingNode.initialX;
-            const dy = draggingNode.currentY - draggingNode.initialY;
+            const dx = dragRef.currentX - dragRef.initialX;
+            const dy = dragRef.currentY - dragRef.initialY;
             const initPositions = multiDragStartRef.current.initialPositions;
 
             const updatedNodes = ws.nodes.map(n => {
@@ -2197,8 +2206,8 @@ export default function WorkflowApp() {
               const originalGroup = ws.groups.find(g => g.id === originalNode.groupId);
               if (originalGroup) {
                 const NODE_WIDTH_VAL = 340;
-                const nodeCenterX = draggingNode.currentX + NODE_WIDTH_VAL / 2;
-                const nodeCenterY = draggingNode.currentY + 80;
+                const nodeCenterX = dragRef.currentX + NODE_WIDTH_VAL / 2;
+                const nodeCenterY = dragRef.currentY + 80;
                 const gW = originalGroup.width || 440;
                 const gH = originalGroup.height || 420;
 
@@ -2215,7 +2224,7 @@ export default function WorkflowApp() {
           }
 
           const updatedNodes = ws.nodes.map(n => n.id === draggingNode.id 
-            ? { ...n, x: draggingNode.currentX, y: draggingNode.currentY, groupId: resolvedGroupId } 
+            ? { ...n, x: dragRef.currentX, y: dragRef.currentY, groupId: resolvedGroupId } 
             : n);
 
           return {
@@ -2286,6 +2295,7 @@ export default function WorkflowApp() {
     }
 
     setDraggingNode(null);
+    draggingNodeRef.current = null;
     setDraggingGroup(null);
     setResizingGroup(null);
     setDragHoveredGroupId(null);
@@ -4009,6 +4019,15 @@ export default function WorkflowApp() {
                         currentX: node.x,
                         currentY: node.y
                       });
+                      draggingNodeRef.current = {
+                        id: node.id,
+                        startX: e.clientX,
+                        startY: e.clientY,
+                        initialX: node.x,
+                        initialY: node.y,
+                        currentX: node.x,
+                        currentY: node.y
+                      };
                     }}
                     onPointerUp={(e) => {
                       if (nodeTapRef.current && nodeTapRef.current.id === node.id && nodeTapRef.current.pointerType === 'touch') {
