@@ -1458,13 +1458,12 @@ export default function WorkflowApp() {
 
   // Export all projects as a full backup
   const exportAllData = () => {
-    const strippedProjects = projects.map(p => ({ ...p, password: '' }));
     const backupData = {
       type: 'nexus-full-backup',
       version: 1,
       exportDate: new Date().toISOString(),
       defaultProjectId,
-      projects: strippedProjects
+      projects
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
