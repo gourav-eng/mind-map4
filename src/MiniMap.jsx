@@ -155,6 +155,9 @@ export default function MiniMap({
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
 
+    // Deselect viewport frame when clicking the background
+    setFrameSelected(false);
+
     setTransform(prev => ({
       ...prev,
       x: containerWidth / 2 - worldPoint.x * prev.scale,
@@ -168,7 +171,7 @@ export default function MiniMap({
     setIsDraggingFrame(true);
     setFrameSelected(true);
     const currentTransform = transformRef.current;
-    dragStartRef.current = { x: e.clientX, y: e.clientY, tx: currentTransform.x, ty: currentTransform.y };
+    dragStartRef.current = { x: e.clientX, y: e.clientY, tx: currentTransform.x, ty: currentTransform.y, scale: currentTransform.scale };
   }, []);
 
   useEffect(() => {
@@ -193,8 +196,8 @@ export default function MiniMap({
       const currentTransform = transformRef.current;
       setTransform({
         ...currentTransform,
-        x: dragStartRef.current.tx - worldDx * currentTransform.scale,
-        y: dragStartRef.current.ty - worldDy * currentTransform.scale,
+        x: dragStartRef.current.tx - worldDx * dragStartRef.current.scale,
+        y: dragStartRef.current.ty - worldDy * dragStartRef.current.scale,
       });
     };
 
@@ -251,6 +254,7 @@ export default function MiniMap({
       if (!arrowKeys.includes(e.key)) return;
 
       e.preventDefault();
+      e.stopImmediatePropagation();
       setIsNavigatingWithKeys(true);
 
       setTransform(prev => {
@@ -273,6 +277,13 @@ export default function MiniMap({
       setIsNavigatingWithKeys(false);
     }
   }, [isHovered]);
+
+  // Reset frameSelected when minimap is closed
+  useEffect(() => {
+    if (!visible) {
+      setFrameSelected(false);
+    }
+  }, [visible]);
 
   if (!visible) return null;
 
