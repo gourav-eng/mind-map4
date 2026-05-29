@@ -18,6 +18,12 @@ const MAX_HEIGHT = 300;
 const PADDING = 40;
 const ARROW_STEP = 50;
 
+// Node dimensions used in the minimap rendering
+const NODE_EXPANDED_WIDTH = 260;
+const NODE_COLLAPSED_WIDTH = 200;
+const NODE_EXPANDED_HEIGHT = 120;
+const NODE_COLLAPSED_HEIGHT = 40;
+
 export default function MiniMap({
   nodes,
   groups,
@@ -25,7 +31,6 @@ export default function MiniMap({
   setTransform,
   workspaceRef,
   visible,
-  onClose,
   openedViaShortcut,
 }) {
   const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
@@ -38,6 +43,12 @@ export default function MiniMap({
   const dragStartRef = useRef(null);
   const resizeStartRef = useRef(null);
   const containerRef = useRef(null);
+  const transformRef = useRef(transform);
+
+  // Keep transformRef in sync with the latest transform prop
+  useEffect(() => {
+    transformRef.current = transform;
+  }, [transform]);
 
   // Calculate world bounding box from all nodes and groups
   const getWorldBounds = useCallback(() => {
@@ -46,8 +57,8 @@ export default function MiniMap({
 
     nodes.forEach(node => {
       hasContent = true;
-      const w = node.expanded !== false ? 260 : 200;
-      const h = node.expanded !== false ? 120 : 40;
+      const w = node.expanded !== false ? NODE_EXPANDED_WIDTH : NODE_COLLAPSED_WIDTH;
+      const h = node.expanded !== false ? NODE_EXPANDED_HEIGHT : NODE_COLLAPSED_HEIGHT;
       minX = Math.min(minX, node.x);
       minY = Math.min(minY, node.y);
       maxX = Math.max(maxX, node.x + w);
@@ -156,8 +167,9 @@ export default function MiniMap({
     e.stopPropagation();
     setIsDraggingFrame(true);
     setFrameSelected(true);
-    dragStartRef.current = { x: e.clientX, y: e.clientY, tx: transform.x, ty: transform.y };
-  }, [transform]);
+    const currentTransform = transformRef.current;
+    dragStartRef.current = { x: e.clientX, y: e.clientY, tx: currentTransform.x, ty: currentTransform.y };
+  }, []);
 
   useEffect(() => {
     if (!isDraggingFrame) return;
@@ -178,10 +190,11 @@ export default function MiniMap({
       const worldDx = dx / mmScale;
       const worldDy = dy / mmScale;
 
+      const currentTransform = transformRef.current;
       setTransform({
-        ...transform,
-        x: dragStartRef.current.tx - worldDx * transform.scale,
-        y: dragStartRef.current.ty - worldDy * transform.scale,
+        ...currentTransform,
+        x: dragStartRef.current.tx - worldDx * currentTransform.scale,
+        y: dragStartRef.current.ty - worldDy * currentTransform.scale,
       });
     };
 
@@ -195,7 +208,7 @@ export default function MiniMap({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDraggingFrame, transform, setTransform, getWorldBounds, panelWidth, panelHeight]);
+  }, [isDraggingFrame, setTransform, getWorldBounds, panelWidth, panelHeight]);
 
   // Resize handle
   const handleResizeMouseDown = useCallback((e) => {
@@ -310,8 +323,8 @@ export default function MiniMap({
 
       {/* Render nodes */}
       {nodes.map(node => {
-        const w = node.expanded !== false ? 260 : 200;
-        const h = node.expanded !== false ? 120 : 40;
+        const w = node.expanded !== false ? NODE_EXPANDED_WIDTH : NODE_COLLAPSED_WIDTH;
+        const h = node.expanded !== false ? NODE_EXPANDED_HEIGHT : NODE_COLLAPSED_HEIGHT;
         const pos = worldToMiniMap(node.x, node.y, bounds);
         const endPos = worldToMiniMap(node.x + w, node.y + h, bounds);
         const color = THEME_COLORS[node.theme] || THEME_COLORS.blue;

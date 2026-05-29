@@ -1180,6 +1180,8 @@ export default function WorkflowApp() {
   useEffect(() => {
     const handleArrowKeys = (e) => {
       if (selectedNodeIds.length === 0) return;
+      // Bail out when minimap arrow navigation is active
+      if (showMiniMap && miniMapOpenedViaShortcut) return;
       // Don't capture if user is typing in an input/textarea
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
       const STEP = 20;
@@ -1203,7 +1205,7 @@ export default function WorkflowApp() {
     };
     window.addEventListener('keydown', handleArrowKeys);
     return () => window.removeEventListener('keydown', handleArrowKeys);
-  }, [selectedNodeIds, takeSnapshot, updateActiveWorkspace]);
+  }, [selectedNodeIds, takeSnapshot, updateActiveWorkspace, showMiniMap, miniMapOpenedViaShortcut]);
 
   // --- Clear selection on workspace tab change ---
   useEffect(() => {
@@ -4202,7 +4204,6 @@ export default function WorkflowApp() {
             setTransform={setTransform}
             workspaceRef={workspaceRef}
             visible={showMiniMap}
-            onClose={() => setShowMiniMap(false)}
             openedViaShortcut={miniMapOpenedViaShortcut}
           />
 
