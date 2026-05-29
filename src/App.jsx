@@ -340,7 +340,7 @@ export default function WorkflowApp() {
   const [selectedNodeIds, setSelectedNodeIds] = useState([]);
   const [selectionBox, setSelectionBox] = useState(null);
   const [isMultiSelecting, setIsMultiSelecting] = useState(false);
-  const multiDragStartRef = useRef(null); // { nodeId, initialPositions: { [id]: {x, y} } }
+
 
   // --- Partial Import States ---
   const [partialImportData, setPartialImportData] = useState(null);
@@ -1941,15 +1941,7 @@ export default function WorkflowApp() {
       if (dragRef && dragRef.id === item.id) {
         return { x: dragRef.currentX, y: dragRef.currentY };
       }
-      // Multi-drag: move other selected nodes by the same delta as the dragged node
-      if (dragRef && multiDragStartRef.current && multiDragStartRef.current.nodeId === dragRef.id) {
-        const initPositions = multiDragStartRef.current.initialPositions;
-        if (initPositions[item.id] && item.id !== dragRef.id) {
-          const dx = dragRef.currentX - dragRef.initialX;
-          const dy = dragRef.currentY - dragRef.initialY;
-          return { x: initPositions[item.id].x + dx, y: initPositions[item.id].y + dy };
-        }
-      }
+
       const offset = getLiveOffset(item, 'groupId');
       return { x: item.x + offset.dx, y: item.y + offset.dy };
     } else {
@@ -2172,28 +2164,8 @@ export default function WorkflowApp() {
 
       if (movement >= 5) {
         const finalGroupAdoptId = dragHoveredGroupId;
-        const isMultiDrag = multiDragStartRef.current && multiDragStartRef.current.nodeId === draggingNode.id;
 
         updateActiveWorkspace(ws => {
-          if (isMultiDrag) {
-            // Multi-node drag: move all selected nodes by the same delta
-            const dx = dragRef.currentX - dragRef.initialX;
-            const dy = dragRef.currentY - dragRef.initialY;
-            const initPositions = multiDragStartRef.current.initialPositions;
-
-            const updatedNodes = ws.nodes.map(n => {
-              if (initPositions[n.id]) {
-                return { ...n, x: initPositions[n.id].x + dx, y: initPositions[n.id].y + dy };
-              }
-              return n;
-            });
-
-            return {
-              nodes: updatedNodes,
-              groups: computeLayout(ws.groups, updatedNodes)
-            };
-          }
-
           let resolvedGroupId = finalGroupAdoptId;
 
           // For micro-drags (< 15px), preserve original groupId
@@ -2302,7 +2274,6 @@ export default function WorkflowApp() {
     setConnecting(null);
     setIsPanning(false);
     dragSnapshot.current = null;
-    multiDragStartRef.current = null;
   }, [draggingNode, draggingGroup, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory, isMultiSelecting]);
 
 
@@ -3915,7 +3886,6 @@ export default function WorkflowApp() {
 
               const theme = THEMES[node.theme] || THEMES.amber;
               const isDragging = draggingNode?.id === node.id;
-              const isMultiDragging = !isDragging && draggingNode && multiDragStartRef.current && multiDragStartRef.current.initialPositions[node.id];
               
               const coords = getLiveCoordinates(node, false);
               const displayX = coords.x;
@@ -3927,7 +3897,7 @@ export default function WorkflowApp() {
                 <div
                   key={node.id}
                   className={`absolute rounded-xl border w-[${NODE_WIDTH}px] flex flex-col pointer-events-auto bg-white/95 backdrop-blur-sm ${theme.wrapper} ${
-                    isDragging || isMultiDragging ? 'shadow-2xl scale-[1.03] ring-2 ring-indigo-500' : 'transition-all duration-150 shadow-md'
+                    isDragging ? 'shadow-2xl scale-[1.03] ring-2 ring-indigo-500' : 'transition-all duration-150 shadow-md'
                   } ${dragOverNodeId === node.id ? 'ring-4 ring-indigo-400 ring-opacity-50 scale-[1.02]' : ''} ${
                     isFocused ? 'ring-4 ring-indigo-500 animate-[pulse_1.5s_infinite]' : ''
                   } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
@@ -4000,16 +3970,6 @@ export default function WorkflowApp() {
                       nodeTapRef.current = { id: node.id, startX: e.clientX, startY: e.clientY, time: Date.now(), pointerType: e.pointerType };
                       dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
                       bringToFront(node.id);
-                      // If dragging a node that is part of multi-selection, track all selected nodes
-                      if (selectedNodeIds.includes(node.id) && selectedNodeIds.length > 1) {
-                        const initialPositions = {};
-                        nodes.filter(n => selectedNodeIds.includes(n.id)).forEach(n => {
-                          initialPositions[n.id] = { x: n.x, y: n.y };
-                        });
-                        multiDragStartRef.current = { nodeId: node.id, initialPositions };
-                      } else {
-                        multiDragStartRef.current = null;
-                      }
                       setDraggingNode({ 
                         id: node.id, 
                         startX: e.clientX, 
