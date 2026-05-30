@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-001",
+  "type": "refactor",
+  "description": "Create the new component structure and state store, extracting from the monolithic App.jsx. Set up the new data model with simplified themes (4 colors), simplified node/group fields, and a centralized store using React Context + useReducer.",
+  "status": "in_progress",
+  "steps": [
+    "Create src/store.js with React Context + useReducer pattern. Define the state shape: workspaces (array), activeTab, nextId, transform, history (past/future). Define actions: ADD_NODE, UPDATE_NODE, DELETE_NODE, ADD_EDGE, REMOVE_EDGE, ADD_GROUP, UPDATE_GROUP, DELETE_GROUP, SET_TRANSFORM, UNDO, REDO, SET_ACTIVE_TAB, ADD_WORKSPACE, DELETE_WORKSPACE, RENAME_WORKSPACE, IMPORT_DATA, SET_WORKSPACES. Export WorkspaceProvider and useWorkspace hook.",
+    "Define simplified THEMES in store.js with only 4 colors: blue (default, line:#3b82f6), amber (line:#f59e0b), green (line:#10b981), purple (line:#8b5cf6). Each theme needs: name, line (hex for SVG), border (tailwind border class for left accent). Remove emerald and rose.",
+    "Define simplified node model in store.js: { id, x, y, title, content, theme, groupId, cloneSourceId, expanded }. No status, priority, nodeType, image fields.",
+    "Define simplified group model: { id, name, x, y, width, height, theme }. No parentGroupId, expanded, manualWidth, manualHeight.",
+    "Create src/hooks/useHistory.js - extract undo/redo logic from App.jsx's pastRef/futureRef pattern into a reusable hook that works with the store dispatch.",
+    "Create src/hooks/useCanvasInteractions.js - extract pan (isPanning, panStart, pointer events), zoom (handleWheel, pinch-to-zoom via touchRef), and selection box (marquee) logic. Export: transform, setTransform, isPanning, handlers (onPointerDown, onPointerMove, onPointerUp, onWheel, onTouchStart, onTouchMove, onTouchEnd), selectionBox state.",
+    "Create src/components/Canvas.jsx - the main canvas container that renders the grid background, applies transform, and renders children (groups, connections, nodes). Accept workspaceRef prop. Wire up useCanvasInteractions hook.",
+    "Create src/components/Card.jsx - single card component implementing Version B design: 280px width, white bg, 1px border-slate-200, rounded-lg, shadow-sm, 4px left border accent. Show title (editable input) + description (up to 3 lines with line-clamp-3, expanding in edit mode). Include hover state (border-slate-300 + connection ports), selected state (accent border all sides), dragging state (scale-1.02 + shadow-lg), multi-selected (ring-1 ring-blue-400), focused (ring-2 ring-indigo-500 pulse). Show chain-link icon bottom-right if cloneSourceId is set.",
+    "Create src/components/ConnectionLayer.jsx - SVG layer rendering edges with cubic bezier curves (reuse drawCurve logic), arrow markers, themed line colors. Include hover-to-thicken+red behavior for deletion. Render active connection line when dragging from port.",
+    "Create src/components/Group.jsx - flat group rendering: dashed border with subtle background tint, group label top-left (12px semibold muted), auto-size based on contained card positions. Group color uses same 4 accent colors as dashed border color. No collapse/expand, no nesting.",
+    "Create src/components/FloatingToolbar.jsx - single-card toolbar (pill above card, 8px gap from top): Color (dot icon), Connect (arrow), Duplicate, Clone (link), Delete (x). Also multi-selection toolbar: Group (Ctrl+G), Duplicate (Ctrl+D), Delete, Color. Include inline 4-color picker for color action.",
+    "Create src/components/MiniMap.jsx - move existing src/MiniMap.jsx to src/components/MiniMap.jsx, update its THEME_COLORS to match new 4-color palette (remove rose/emerald, add green)."
+  ],
+  "acceptance_criteria": [
+    "All new files exist in src/components/ and src/hooks/",
+    "src/store.js exports WorkspaceProvider and useWorkspace hook with simplified data model",
+    "THEMES only contains 4 colors: blue, amber, green, purple",
+    "Node model has no status, priority, nodeType, or image fields",
+    "Group model has no parentGroupId, expanded, manualWidth, or manualHeight fields",
+    "npm run build succeeds with zero errors"
+  ],
+  "verification": [
+    "Run `npm run build` and confirm it completes without errors"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
