@@ -119,8 +119,9 @@ export default function App() {
     const minY = Math.min(...selectedNodes.map(n => n.y)) - 30;
     const maxX = Math.max(...selectedNodes.map(n => n.x + NODE_WIDTH)) + 20;
     const maxY = Math.max(...selectedNodes.map(n => n.y + NODE_HEIGHT)) + 20;
-    dispatch({ type: 'ADD_GROUP', payload: { x: minX, y: minY, width: maxX - minX, height: maxY - minY } });
+    // Generate groupId upfront and pass it in the payload so we don't rely on predicting the reducer's ID
     const groupId = `g-${state.nextId}`;
+    dispatch({ type: 'ADD_GROUP', payload: { id: groupId, x: minX, y: minY, width: maxX - minX, height: maxY - minY } });
     selectedNodes.forEach(n => {
       dispatch({ type: 'UPDATE_NODE', payload: { id: n.id, updates: { groupId } } });
     });
@@ -203,7 +204,7 @@ export default function App() {
       const dy = (e.clientY - dragging.startY) / transform.scale;
       const node = nodes.find(n => n.id === dragging.nodeId);
       if (node) {
-        dispatch({ type: 'UPDATE_NODE', payload: { id: dragging.nodeId, updates: { x: dragging.origX + dx, y: dragging.origY + dy } } });
+        dispatch({ type: 'UPDATE_NODE_SILENT', payload: { id: dragging.nodeId, updates: { x: dragging.origX + dx, y: dragging.origY + dy } } });
         // If node is in a group, move together
         if (node.groupId) {
           const groupNodes = nodes.filter(n => n.groupId === node.groupId && n.id !== node.id);
@@ -288,8 +289,9 @@ export default function App() {
     } else {
       if (!selectedIds.includes(nodeId)) setSelectedIds([nodeId]);
     }
+    dispatch({ type: 'TAKE_SNAPSHOT' });
     setDragging({ nodeId, startX: e.clientX, startY: e.clientY, origX: node.x, origY: node.y });
-  }, [nodes, selectedIds]);
+  }, [nodes, selectedIds, dispatch]);
 
   const handleCardDoubleClick = useCallback((nodeId, e) => {
     e.stopPropagation();
@@ -321,28 +323,27 @@ export default function App() {
     // For groups, initiate a group drag (move all nodes in group)
     const group = groups.find(g => g.id === groupId);
     if (!group) return;
-    setDragging({ groupId, startX: e.clientX, startY: e.clientY, origX: group.x, origY: group.y });
-  }, [groups]);
+    // Capture original node positions at pointer-down time to avoid in-place mutation
+    const nodePositions = {};
+    nodes.filter(n => n.groupId === groupId).forEach(n => {
+      nodePositions[n.id] = { x: n.x, y: n.y };
+    });
+    dispatch({ type: 'TAKE_SNAPSHOT' });
+    setDragging({ groupId, startX: e.clientX, startY: e.clientY, origX: group.x, origY: group.y, nodePositions });
+  }, [groups, nodes, dispatch]);
 
   // Override drag for groups
   const handleCanvasPointerMoveWithGroups = useCallback((e) => {
     if (dragging && dragging.groupId) {
       const dx = (e.clientX - dragging.startX) / transform.scale;
       const dy = (e.clientY - dragging.startY) / transform.scale;
-      dispatch({ type: 'UPDATE_GROUP', payload: { id: dragging.groupId, updates: { x: dragging.origX + dx, y: dragging.origY + dy } } });
-      // Move all nodes in this group
+      dispatch({ type: 'UPDATE_GROUP_SILENT', payload: { id: dragging.groupId, updates: { x: dragging.origX + dx, y: dragging.origY + dy } } });
+      // Move all nodes in this group using positions captured at pointer-down
       const groupNodes = nodes.filter(n => n.groupId === dragging.groupId);
       groupNodes.forEach(n => {
-        // We need original positions - stored on first move
-        if (!dragging.nodePositions) {
-          dragging.nodePositions = {};
-          nodes.filter(nd => nd.groupId === dragging.groupId).forEach(nd => {
-            dragging.nodePositions[nd.id] = { x: nd.x, y: nd.y };
-          });
-        }
         const orig = dragging.nodePositions[n.id];
         if (orig) {
-          dispatch({ type: 'UPDATE_NODE', payload: { id: n.id, updates: { x: orig.x + dx, y: orig.y + dy } } });
+          dispatch({ type: 'UPDATE_NODE_SILENT', payload: { id: n.id, updates: { x: orig.x + dx, y: orig.y + dy } } });
         }
       });
       return;
@@ -540,7 +541,7 @@ export default function App() {
   // --- Compute group sizes dynamically ---
   const computedGroups = groups.map(g => {
     const groupNodes = nodes.filter(n => n.groupId === g.id);
-    if (groupNodes.length === 0) return g;
+    if (groupNodes.length === 0) return { ...g, width: 200, height: 100 };
     const minX = Math.min(...groupNodes.map(n => n.x)) - 20;
     const minY = Math.min(...groupNodes.map(n => n.y)) - 30;
     const maxX = Math.max(...groupNodes.map(n => n.x + NODE_WIDTH)) + 20;
@@ -707,8 +708,8 @@ export default function App() {
                 onPointerDown={(e) => handleCardPointerDown(n.id, e)}
                 onDoubleClick={(e) => handleCardDoubleClick(n.id, e)}
                 onPortDragStart={(type, e) => handlePortDragStart(n.id, type, e)}
-                onTitleChange={(title) => dispatch({ type: 'UPDATE_NODE', payload: { id: n.id, updates: { title } } })}
-                onContentChange={(content) => dispatch({ type: 'UPDATE_NODE', payload: { id: n.id, updates: { content } } })}
+                onTitleChange={(title) => dispatch({ type: 'UPDATE_NODE_SILENT', payload: { id: n.id, updates: { title } } })}
+                onContentChange={(content) => dispatch({ type: 'UPDATE_NODE_SILENT', payload: { id: n.id, updates: { content } } })}
                 onEditEnd={() => setEditingId(null)}
               />
             ))}

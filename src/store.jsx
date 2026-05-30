@@ -163,6 +163,16 @@ function workspaceReducer(state, action) {
       }));
     }
 
+    case 'UPDATE_NODE_SILENT': {
+      // Same as UPDATE_NODE but does NOT take a snapshot.
+      // Use for high-frequency updates (drag moves, text editing).
+      return updateActiveWorkspace(state, ws => ({
+        nodes: ws.nodes.map(n =>
+          n.id === action.payload.id ? { ...n, ...action.payload.updates } : n
+        ),
+      }));
+    }
+
     case 'DELETE_NODE': {
       const snapped = takeSnapshot(state);
       const nodeId = action.payload.id;
@@ -194,7 +204,7 @@ function workspaceReducer(state, action) {
     case 'ADD_GROUP': {
       const snapped = takeSnapshot(state);
       const group = {
-        id: `g-${snapped.nextId}`,
+        id: action.payload.id || `g-${snapped.nextId}`,
         name: action.payload.name || 'New Group',
         x: action.payload.x || 100,
         y: action.payload.y || 100,
@@ -213,6 +223,16 @@ function workspaceReducer(state, action) {
     case 'UPDATE_GROUP': {
       const snapped = takeSnapshot(state);
       return updateActiveWorkspace(snapped, ws => ({
+        groups: ws.groups.map(g =>
+          g.id === action.payload.id ? { ...g, ...action.payload.updates } : g
+        ),
+      }));
+    }
+
+    case 'UPDATE_GROUP_SILENT': {
+      // Same as UPDATE_GROUP but does NOT take a snapshot.
+      // Use for high-frequency updates (group drag moves).
+      return updateActiveWorkspace(state, ws => ({
         groups: ws.groups.map(g =>
           g.id === action.payload.id ? { ...g, ...action.payload.updates } : g
         ),

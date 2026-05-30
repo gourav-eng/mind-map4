@@ -43,8 +43,8 @@ export default function ConnectionLayer({
 
   return (
     <svg
-      className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible"
-      style={{ zIndex: 0 }}
+      className="absolute top-0 left-0 pointer-events-none overflow-visible"
+      style={{ zIndex: 0, width: 1, height: 1 }}
     >
       {/* Arrow markers for each theme */}
       <defs>
