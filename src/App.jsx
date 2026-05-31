@@ -752,6 +752,7 @@ export default function WorkflowApp() {
               gainNode.gain.value = 0.3;
               oscillator.start();
               oscillator.stop(audioCtx.currentTime + 0.3);
+              setTimeout(() => audioCtx.close(), 500);
             } catch (e) { /* Audio not available */ }
             return 0;
           }
@@ -760,7 +761,7 @@ export default function WorkflowApp() {
       }, 1000);
     }
     return () => { if (timerIntervalRef.current) clearInterval(timerIntervalRef.current); };
-  }, [timerRunning, timerPaused, timerSeconds]);
+  }, [timerRunning, timerPaused]);
 
   // Keep projectsRef in sync with projects state for debounced localStorage writes
   useEffect(() => {
@@ -2361,18 +2362,18 @@ export default function WorkflowApp() {
         const finalParentId = dragHoveredGroupId;
 
         updateActiveWorkspace(ws => {
+          const { descendantGroupIds, descendantNodeIds } = getDescendants(draggingGroup.id, ws.groups, ws.nodes);
+
           const updatedGroups = ws.groups.map(g => {
             if (g.id === draggingGroup.id) {
               return { ...g, x: g.x + dx, y: g.y + dy, parentGroupId: finalParentId };
             }
-            const { descendantGroupIds } = getDescendants(draggingGroup.id, ws.groups, ws.nodes);
             if (descendantGroupIds.includes(g.id)) {
               return { ...g, x: g.x + dx, y: g.y + dy };
             }
             return g;
           });
 
-          const { descendantNodeIds } = getDescendants(draggingGroup.id, ws.groups, ws.nodes);
           const updatedNodes = ws.nodes.map(n => {
             if (descendantNodeIds.includes(n.id)) {
               return { ...n, x: n.x + dx, y: n.y + dy };
@@ -2380,7 +2381,6 @@ export default function WorkflowApp() {
             return n;
           });
 
-          const { descendantGroupIds } = getDescendants(draggingGroup.id, ws.groups, ws.nodes);
           const updatedImages = (ws.images || []).map(img => {
             if (img.groupId === draggingGroup.id || descendantGroupIds.includes(img.groupId)) {
               return { ...img, x: img.x + dx, y: img.y + dy };
@@ -2510,12 +2510,23 @@ export default function WorkflowApp() {
         const imgCenterY = dropY + displayHeight / 2;
         let imageGroupId = null;
         const currentGroups = stateRef.current.workspaces.find(w => w.id === stateRef.current.activeTab)?.groups || [];
+        const containingGroups = [];
         for (const group of currentGroups) {
           const gW = group.width || 440;
           const gH = group.height || 420;
           if (imgCenterX >= group.x && imgCenterX <= group.x + gW && imgCenterY >= group.y && imgCenterY <= group.y + gH) {
-            imageGroupId = group.id;
+            containingGroups.push(group);
           }
+        }
+        if (containingGroups.length > 0) {
+          const getDepth = (g) => {
+            let depth = 0;
+            let curr = g;
+            while (curr && curr.parentGroupId) { depth++; curr = currentGroups.find(p => p.id === curr.parentGroupId); }
+            return depth;
+          };
+          containingGroups.sort((a, b) => getDepth(b) - getDepth(a));
+          imageGroupId = containingGroups[0].id;
         }
 
         takeSnapshot();
