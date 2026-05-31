@@ -1,0 +1,19 @@
+{
+  "project_type": "React SPA (Vite + Tailwind) - single-file mind map / workflow canvas app",
+  "language": "JavaScript (JSX)",
+  "build_system": "Vite with Tailwind CSS, no tests",
+  "test_framework": "None - no tests exist",
+  "build_command": "cd /projects/sandbox/mind-map4 && npm run build",
+  "test_command": "N/A - no test suite",
+  "verification_instructions": "Run `npm run build` to validate no compilation errors. Manual visual verification in browser.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "cd /projects/sandbox/mind-map4 && npm install",
+  "environment_constraints": "OPEN_INTERNET network mode. Node 22 available via nvm.",
+  "contribution_requirements": "Single branch feat/redesign-cards-v2 already exists and is checked out.",
+  "key_patterns": "Single App.jsx file (4634 lines) contains all logic. THEMES object defines color schemes. Nodes are {id, x, y, title, content, theme, groupId, cloneSourceId}. Groups are {id, name, x, y, width, height, expanded, theme, parentGroupId}. Canvas uses pointer events for pan/drag/resize. MiniMap.jsx is a separate component. computeLayout() auto-adjusts group sizes. updateActiveWorkspace() is the main state updater pattern.",
+  "relevant_files": [
+    "/projects/sandbox/mind-map4/src/App.jsx",
+    "/projects/sandbox/mind-map4/src/MiniMap.jsx"
+  ],
+  "directory_structure": "src/App.jsx (main app), src/MiniMap.jsx (mini map component), src/index.css (styles), src/main.jsx (entry). package.json uses react, react-dom, lucide-react."
+}

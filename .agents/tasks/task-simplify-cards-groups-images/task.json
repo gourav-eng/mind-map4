@@ -1,0 +1,7 @@
+{
+  "task_id": "task-simplify-cards-groups-images",
+  "task_description": "Expand to 10 card color themes with full background tint, remove image-inside-card, add images as separate connectable canvas objects, and simplify groups to flat colored rectangles without expand/collapse.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001"],
+  "blocked_reason": null
+}

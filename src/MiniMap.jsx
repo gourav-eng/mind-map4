@@ -2,11 +2,16 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 // Theme color map for node/group rendering in mini map
 const THEME_COLORS = {
-  amber: '#f59e0b',
   blue: '#3b82f6',
-  emerald: '#10b981',
+  green: '#10b981',
+  pink: '#ec4899',
+  yellow: '#eab308',
   purple: '#8b5cf6',
+  orange: '#f97316',
+  teal: '#14b8a6',
   rose: '#f43f5e',
+  indigo: '#6366f1',
+  slate: '#64748b',
 };
 
 const DEFAULT_WIDTH = 220;
@@ -19,14 +24,13 @@ const PADDING = 40;
 const ARROW_STEP = 50;
 
 // Node dimensions used in the minimap rendering
-const NODE_EXPANDED_WIDTH = 260;
-const NODE_COLLAPSED_WIDTH = 200;
+const NODE_EXPANDED_WIDTH = 240;
 const NODE_EXPANDED_HEIGHT = 120;
-const NODE_COLLAPSED_HEIGHT = 40;
 
 export default function MiniMap({
   nodes,
   groups,
+  images,
   transform,
   setTransform,
   workspaceRef,
@@ -57,8 +61,8 @@ export default function MiniMap({
 
     nodes.forEach(node => {
       hasContent = true;
-      const w = node.expanded !== false ? NODE_EXPANDED_WIDTH : NODE_COLLAPSED_WIDTH;
-      const h = node.expanded !== false ? NODE_EXPANDED_HEIGHT : NODE_COLLAPSED_HEIGHT;
+      const w = NODE_EXPANDED_WIDTH;
+      const h = NODE_EXPANDED_HEIGHT;
       minX = Math.min(minX, node.x);
       minY = Math.min(minY, node.y);
       maxX = Math.max(maxX, node.x + w);
@@ -73,6 +77,14 @@ export default function MiniMap({
       maxY = Math.max(maxY, group.y + (group.height || 200));
     });
 
+    (images || []).forEach(img => {
+      hasContent = true;
+      minX = Math.min(minX, img.x);
+      minY = Math.min(minY, img.y);
+      maxX = Math.max(maxX, img.x + (img.width || 280));
+      maxY = Math.max(maxY, img.y + (img.height || 180));
+    });
+
     if (!hasContent) {
       return { minX: -500, minY: -500, maxX: 500, maxY: 500 };
     }
@@ -84,7 +96,7 @@ export default function MiniMap({
       maxX: maxX + PADDING,
       maxY: maxY + PADDING,
     };
-  }, [nodes, groups]);
+  }, [nodes, groups, images]);
 
   // Convert world coordinates to minimap coordinates
   const worldToMiniMap = useCallback((worldX, worldY, bounds) => {
@@ -334,8 +346,8 @@ export default function MiniMap({
 
       {/* Render nodes */}
       {nodes.map(node => {
-        const w = node.expanded !== false ? NODE_EXPANDED_WIDTH : NODE_COLLAPSED_WIDTH;
-        const h = node.expanded !== false ? NODE_EXPANDED_HEIGHT : NODE_COLLAPSED_HEIGHT;
+        const w = NODE_EXPANDED_WIDTH;
+        const h = NODE_EXPANDED_HEIGHT;
         const pos = worldToMiniMap(node.x, node.y, bounds);
         const endPos = worldToMiniMap(node.x + w, node.y + h, bounds);
         const color = THEME_COLORS[node.theme] || THEME_COLORS.blue;
@@ -350,6 +362,26 @@ export default function MiniMap({
               height: Math.max(2, endPos.y - pos.y),
               backgroundColor: color,
               opacity: 0.8,
+            }}
+          />
+        );
+      })}
+
+      {/* Render images */}
+      {(images || []).map(img => {
+        const pos = worldToMiniMap(img.x, img.y, bounds);
+        const endPos = worldToMiniMap(img.x + (img.width || 280), img.y + (img.height || 180), bounds);
+        return (
+          <div
+            key={`img-${img.id}`}
+            className="absolute rounded-sm pointer-events-none"
+            style={{
+              left: pos.x,
+              top: pos.y,
+              width: Math.max(2, endPos.x - pos.x),
+              height: Math.max(2, endPos.y - pos.y),
+              backgroundColor: '#94a3b8',
+              opacity: 0.6,
             }}
           />
         );

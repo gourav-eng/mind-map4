@@ -1,77 +1,156 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
-  Plus, Trash2, GripHorizontal, X, ChevronDown, ChevronRight, 
+  Plus, Trash2, X, ChevronDown, 
   FileText, Network, FolderOpen, Palette, Check, ZoomIn, ZoomOut, Focus,
-  Download, Upload, Undo2, Redo2, Layers, Link2, ExternalLink, HelpCircle,
-  Sparkles, CheckSquare, Clock, AlertCircle, BarChart2, PanelLeftClose, PanelLeft,
+  Download, Upload, Undo2, Redo2, Layers, Link2, ExternalLink,
+  Sparkles, PanelLeftClose, PanelLeft,
   Grid, Move, Copy, ArrowUp, ArrowDown, RefreshCw, LayoutList, MonitorSpeaker,
-  MoreVertical, ImageIcon, ChevronUp, Scissors, ClipboardPaste, Minimize2, Maximize2,
+  MoreVertical, ImageIcon, ChevronUp, Scissors, ClipboardPaste,
   Lock, Shield, Eye, EyeOff, GitBranch, Map
 } from 'lucide-react';
 import MiniMap from './MiniMap';
 
-// --- Premium Color Themes ---
+// --- Premium Color Themes (10 colors) ---
 const THEMES = {
-  amber: { 
-    name: 'Amber Glow', 
-    wrapper: 'bg-[#fdfbf7] border-amber-200/80 hover:border-amber-400/50', 
-    header: 'bg-[#fffbeb] border-amber-200', 
-    tag: 'bg-amber-100/80 border-amber-300 text-amber-800', 
-    port: 'bg-amber-500 hover:bg-amber-400 border-amber-100', 
-    text: 'text-amber-900', 
-    line: '#f59e0b',
-    groupBg: 'bg-amber-50/10 border-amber-300/40', 
-    groupHeader: 'bg-amber-100/40 border-amber-200/50',
-    glow: 'shadow-[0_0_20px_rgba(245,158,11,0.15)]'
-  },
-  blue: { 
-    name: 'Ocean Blue', 
-    wrapper: 'bg-slate-50 border-blue-200/80 hover:border-blue-400/50', 
-    header: 'bg-blue-50/80 border-blue-200', 
-    tag: 'bg-blue-100/80 border-blue-300 text-blue-800', 
-    port: 'bg-blue-500 hover:bg-blue-400 border-blue-100', 
-    text: 'text-blue-900', 
+  blue: {
+    name: 'Ocean Blue',
+    cardBg: '#bfdbfe',
+    wrapper: 'bg-slate-50 border-blue-200/80 hover:border-blue-400/50',
+    header: 'bg-blue-50/80 border-blue-200',
+    tag: 'bg-blue-100/80 border-blue-300 text-blue-800',
+    port: 'bg-blue-500 hover:bg-blue-400 border-blue-100',
+    text: 'text-blue-900',
     line: '#3b82f6',
-    groupBg: 'bg-blue-50/10 border-blue-300/40', 
-    groupHeader: 'bg-blue-100/40 border-blue-200/50',
+    border: '#3b82f6',
+    groupBg: 'bg-blue-100/40 border-blue-400/60',
+    groupHeader: 'bg-blue-200/60 border-blue-300/50',
     glow: 'shadow-[0_0_20px_rgba(59,130,246,0.15)]'
   },
-  emerald: { 
-    name: 'Mint Emerald', 
-    wrapper: 'bg-emerald-50/20 border-emerald-200/80 hover:border-emerald-400/50', 
-    header: 'bg-emerald-50/80 border-emerald-200', 
-    tag: 'bg-emerald-100/80 border-emerald-300 text-emerald-800', 
-    port: 'bg-emerald-500 hover:bg-emerald-400 border-emerald-100', 
-    text: 'text-emerald-900', 
+  green: {
+    name: 'Fresh Green',
+    cardBg: '#bbf7d0',
+    wrapper: 'bg-emerald-50/20 border-emerald-200/80 hover:border-emerald-400/50',
+    header: 'bg-emerald-50/80 border-emerald-200',
+    tag: 'bg-emerald-100/80 border-emerald-300 text-emerald-800',
+    port: 'bg-emerald-500 hover:bg-emerald-400 border-emerald-100',
+    text: 'text-emerald-900',
     line: '#10b981',
-    groupBg: 'bg-emerald-50/10 border-emerald-300/40', 
-    groupHeader: 'bg-emerald-100/40 border-emerald-200/50',
+    border: '#10b981',
+    groupBg: 'bg-emerald-100/40 border-emerald-400/60',
+    groupHeader: 'bg-emerald-200/60 border-emerald-300/50',
     glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]'
   },
-
-  purple: { 
-    name: 'Royal Purple', 
-    wrapper: 'bg-purple-50/20 border-purple-200/80 hover:border-purple-400/50', 
-    header: 'bg-purple-50/80 border-purple-200', 
-    tag: 'bg-purple-100/80 border-purple-300 text-purple-800', 
-    port: 'bg-purple-500 hover:bg-purple-400 border-purple-100', 
-    text: 'text-purple-900', 
+  pink: {
+    name: 'Soft Pink',
+    cardBg: '#fbcfe8',
+    wrapper: 'bg-pink-50/20 border-pink-200/80 hover:border-pink-400/50',
+    header: 'bg-pink-50/80 border-pink-200',
+    tag: 'bg-pink-100/80 border-pink-300 text-pink-800',
+    port: 'bg-pink-500 hover:bg-pink-400 border-pink-100',
+    text: 'text-pink-900',
+    line: '#ec4899',
+    border: '#ec4899',
+    groupBg: 'bg-pink-100/40 border-pink-400/60',
+    groupHeader: 'bg-pink-200/60 border-pink-300/50',
+    glow: 'shadow-[0_0_20px_rgba(236,72,153,0.15)]'
+  },
+  yellow: {
+    name: 'Sunny Yellow',
+    cardBg: '#fef08a',
+    wrapper: 'bg-yellow-50/20 border-yellow-200/80 hover:border-yellow-400/50',
+    header: 'bg-yellow-50/80 border-yellow-200',
+    tag: 'bg-yellow-100/80 border-yellow-300 text-yellow-800',
+    port: 'bg-yellow-500 hover:bg-yellow-400 border-yellow-100',
+    text: 'text-yellow-900',
+    line: '#eab308',
+    border: '#eab308',
+    groupBg: 'bg-yellow-100/40 border-yellow-400/60',
+    groupHeader: 'bg-yellow-200/60 border-yellow-300/50',
+    glow: 'shadow-[0_0_20px_rgba(234,179,8,0.15)]'
+  },
+  purple: {
+    name: 'Royal Purple',
+    cardBg: '#e9d5ff',
+    wrapper: 'bg-purple-50/20 border-purple-200/80 hover:border-purple-400/50',
+    header: 'bg-purple-50/80 border-purple-200',
+    tag: 'bg-purple-100/80 border-purple-300 text-purple-800',
+    port: 'bg-purple-500 hover:bg-purple-400 border-purple-100',
+    text: 'text-purple-900',
     line: '#8b5cf6',
-    groupBg: 'bg-purple-50/10 border-purple-300/40', 
-    groupHeader: 'bg-purple-100/40 border-purple-200/50',
+    border: '#8b5cf6',
+    groupBg: 'bg-purple-100/40 border-purple-400/60',
+    groupHeader: 'bg-purple-200/60 border-purple-300/50',
     glow: 'shadow-[0_0_20px_rgba(139,92,246,0.15)]'
   },
-  rose: { 
-    name: 'Blush Rose', 
-    wrapper: 'bg-rose-50/20 border-rose-200/80 hover:border-rose-400/50', 
-    header: 'bg-rose-50/80 border-rose-200', 
-    tag: 'bg-rose-100/80 border-rose-300 text-rose-800', 
-    port: 'bg-rose-500 hover:bg-rose-400 border-rose-100', 
-    text: 'text-rose-900', 
+  orange: {
+    name: 'Warm Orange',
+    cardBg: '#fed7aa',
+    wrapper: 'bg-orange-50/20 border-orange-200/80 hover:border-orange-400/50',
+    header: 'bg-orange-50/80 border-orange-200',
+    tag: 'bg-orange-100/80 border-orange-300 text-orange-800',
+    port: 'bg-orange-500 hover:bg-orange-400 border-orange-100',
+    text: 'text-orange-900',
+    line: '#f97316',
+    border: '#f97316',
+    groupBg: 'bg-orange-100/40 border-orange-400/60',
+    groupHeader: 'bg-orange-200/60 border-orange-300/50',
+    glow: 'shadow-[0_0_20px_rgba(249,115,22,0.15)]'
+  },
+  teal: {
+    name: 'Cool Teal',
+    cardBg: '#99f6e4',
+    wrapper: 'bg-teal-50/20 border-teal-200/80 hover:border-teal-400/50',
+    header: 'bg-teal-50/80 border-teal-200',
+    tag: 'bg-teal-100/80 border-teal-300 text-teal-800',
+    port: 'bg-teal-500 hover:bg-teal-400 border-teal-100',
+    text: 'text-teal-900',
+    line: '#14b8a6',
+    border: '#14b8a6',
+    groupBg: 'bg-teal-100/40 border-teal-400/60',
+    groupHeader: 'bg-teal-200/60 border-teal-300/50',
+    glow: 'shadow-[0_0_20px_rgba(20,184,166,0.15)]'
+  },
+  rose: {
+    name: 'Rose Red',
+    cardBg: '#fecdd3',
+    wrapper: 'bg-rose-50/20 border-rose-200/80 hover:border-rose-400/50',
+    header: 'bg-rose-50/80 border-rose-200',
+    tag: 'bg-rose-100/80 border-rose-300 text-rose-800',
+    port: 'bg-rose-500 hover:bg-rose-400 border-rose-100',
+    text: 'text-rose-900',
     line: '#f43f5e',
-    groupBg: 'bg-rose-50/10 border-rose-300/40', 
-    groupHeader: 'bg-rose-100/40 border-rose-200/50',
+    border: '#f43f5e',
+    groupBg: 'bg-rose-100/40 border-rose-400/60',
+    groupHeader: 'bg-rose-200/60 border-rose-300/50',
     glow: 'shadow-[0_0_20px_rgba(244,63,94,0.15)]'
+  },
+  indigo: {
+    name: 'Deep Indigo',
+    cardBg: '#c7d2fe',
+    wrapper: 'bg-indigo-50/20 border-indigo-200/80 hover:border-indigo-400/50',
+    header: 'bg-indigo-50/80 border-indigo-200',
+    tag: 'bg-indigo-100/80 border-indigo-300 text-indigo-800',
+    port: 'bg-indigo-500 hover:bg-indigo-400 border-indigo-100',
+    text: 'text-indigo-900',
+    line: '#6366f1',
+    border: '#6366f1',
+    groupBg: 'bg-indigo-100/40 border-indigo-400/60',
+    groupHeader: 'bg-indigo-200/60 border-indigo-300/50',
+    glow: 'shadow-[0_0_20px_rgba(99,102,241,0.15)]'
+  },
+  slate: {
+    name: 'Neutral Slate',
+    cardBg: '#e2e8f0',
+    wrapper: 'bg-slate-50/20 border-slate-200/80 hover:border-slate-400/50',
+    header: 'bg-slate-50/80 border-slate-200',
+    tag: 'bg-slate-100/80 border-slate-300 text-slate-800',
+    port: 'bg-slate-500 hover:bg-slate-400 border-slate-100',
+    text: 'text-slate-900',
+    line: '#64748b',
+    border: '#64748b',
+    groupBg: 'bg-slate-100/40 border-slate-400/60',
+    groupHeader: 'bg-slate-200/60 border-slate-300/50',
+    glow: 'shadow-[0_0_20px_rgba(100,116,139,0.15)]'
   }
 };
 
@@ -89,20 +168,21 @@ const defaultWorkspaces = [
   {
     id: 'ws-1', name: 'Product Launch Roadmap',
     groups: [
-      { id: 'g-1', name: 'Phase 1: Discovery & Research', x: 80, y: 80, width: 440, height: 440, expanded: true, theme: 'amber', parentGroupId: null },
-      { id: 'g-2', name: 'Phase 2: Product Design UI', x: 580, y: 80, width: 440, height: 440, expanded: true, theme: 'purple', parentGroupId: null }
+      { id: 'g-1', name: 'Phase 1: Discovery & Research', x: 80, y: 80, width: 440, height: 440, theme: 'orange', parentGroupId: null },
+      { id: 'g-2', name: 'Phase 2: Product Design UI', x: 580, y: 80, width: 440, height: 440, theme: 'purple', parentGroupId: null }
     ],
     nodes: [
-      { id: '1', x: 130, y: 150, title: 'User Interviews', content: 'Synthesize feedback from 15 target users.', expanded: true, theme: 'amber', groupId: 'g-1', status: 'In Progress', priority: 'High', nodeType: 'task', cloneSourceId: null },
-      { id: '2', x: 130, y: 310, title: 'Competitor Benchmark', content: 'Benchmark workflows against Top 3 competitors.', expanded: true, theme: 'blue', groupId: 'g-1', status: 'Todo', priority: 'Medium', nodeType: 'task', cloneSourceId: null },
-      { id: '3', x: 630, y: 150, title: 'Component Library', content: 'Establish design system in Figma.', expanded: true, theme: 'purple', groupId: 'g-2', status: 'In Progress', priority: 'High', nodeType: 'task', cloneSourceId: null },
-      { id: '4', x: 1100, y: 200, title: 'Launch Strategy Plan', content: 'Define GTM parameters.', expanded: true, theme: 'rose', groupId: null, status: 'Todo', priority: 'Low', nodeType: 'task', cloneSourceId: null }
+      { id: '1', x: 130, y: 150, title: 'User Interviews', content: 'Synthesize feedback from 15 target users.', theme: 'orange', groupId: 'g-1', cloneSourceId: null },
+      { id: '2', x: 130, y: 310, title: 'Competitor Benchmark', content: 'Benchmark workflows against Top 3 competitors.', theme: 'blue', groupId: 'g-1', cloneSourceId: null },
+      { id: '3', x: 630, y: 150, title: 'Component Library', content: 'Establish design system in Figma.', theme: 'purple', groupId: 'g-2', cloneSourceId: null },
+      { id: '4', x: 1100, y: 200, title: 'Launch Strategy Plan', content: 'Define GTM parameters.', theme: 'blue', groupId: null, cloneSourceId: null }
     ],
     edges: [
       { id: 'e1', source: '1', target: '3' },
       { id: 'e2', source: '2', target: '3' },
       { id: 'e3', source: '3', target: '4' }
-    ]
+    ],
+    images: []
   }
 ];
 
@@ -136,41 +216,6 @@ const getDescendants = (groupId, currentGroups, currentNodes) => {
   recurse(groupId);
   return { descendantGroupIds, descendantNodeIds };
 };
-
-const isGroupHidden = (groupId, currentGroups) => {
-  let currId = groupId;
-  while (currId) {
-    const pGroup = currentGroups.find(g => g.id === currId);
-    if (!pGroup) break;
-    if (!pGroup.expanded) {
-      return true;
-    }
-    currId = pGroup.parentGroupId;
-  }
-  return false;
-};
-
-const shareCollapsedAncestor = (nodeA, nodeB, currentGroups) => {
-  if (!nodeA.groupId || !nodeB.groupId) return false;
-  
-  const getCollapsedAncestors = (groupId) => {
-    const ancestors = [];
-    let currId = groupId;
-    while (currId) {
-      const g = currentGroups.find(x => x.id === currId);
-      if (!g) break;
-      if (!g.expanded) ancestors.push(g.id);
-      currId = g.parentGroupId;
-    }
-    return ancestors;
-  };
-
-  const ancestorsA = getCollapsedAncestors(nodeA.groupId);
-  const ancestorsB = getCollapsedAncestors(nodeB.groupId);
-
-  return ancestorsA.some(id => ancestorsB.includes(id));
-};
-
 
 // --- Bottom-up Layout Auto-adjuster ---
 const computeLayout = (currentGroups, currentNodes) => {
@@ -207,23 +252,13 @@ const computeLayout = (currentGroups, currentNodes) => {
     const innerNodes = currentNodes.filter(n => n.groupId === group.id);
     const innerSubgroups = currentGroups.filter(g => g.parentGroupId === group.id);
 
-    if (!group.expanded) {
-      computed[group.id] = {
-        x: group.x,
-        y: group.y,
-        width: group.width || 340,
-        height: 64
-      };
-      return;
-    }
-
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     let hasChildren = false;
 
     innerNodes.forEach(n => {
       hasChildren = true;
-      const nW = 340;
-      const nH = n.expanded ? 280 : 120;
+      const nW = 280;
+      const nH = 180;
       minX = Math.min(minX, n.x);
       minY = Math.min(minY, n.y);
       maxX = Math.max(maxX, n.x + nW);
@@ -295,10 +330,12 @@ export default function WorkflowApp() {
   // --- Dragging & Resizing Interactions ---
   const [draggingNode, setDraggingNode] = useState(null);
   const [draggingGroup, setDraggingGroup] = useState(null);
+  const [draggingImage, setDraggingImage] = useState(null);
   const [resizingGroup, setResizingGroup] = useState(null);
   const [dragHoveredGroupId, setDragHoveredGroupId] = useState(null);
 
   const [connecting, setConnecting] = useState(null);
+  const [connectHoverNodeId, setConnectHoverNodeId] = useState(null);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [openColorPicker, setOpenColorPicker] = useState(null);
   const [openLinkPicker, setOpenLinkPicker] = useState(null);
@@ -306,9 +343,7 @@ export default function WorkflowApp() {
   const [editingTextNode, setEditingTextNode] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
   const [nodeContextMenu, setNodeContextMenu] = useState(null);
-  const [dragOverNodeId, setDragOverNodeId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [pendingImageDrop, setPendingImageDrop] = useState(null);
   const [focusedNodeId, setFocusedNodeId] = useState(null);
   const [focusedGroupId, setFocusedGroupId] = useState(null);
   const [groupContextMenu, setGroupContextMenu] = useState(null);
@@ -400,6 +435,22 @@ export default function WorkflowApp() {
       y: (e.clientY - rect.top - transform.y) / transform.scale 
     };
   }, [transform]);
+
+  // --- Node Dimensions Helper ---
+  const getNodeDimensions = useCallback((node) => {
+    const titleLen = (node.title || '').length;
+    const content = node.content || '';
+    const contentLen = content.length;
+    const newlineCount = (content.match(/\n/g) || []).length;
+    const totalLen = titleLen + contentLen;
+    let width = 180 + Math.min(200, totalLen * 1.2);
+    // Multi-line content needs more width to display properly
+    if (newlineCount > 0) {
+      width = Math.max(width, 220 + newlineCount * 20);
+    }
+    width = Math.max(180, Math.min(380, width));
+    return { width };
+  }, []);
 
   // --- Zoom Helpers ---
   const handleZoom = useCallback((delta) => {
@@ -1176,6 +1227,20 @@ export default function WorkflowApp() {
     return () => window.removeEventListener('keydown', handleMiniMapKey);
   }, []);
 
+  // --- N key creates new card ---
+  useEffect(() => {
+    const handleNewCardKey = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        addNodeRef.current();
+      }
+    };
+    window.addEventListener('keydown', handleNewCardKey);
+    return () => window.removeEventListener('keydown', handleNewCardKey);
+  }, []);
+
   // --- Arrow key movement for selected nodes ---
   useEffect(() => {
     const handleArrowKeys = (e) => {
@@ -1259,7 +1324,7 @@ export default function WorkflowApp() {
       ref.count = 1;
     }
     ref.lastTap = now;
-    if (ref.count >= 3) {
+    if (ref.count >= 6) {
       ref.count = 0;
       openProjectPanel();
     }
@@ -1976,8 +2041,8 @@ export default function WorkflowApp() {
   }, [draggingGroup, getLiveOffset]);
 
   // --- Helper: Node Group Intersection Checker ---
-  const getSpatiallyHoveredGroup = useCallback((nodeX, nodeY) => {
-    const NODE_WIDTH_VAL = 340;
+  const getSpatiallyHoveredGroup = useCallback((nodeX, nodeY, nodeWidth) => {
+    const NODE_WIDTH_VAL = nodeWidth || 280;
     const nodeCenterX = nodeX + NODE_WIDTH_VAL / 2;
     const nodeCenterY = nodeY + 80;
 
@@ -2085,7 +2150,7 @@ export default function WorkflowApp() {
       const maxX = Math.max(selectionBox.startX, coords.x);
       const minY = Math.min(selectionBox.startY, coords.y);
       const maxY = Math.max(selectionBox.startY, coords.y);
-      const NODE_W = 340;
+      const NODE_W = 280;
       const NODE_H = 160;
       const insideNodes = nodes.filter(n => {
         const nx = n.x, ny = n.y;
@@ -2119,7 +2184,7 @@ export default function WorkflowApp() {
         currentY: newY
       }));
 
-      const activeGroupHoverId = getSpatiallyHoveredGroup(newX, newY);
+      const activeGroupHoverId = getSpatiallyHoveredGroup(newX, newY, getNodeDimensions(nodes.find(n => n.id === draggingNode.id) || {}).width);
       setDragHoveredGroupId(activeGroupHoverId);
 
     } else if (draggingGroup) {
@@ -2153,7 +2218,7 @@ export default function WorkflowApp() {
           if (g.id === resizingGroup.id) {
             return {
               ...g,
-              manualWidth: Math.max(340, resizingGroup.initialWidth + dx),
+              manualWidth: Math.max(280, resizingGroup.initialWidth + dx),
               manualHeight: Math.max(160, resizingGroup.initialHeight + dy)
             };
           }
@@ -2167,8 +2232,16 @@ export default function WorkflowApp() {
     } else if (connecting) {
       const coords = getWorkspaceCoords(e);
       setConnecting(prev => ({ ...prev, currentX: coords.x, currentY: coords.y }));
+    } else if (draggingImage) {
+      const dx = (e.clientX - draggingImage.startX) / transform.scale;
+      const dy = (e.clientY - draggingImage.startY) / transform.scale;
+      setDraggingImage(prev => ({
+        ...prev,
+        currentX: draggingImage.initialX + dx,
+        currentY: draggingImage.initialY + dy
+      }));
     }
-  }, [draggingNode, draggingGroup, resizingGroup, isPanning, panStart, transform.scale, getWorkspaceCoords, getSpatiallyHoveredGroup, getSpatiallyHoveredGroupForGroup, updateActiveWorkspace, isMultiSelecting, selectionBox, nodes]);
+  }, [draggingNode, draggingGroup, draggingImage, resizingGroup, isPanning, panStart, transform.scale, getWorkspaceCoords, getSpatiallyHoveredGroup, getSpatiallyHoveredGroupForGroup, updateActiveWorkspace, isMultiSelecting, selectionBox, nodes, getNodeDimensions]);
 
 
   const handlePointerUp = useCallback(() => {
@@ -2199,7 +2272,8 @@ export default function WorkflowApp() {
             if (originalNode && originalNode.groupId) {
               const originalGroup = ws.groups.find(g => g.id === originalNode.groupId);
               if (originalGroup) {
-                const NODE_WIDTH_VAL = 340;
+                const nodeForDims = ws.nodes.find(n => n.id === draggingNode.id) || {};
+                const NODE_WIDTH_VAL = getNodeDimensions(nodeForDims).width;
                 const nodeCenterX = dragRef.currentX + NODE_WIDTH_VAL / 2;
                 const nodeCenterY = dragRef.currentY + 80;
                 const gW = originalGroup.width || 440;
@@ -2288,19 +2362,98 @@ export default function WorkflowApp() {
       }
     }
 
+    if (draggingImage) {
+      if (draggingImage.currentX !== draggingImage.initialX || draggingImage.currentY !== draggingImage.initialY) {
+        updateActiveWorkspace(ws => ({
+          images: (ws.images || []).map(img => img.id === draggingImage.id
+            ? { ...img, x: draggingImage.currentX, y: draggingImage.currentY }
+            : img)
+        }));
+        if (dragSnapshot.current) {
+          const snapshotToSave = dragSnapshot.current;
+          const newPast = [...pastRef.current, snapshotToSave];
+          updateHistory(newPast, []);
+        }
+      }
+    }
+
     setDraggingNode(null);
     draggingNodeRef.current = null;
     setDraggingGroup(null);
     setResizingGroup(null);
     setDragHoveredGroupId(null);
     setConnecting(null);
+    setConnectHoverNodeId(null);
     setIsPanning(false);
+    setDraggingImage(null);
     dragSnapshot.current = null;
-  }, [draggingNode, draggingGroup, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory, isMultiSelecting]);
+  }, [draggingNode, draggingGroup, draggingImage, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory, isMultiSelecting, getNodeDimensions]);
 
 
   // --- Node, Edge, and Group Creators ---
-  const addNode = (clientX, clientY, targetGroupId = null, nodeType = 'task') => {
+  const handleCanvasImageDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        const MAX_SIZE = 1024;
+        if (width > height && width > MAX_SIZE) {
+          height *= MAX_SIZE / width;
+          width = MAX_SIZE;
+        } else if (height > MAX_SIZE) {
+          width *= MAX_SIZE / height;
+          height = MAX_SIZE;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+        const rect = workspaceRef.current.getBoundingClientRect();
+        const dropX = (e.clientX - rect.left - transform.x) / transform.scale;
+        const dropY = (e.clientY - rect.top - transform.y) / transform.scale;
+
+        const displayWidth = 280;
+        const displayHeight = Math.round((height / width) * displayWidth);
+
+        takeSnapshot();
+        updateActiveWorkspace(ws => ({
+          images: [...(ws.images || []), {
+            id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            x: dropX,
+            y: dropY,
+            width: displayWidth,
+            height: displayHeight,
+            src: compressedBase64
+          }]
+        }));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const deleteImage = (imgId) => {
+    takeSnapshot();
+    updateActiveWorkspace(ws => ({
+      images: (ws.images || []).filter(i => i.id !== imgId),
+      edges: ws.edges.filter(e => e.source !== imgId && e.target !== imgId)
+    }));
+  };
+
+  const addNode = (clientX, clientY, targetGroupId = null) => {
     takeSnapshot();
     const rect = workspaceRef.current.getBoundingClientRect();
     let targetX, targetY;
@@ -2316,9 +2469,8 @@ export default function WorkflowApp() {
     const newNode = {
       id: nextId.toString(),
       x: targetX, y: targetY,
-      title: nodeType === 'concept' ? 'New Concept' : 'New Workspace Task', content: '', expanded: true, theme: 'amber',
-      groupId: targetGroupId, status: 'Todo', priority: 'Medium',
-      nodeType: nodeType, cloneSourceId: null
+      title: 'New Card', content: '', theme: 'blue',
+      groupId: targetGroupId, cloneSourceId: null
     };
     
     updateActiveWorkspace(ws => {
@@ -2330,6 +2482,9 @@ export default function WorkflowApp() {
     });
     setNextId(prev => prev + 1);
   };
+
+  const addNodeRef = useRef(addNode);
+  useEffect(() => { addNodeRef.current = addNode; });
 
   const createGroup = (clientX, clientY) => {
     takeSnapshot();
@@ -2349,7 +2504,7 @@ export default function WorkflowApp() {
       name: 'Dynamic Section',
       x: targetX, y: targetY,
       width: 440, height: 420,
-      expanded: true, theme: 'blue',
+      theme: 'blue',
       parentGroupId: null
     };
     updateActiveWorkspace(ws => ({ groups: [...ws.groups, newGroup] }));
@@ -2361,12 +2516,15 @@ export default function WorkflowApp() {
     if (!target) return;
 
     const dup = {
-      ...JSON.parse(JSON.stringify(target)),
       id: nextId.toString(),
       x: target.x + 40,
       y: target.y + 40,
       title: `${target.title} (Copy)`,
-      cloneSourceId: null
+      content: target.content || '',
+      theme: target.theme,
+      groupId: target.groupId,
+      cloneSourceId: null,
+      linkToTab: target.linkToTab || null
     };
 
     updateActiveWorkspace(ws => {
@@ -2393,12 +2551,8 @@ export default function WorkflowApp() {
       y: target.y + 60,
       title: target.title,
       content: target.content,
-      expanded: true,
       theme: target.theme,
       groupId: null,
-      status: target.status || 'Todo',
-      priority: target.priority || 'Medium',
-      nodeType: target.nodeType || 'task',
       cloneSourceId: sourceId
     };
 
@@ -2432,12 +2586,8 @@ export default function WorkflowApp() {
       y: cloneY,
       title: target.title,
       content: target.content,
-      expanded: true,
       theme: target.theme,
       groupId: null,
-      status: target.status || 'Todo',
-      priority: target.priority || 'Medium',
-      nodeType: target.nodeType || 'task',
       cloneSourceId: sourceId
     };
 
@@ -2521,68 +2671,6 @@ export default function WorkflowApp() {
     });
   };
 
-  const processImage = (file, nodeId, compress) => {
-    if (!compress) {
-      if (file.size > 3 * 1024 * 1024) {
-        setErrorMessage("Original image is too large (>3MB). Choose 'Compress' instead.");
-        setPendingImageDrop(null);
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        takeSnapshot();
-        updateNode(nodeId, { image: event.target.result });
-        setPendingImageDrop(null);
-      };
-      reader.readAsDataURL(file);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        const MAX_SIZE = 1024;
-        if (width > height && width > MAX_SIZE) {
-          height *= MAX_SIZE / width;
-          width = MAX_SIZE;
-        } else if (height > MAX_SIZE) {
-          width *= MAX_SIZE / height;
-          height = MAX_SIZE;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-        
-        takeSnapshot();
-        updateNode(nodeId, { image: compressedBase64 });
-        setPendingImageDrop(null);
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleImageDrop = (e, nodeId) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverNodeId(null);
-
-    const file = e.dataTransfer?.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setPendingImageDrop({ file, nodeId });
-    }
-  };
-
-
   const deleteNode = (id) => {
     takeSnapshot();
     updateActiveWorkspace(ws => {
@@ -2662,23 +2750,6 @@ export default function WorkflowApp() {
   };
 
 
-  // --- Collapse / Expand All Nodes ---
-  const collapseAllNodes = () => {
-    takeSnapshot();
-    updateActiveWorkspace(ws => ({
-      nodes: ws.nodes.map(n => ({ ...n, expanded: false })),
-      groups: computeLayout(ws.groups, ws.nodes.map(n => ({ ...n, expanded: false })))
-    }));
-  };
-
-  const expandAllNodes = () => {
-    takeSnapshot();
-    updateActiveWorkspace(ws => ({
-      nodes: ws.nodes.map(n => ({ ...n, expanded: true })),
-      groups: computeLayout(ws.groups, ws.nodes.map(n => ({ ...n, expanded: true })))
-    }));
-  };
-
   // --- Auto-Layout Engine ---
   const autoAlignWorkspace = () => {
     takeSnapshot();
@@ -2745,7 +2816,7 @@ export default function WorkflowApp() {
           columns[d].push(n);
         });
 
-        const NODE_WIDTH = 340;
+        const NODE_WIDTH = 380;
         const H_GAP = 80;
         const V_GAP = 30;
         const baseX = startX + 40;
@@ -2760,7 +2831,7 @@ export default function WorkflowApp() {
           let colY = baseY;
           columns[d].forEach(n => {
             positionMap[n.id] = { x: colX, y: colY };
-            colY += (n.expanded ? 280 : 120) + V_GAP;
+            colY += 180 + V_GAP;
           });
           maxBottomY = Math.max(maxBottomY, colY);
         });
@@ -2780,7 +2851,7 @@ export default function WorkflowApp() {
         if (n.groupId === groupId && !connectedNodeIds.has(n.id)) {
           const nodeX = startX + 40;
           const nodeY = currentY;
-          currentY += (n.expanded ? 280 : 120) + 30;
+          currentY += 180 + 30;
           return { ...n, x: nodeX, y: nodeY };
         }
         return n;
@@ -2800,8 +2871,8 @@ export default function WorkflowApp() {
           let maxChildY = sgY + 160;
           let maxChildX = sgX + 400;
           innerN.forEach(n => {
-            maxChildY = Math.max(maxChildY, n.y + (n.expanded ? 280 : 120));
-            maxChildX = Math.max(maxChildX, n.x + 340);
+            maxChildY = Math.max(maxChildY, n.y + 180);
+            maxChildX = Math.max(maxChildX, n.x + 280);
           });
           innerS.forEach(s => {
             maxChildY = Math.max(maxChildY, s.y + (s.height || 420));
@@ -2841,7 +2912,7 @@ export default function WorkflowApp() {
       allNodeIds.forEach(nid => {
         const n = workingNodes.find(nd => nd.id === nid);
         if (n) {
-          maxX = Math.max(maxX, n.x + 340);
+          maxX = Math.max(maxX, n.x + 280);
         }
       });
 
@@ -2862,7 +2933,7 @@ export default function WorkflowApp() {
     workingNodes = workingNodes.map(node => {
       if (!node.groupId) {
         const nodeY = looseY;
-        looseY += (node.expanded ? 280 : 120) + 40;
+        looseY += 180 + 40;
         return { ...node, x: looseX, y: nodeY };
       }
       return node;
@@ -2893,49 +2964,46 @@ export default function WorkflowApp() {
     });
   };
 
-  const NODE_WIDTH = 340;
   const HEADER_CENTER_Y = 24;
 
   const getConnectionPoint = (nodeId, isSource) => {
     const node = nodes.find(n => n.id === nodeId);
-    if (!node) return null;
-
-    let outermostCollapsedParent = null;
-    let currParentId = node.groupId;
-    while (currParentId) {
-      const parentGroup = groups.find(g => g.id === currParentId);
-      if (!parentGroup) break;
-      if (!parentGroup.expanded) {
-        outermostCollapsedParent = parentGroup;
+    if (!node) {
+      // Check if it's an image object
+      const img = (activeWs?.images || []).find(i => i.id === nodeId);
+      if (img) {
+        const imgX = draggingImage?.id === img.id ? draggingImage.currentX : img.x;
+        const imgY = draggingImage?.id === img.id ? draggingImage.currentY : img.y;
+        return {
+          x: isSource ? imgX + (img.width || 280) : imgX,
+          y: imgY + (img.height || 180) / 2
+        };
       }
-      currParentId = parentGroup.parentGroupId;
+      // Check if it's a group
+      const group = groups.find(g => g.id === nodeId);
+      if (group) {
+        const coords = getLiveCoordinates(group, true);
+        const gW = group.width || 440;
+        const gH = group.height || 420;
+        return {
+          x: isSource ? coords.x + gW : coords.x,
+          y: coords.y + gH / 2
+        };
+      }
+      return null;
     }
 
-    if (outermostCollapsedParent) {
-      const pGroup = outermostCollapsedParent;
-      const coords = getLiveCoordinates(pGroup, true);
-      const gW = pGroup.width || 440;
-
-      return {
-        x: isSource ? coords.x + gW : coords.x,
-        y: coords.y + 24
-      };
-    }
-
+    const dims = getNodeDimensions(node);
     const coords = getLiveCoordinates(node, false);
     return {
-      x: isSource ? coords.x + NODE_WIDTH : coords.x,
+      x: isSource ? coords.x + dims.width : coords.x,
       y: coords.y + HEADER_CENTER_Y
     };
   };
 
   const getTaskStats = () => {
     const total = nodes.length;
-    const completed = nodes.filter(n => n.status === 'Done').length;
-    const inProgress = nodes.filter(n => n.status === 'In Progress').length;
-    const todo = nodes.filter(n => n.status === 'Todo').length;
-    const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
-    return { total, completed, inProgress, todo, progressPercent };
+    return { total };
   };
 
   const stats = getTaskStats();
@@ -2945,16 +3013,14 @@ export default function WorkflowApp() {
 
   // --- Outline Board Content ---
   const renderOutlineCard = (node) => {
-    const nTheme = THEMES[node.theme] || THEMES.amber;
+    const nTheme = THEMES[node.theme] || THEMES.blue;
     const isExpanded = expandedOutlineCards[node.id];
     return (
       <div key={node.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-200">
         <div className={`flex items-center gap-2 px-3 py-2.5 border-b ${isExpanded ? 'border-slate-100' : 'border-transparent'}`}>
           <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${nTheme.port}`} />
-          <span className="flex-1 text-xs font-semibold text-slate-700 truncate">{node.title || `Task #${node.id}`}</span>
+          <span className="flex-1 text-xs font-semibold text-slate-700 truncate">{node.title || `Card #${node.id}`}</span>
           <div className="flex items-center gap-1 shrink-0">
-            {node.nodeType !== 'concept' && <button onClick={() => { takeSnapshot(); updateNode(node.id, { priority: node.priority === 'High' ? 'Medium' : node.priority === 'Medium' ? 'Low' : 'High' }); }} className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase border transition-all cursor-pointer hover:opacity-80 ${node.priority === 'High' ? 'bg-red-50 text-red-700 border-red-200' : node.priority === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`} title="Tap to cycle priority">{node.priority}</button>}
-            {node.nodeType !== 'concept' && <button onClick={() => { takeSnapshot(); const statuses = ['Todo', 'In Progress', 'Done', 'Milestone']; const idx = statuses.indexOf(node.status); updateNode(node.id, { status: statuses[(idx + 1) % statuses.length] }); }} className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase border transition-all cursor-pointer hover:opacity-80 ${node.status === 'Done' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : node.status === 'In Progress' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : node.status === 'Milestone' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`} title="Tap to cycle status">{node.status}</button>}
             <button onClick={() => setExpandedOutlineCards(prev => ({...prev, [node.id]: !prev[node.id]}))} className="p-1 hover:bg-slate-100 rounded-md text-slate-400">
               {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
@@ -2970,17 +3036,6 @@ export default function WorkflowApp() {
               onFocus={() => takeSnapshot()}
               onChange={(e) => updateNode(node.id, { content: e.target.value })}
             />
-            {node.image ? (
-              <div className="relative group rounded-lg overflow-hidden border border-slate-200">
-                <img src={node.image} alt="attachment" className="max-h-32 w-full object-cover" />
-                <button onClick={() => { takeSnapshot(); updateNode(node.id, { image: null }); }} className="absolute top-1.5 right-1.5 p-1 bg-white/90 hover:bg-red-50 hover:text-red-500 text-slate-400 rounded shadow text-xs transition-colors opacity-0 group-hover:opacity-100"><X className="w-3 h-3" /></button>
-              </div>
-            ) : (
-              <label className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 hover:text-indigo-600 cursor-pointer transition-colors">
-                <ImageIcon className="w-3.5 h-3.5" /><span>Upload image</span>
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if(f) setPendingImageDrop({file:f, nodeId: node.id}); e.target.value=null; }} />
-              </label>
-            )}
           </div>
         )}
       </div>
@@ -2990,17 +3045,13 @@ export default function WorkflowApp() {
 
   const outlineBoardContent = (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-3">
-      {groups.filter(g => !g.parentGroupId).map(group => {
-        const theme = THEMES[group.theme] || THEMES.amber;
+      {groups.map(group => {
+        const theme = THEMES[group.theme] || THEMES.blue;
         const childNodes = nodes.filter(n => n.groupId === group.id);
-        const childSubgroups = groups.filter(g2 => g2.parentGroupId === group.id);
-        const totalChildren = childNodes.length + childSubgroups.length;
+        const totalChildren = childNodes.length;
         return (
           <div key={group.id} className={`rounded-2xl border-2 border-dashed overflow-hidden ${theme.groupBg}`}>
             <div className={`relative flex items-center gap-2 px-4 py-3 ${theme.groupHeader} border-b`}>
-              <button onClick={() => updateGroup(group.id, { expanded: !group.expanded })} className="shrink-0 p-0.5 hover:bg-white/50 rounded-md transition-colors">
-                {group.expanded ? <ChevronDown className={`w-4 h-4 ${theme.text}`} /> : <ChevronRight className={`w-4 h-4 ${theme.text}`} />}
-              </button>
               <div className={`w-3 h-3 rounded-full shrink-0 ${theme.port}`} />
               <input className={`bg-transparent font-bold focus:bg-white/60 focus:outline-none rounded px-1 py-0.5 text-xs tracking-wide uppercase flex-1 min-w-0 ${theme.text}`} value={group.name || ''} onChange={(e) => updateGroup(group.id, { name: e.target.value })} />
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/60 border ${theme.tag}`}>{totalChildren} items</span>
@@ -3015,40 +3066,14 @@ export default function WorkflowApp() {
               <button onClick={() => addNode(undefined, undefined, group.id)} className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`} title="Add card"><Plus className="w-3.5 h-3.5" /></button>
               <button onClick={() => deleteGroup(group.id)} className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-colors"><X className="w-3.5 h-3.5" /></button>
             </div>
-            {group.expanded && (
-              <div className="p-3 space-y-2">
-                {childNodes.map(node => renderOutlineCard(node))}
-                {childSubgroups.map(sub => {
-                  const subTheme = THEMES[sub.theme] || THEMES.blue;
-                  const subNodes = nodes.filter(n => n.groupId === sub.id);
-                  return (
-                    <div key={sub.id} className={`rounded-xl border-2 border-dashed ml-3 overflow-hidden ${subTheme.groupBg}`}>
-                      <div className={`flex items-center gap-2 px-3 py-2.5 ${subTheme.groupHeader} border-b`}>
-                        <button onClick={() => updateGroup(sub.id, { expanded: !sub.expanded })} className="shrink-0 p-0.5 hover:bg-white/50 rounded-md">
-                          {sub.expanded ? <ChevronDown className={`w-3.5 h-3.5 ${subTheme.text}`} /> : <ChevronRight className={`w-3.5 h-3.5 ${subTheme.text}`} />}
-                        </button>
-                        <span className={`text-[8px] font-bold uppercase tracking-wider ${subTheme.text} opacity-60`}>SUB</span>
-                        <input className={`bg-transparent font-bold focus:bg-white/60 focus:outline-none rounded px-1 py-0.5 text-xs tracking-wide uppercase flex-1 min-w-0 ${subTheme.text}`} value={sub.name || ''} onChange={(e) => updateGroup(sub.id, { name: e.target.value })} />
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/60 border ${subTheme.tag}`}>{subNodes.length}</span>
-                        <button onClick={() => addNode(undefined, undefined, sub.id)} className={`p-1 hover:bg-white/50 rounded-md ${subTheme.text}`}><Plus className="w-3 h-3" /></button>
-                        <button onClick={() => deleteGroup(sub.id)} className="p-1 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-md"><X className="w-3 h-3" /></button>
-                      </div>
-                      {sub.expanded && (
-                        <div className="p-2 space-y-1.5">
-                          {subNodes.map(n => renderOutlineCard(n))}
-                          {subNodes.length === 0 && <p className="text-[10px] italic text-slate-400 py-2 text-center">No cards in this subgroup</p>}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-                {childNodes.length === 0 && childSubgroups.length === 0 && (
-                  <button onClick={() => addNode(undefined, undefined, group.id)} className="w-full py-3 text-xs font-semibold text-slate-400 hover:text-indigo-600 hover:bg-white/50 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 transition-all flex items-center justify-center gap-1.5">
-                    <Plus className="w-3.5 h-3.5" /> Add first card
-                  </button>
-                )}
-              </div>
-            )}
+            <div className="p-3 space-y-2">
+              {childNodes.map(node => renderOutlineCard(node))}
+              {childNodes.length === 0 && (
+                <button onClick={() => addNode(undefined, undefined, group.id)} className="w-full py-3 text-xs font-semibold text-slate-400 hover:text-indigo-600 hover:bg-white/50 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 transition-all flex items-center justify-center gap-1.5">
+                  <Plus className="w-3.5 h-3.5" /> Add first card
+                </button>
+              )}
+            </div>
           </div>
         );
       })}
@@ -3465,21 +3490,12 @@ export default function WorkflowApp() {
               <button onClick={() => { autoAlignWorkspace(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                 <Sparkles className="w-4 h-4 mr-2.5 text-indigo-600" /> Auto-Align Canvas
               </button>
-              <button onClick={() => { collapseAllNodes(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                <Minimize2 className="w-4 h-4 mr-2.5 text-amber-600" /> Collapse All Nodes
-              </button>
-              <button onClick={() => { expandAllNodes(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                <Maximize2 className="w-4 h-4 mr-2.5 text-emerald-600" /> Expand All Nodes
-              </button>
               <div className="h-px bg-slate-100 my-1 mx-3"></div>
               <button onClick={() => { createGroup(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors">
                 <Layers className="w-4 h-4 mr-2.5" /> New Group
               </button>
-              <button onClick={() => { addNode(undefined, undefined, null, 'task'); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors">
-                <Plus className="w-4 h-4 mr-2.5" /> Add Task Node
-              </button>
-              <button onClick={() => { addNode(undefined, undefined, null, 'concept'); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-violet-700 hover:bg-violet-50 transition-colors">
-                <Sparkles className="w-4 h-4 mr-2.5" /> Add Concept Node
+              <button onClick={() => { addNode(undefined, undefined, null); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors">
+                <Plus className="w-4 h-4 mr-2.5" /> Add Card
               </button>
               <div className="h-px bg-slate-100 my-1 mx-3"></div>
               <button onClick={() => { exportAllData(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
@@ -3587,45 +3603,11 @@ export default function WorkflowApp() {
 
 
             <div className="p-4 border-b border-slate-100">
-              <span className="text-xs font-bold text-slate-400 tracking-wider uppercase block mb-3">Task Completion Stats</span>
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-3 cursor-pointer select-none" onClick={handleLogoTap}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-bold text-slate-500">Progress</span>
-                  <span className="text-sm font-bold text-indigo-600">{stats.progressPercent}%</span>
-                </div>
-                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                  <div className="bg-indigo-600 h-2 rounded-full transition-all duration-500" style={{ width: `${stats.progressPercent}%` }} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-slate-800">{stats.completed}</div>
-                    <div className="text-slate-400 font-medium">Completed</div>
-                  </div>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-amber-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-slate-800">{stats.inProgress}</div>
-                    <div className="text-slate-400 font-medium">In Progress</div>
-                  </div>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-blue-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-slate-800">{stats.todo}</div>
-                    <div className="text-slate-400 font-medium">Todo Items</div>
-                  </div>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
-                  <BarChart2 className="w-4 h-4 text-purple-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-slate-800">{stats.total}</div>
-                    <div className="text-slate-400 font-medium">Total Tasks</div>
-                  </div>
+              <span className="text-xs font-bold text-slate-400 tracking-wider uppercase block mb-3">Workspace Stats</span>
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 cursor-pointer select-none" onClick={handleLogoTap}>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-bold text-slate-500">Total Cards</span>
+                  <span className="text-sm font-bold text-indigo-600">{stats.total}</span>
                 </div>
               </div>
             </div>
@@ -3649,7 +3631,7 @@ export default function WorkflowApp() {
                         const centerY = rect.height / 2;
                         
                         setTransform({
-                          x: centerX - n.x * transform.scale - (NODE_WIDTH * transform.scale) / 2,
+                          x: centerX - n.x * transform.scale - (getNodeDimensions(n).width * transform.scale) / 2,
                           y: centerY - n.y * transform.scale - (140 * transform.scale) / 2,
                           scale: transform.scale
                         });
@@ -3666,11 +3648,8 @@ export default function WorkflowApp() {
                     >
                       <div className="flex items-center gap-1.5 overflow-hidden">
                         <div className={`w-2.5 h-2.5 rounded-full ${THEMES[n.theme]?.port || 'bg-amber-400'}`} />
-                        <span className="truncate">{n.title || `Task Node #${n.id}`}</span>
+                        <span className="truncate">{n.title || `Card #${n.id}`}</span>
                       </div>
-                      <span className="text-[10px] bg-slate-200/80 px-1.5 py-0.5 rounded text-slate-500 uppercase shrink-0 font-bold tracking-wide">
-                        {n.status}
-                      </span>
                     </div>
                   ))
                 )}
@@ -3693,6 +3672,8 @@ export default function WorkflowApp() {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleCanvasImageDrop}
           style={{ display: viewMode === 'canvas' ? undefined : 'none' }}
         >
           {/* Panning grid backdrop */}
@@ -3710,11 +3691,8 @@ export default function WorkflowApp() {
             
             {/* --- Render Phase Groups and Nested Subgroups --- */}
             {groups.map(group => {
-              if (group.parentGroupId) {
-                if (isGroupHidden(group.parentGroupId, groups)) return null;
-              }
 
-              const theme = THEMES[group.theme] || THEMES.amber;
+              const theme = THEMES[group.theme] || THEMES.blue;
               const isGrpDragging = draggingGroup?.id === group.id;
               
               const coords = getLiveCoordinates(group, true);
@@ -3723,140 +3701,118 @@ export default function WorkflowApp() {
               const displayW = group.width || 440;
               const displayH = group.height || 420;
 
-              const innerNodes = nodes.filter(n => n.groupId === group.id);
-              const innerSubgroups = groups.filter(g => g.parentGroupId === group.id);
               const isTargetHover = dragHoveredGroupId === group.id;
 
               return (
                 <div
                   key={group.id}
-                  className={`absolute rounded-2xl border-2 pointer-events-auto transition-shadow duration-150 ${theme.groupBg} ${
-                    isGrpDragging ? 'shadow-2xl border-indigo-500 z-20' : 'border-slate-300/60 z-0'
+                  className={`absolute rounded-xl border-2 pointer-events-auto group transition-shadow duration-150 cursor-grab active:cursor-grabbing ${theme.groupBg} ${
+                    isGrpDragging ? 'shadow-2xl border-indigo-500 z-20' : 'z-0'
                   } ${isTargetHover ? 'ring-4 ring-indigo-500/30 border-indigo-500 border-solid bg-indigo-50/10' : 'border-dashed'} ${
-                    group.parentGroupId ? 'border-indigo-400/50 scale-[0.98] shadow-inner' : ''
+                    connectHoverNodeId === group.id ? 'ring-2 ring-green-400 shadow-lg shadow-green-200/50' : ''
                   }`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
                     width: displayW,
-                    height: group.expanded ? displayH : 64
+                    height: displayH,
+                    backgroundColor: theme.cardBg + '40'
+                  }}
+                  onPointerEnter={() => { if (connecting && connecting.sourceId !== group.id) setConnectHoverNodeId(group.id); }}
+                  onPointerLeave={() => { if (connectHoverNodeId === group.id) setConnectHoverNodeId(null); }}
+                  onPointerUp={(e) => {
+                    if (connecting && connecting.sourceId !== group.id) {
+                      e.stopPropagation();
+                      const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === group.id);
+                      if (!exists) {
+                        takeSnapshot();
+                        updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: group.id }] }));
+                      }
+                      setConnecting(null);
+                      setConnectHoverNodeId(null);
+                    }
+                  }}
+                  onPointerDown={(e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
+                    e.stopPropagation();
+                    setFocusedGroupId(group.id);
+                    setFocusedNodeId(null);
+                    dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
+                    setDraggingGroup({
+                      id: group.id,
+                      startX: e.clientX,
+                      startY: e.clientY,
+                      initialX: group.x,
+                      initialY: group.y,
+                      currentX: group.x,
+                      currentY: group.y,
+                      width: group.width || 440,
+                      height: group.height || 420
+                    });
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const rect = workspaceRef.current.getBoundingClientRect();
+                    setGroupContextMenu({
+                      x: e.clientX - rect.left,
+                      y: e.clientY - rect.top,
+                      groupId: group.id
+                    });
+                    setContextMenu(null);
+                    setNodeContextMenu(null);
                   }}
                 >
 
-
-                  {/* Figma-Style Header Control */}
+                  {/* External floating label above group */}
                   <div 
-                    className={`flex items-center justify-between px-4 h-12 rounded-t-xl border-b cursor-grab active:cursor-grabbing select-none ${theme.groupHeader}`}
+                    className="absolute left-0 pointer-events-auto" 
+                    style={{ top: '-32px' }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
+                    <input 
+                      className="px-3 py-1 rounded-md font-bold text-xs tracking-wide uppercase border-0 outline-none"
+                      style={{ backgroundColor: theme.cardBg, color: '#1e293b', minWidth: '60px', width: `${Math.max(60, (group.name || '').length * 8 + 24)}px` }}
+                      value={group.name || ''}
+                      onChange={(e) => updateGroup(group.id, { name: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Resize handle */}
+                  <div 
+                    className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize flex items-end justify-end p-0.5 z-30 pointer-events-auto"
                     onPointerDown={(e) => {
                       e.stopPropagation();
-                      if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
-                      setFocusedGroupId(group.id);
-                      setFocusedNodeId(null);
+                      e.preventDefault();
                       dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
-                      setDraggingGroup({
+                      setResizingGroup({
                         id: group.id,
                         startX: e.clientX,
                         startY: e.clientY,
-                        initialX: group.x,
-                        initialY: group.y,
-                        currentX: group.x,
-                        currentY: group.y,
-                        width: group.width || 440,
-                        height: group.height || 420
+                        initialWidth: group.width || 440,
+                        initialHeight: group.height || 420
                       });
-                    }}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const rect = workspaceRef.current.getBoundingClientRect();
-                      setGroupContextMenu({
-                        x: e.clientX - rect.left,
-                        y: e.clientY - rect.top,
-                        groupId: group.id
-                      });
-                      setContextMenu(null);
-                      setNodeContextMenu(null);
                     }}
                   >
-                    <div className="flex items-center gap-2 flex-1 overflow-hidden">
-                      <Move className="w-3.5 h-3.5 shrink-0 opacity-50 text-slate-500" />
-                      <div className="flex flex-col flex-1 overflow-hidden">
-                        {group.parentGroupId && (
-                          <span className="text-[8px] font-bold text-indigo-500 uppercase tracking-wider block -mb-0.5">
-                            Subgroup under {groups.find(parent => parent.id === group.parentGroupId)?.name || 'Parent'}
-                          </span>
-                        )}
-                        <input 
-                          className={`bg-transparent font-bold focus:bg-white/50 focus:outline-none rounded px-1.5 py-0.5 text-xs tracking-wide uppercase w-full ${theme.text}`}
-                          value={group.name || ''}
-                          onChange={(e) => updateGroup(group.id, { name: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setOpenColorPicker(openColorPicker === group.id ? null : group.id); }}
-                        className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`}
-                        title="Group Color"
-                      >
-                        <Palette className="w-3.5 h-3.5" />
-                      </button>
-                      {openColorPicker === group.id && (
-                        <div className="absolute top-11 right-12 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex gap-1.5 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
-                          {Object.keys(THEMES).map(colorKey => (
-                            <button key={colorKey} onClick={() => { takeSnapshot(); updateGroup(group.id, { theme: colorKey }); setOpenColorPicker(null); }} className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${THEMES[colorKey].port}`}>
-                              {group.theme === colorKey && <Check className="w-3 h-3 text-white" />}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); addNode(undefined, undefined, group.id); }}
-                        className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`}
-                        title="Add Card inside Section"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button onClick={() => updateGroup(group.id, { expanded: !group.expanded })} className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`}>
-                        {group.expanded ? <ChevronDown className="w-3.5 h-3.5"/> : <ChevronRight className="w-3.5 h-3.5"/>}
-                      </button>
-                      <button onClick={() => deleteGroup(group.id)} className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-colors">
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    <svg width="12" height="12" viewBox="0 0 12 12" className="text-slate-400/80 hover:text-indigo-600 transition-colors">
+                      <path d="M12,0 L0,12 M12,4 L4,12 M12,8 L8,12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
                   </div>
 
-
-                  {!group.expanded && (
-                    <div className="p-3 text-[10px] font-bold text-slate-500 flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-indigo-500" /> {innerNodes.length + innerSubgroups.length} items minimized
-                    </div>
-                  )}
-
-                  {group.expanded && (
-                    <div 
-                      className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize flex items-end justify-end p-0.5 z-30 pointer-events-auto"
-                      onPointerDown={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
-                        setResizingGroup({
-                          id: group.id,
-                          startX: e.clientX,
-                          startY: e.clientY,
-                          initialWidth: group.width || 440,
-                          initialHeight: group.height || 420
-                        });
-                      }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 12 12" className="text-slate-400/80 hover:text-indigo-600 transition-colors">
-                        <path d="M12,0 L0,12 M12,4 L4,12 M12,8 L8,12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
-                    </div>
-                  )}
+                  {/* Connection Ports - visible on hover */}
+                  <div 
+                    className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
+                    onPointerDown={(e) => e.stopPropagation()} 
+                    onPointerUp={(e) => { e.stopPropagation(); if (connecting) { if (connecting.sourceId !== group.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === group.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: group.id }] })); } } setConnecting(null); setConnectHoverNodeId(null); } }}
+                  >
+                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
+                  </div>
+                  <div 
+                    className={`absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
+                    onPointerDown={(e) => { e.stopPropagation(); const coords = getWorkspaceCoords(e); setConnecting({ sourceId: group.id, startX: displayX + displayW, startY: displayY + displayH / 2, currentX: coords.x, currentY: coords.y }); }}
+                  >
+                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
+                  </div>
                 </div>
               );
             })}
@@ -3878,36 +3834,105 @@ export default function WorkflowApp() {
                 if (!startPos || !endPos) return null;
 
                 const sourceNode = nodes.find(n => n.id === edge.source);
-                const targetNode = nodes.find(n => n.id === edge.target);
-
-                if (sourceNode && targetNode) {
-                  if (shareCollapsedAncestor(sourceNode, targetNode, groups)) return null;
-                }
-
-                const sourceTheme = sourceNode ? (THEMES[sourceNode.theme] || THEMES.amber) : THEMES.amber;
+                const sourceImage = !sourceNode ? (activeWs?.images || []).find(i => i.id === edge.source) : null;
+                const sourceGroup = (!sourceNode && !sourceImage) ? groups.find(g => g.id === edge.source) : null;
+                const sourceThemeKey = sourceNode?.theme || sourceGroup?.theme || 'blue';
+                const sourceTheme = THEMES[sourceThemeKey] || THEMES.blue;
 
                 return (
-                  <g key={edge.id} className="cursor-pointer group animate-in fade-in" onClick={(e) => { e.stopPropagation(); removeEdge(edge.id); }} style={{ pointerEvents: 'auto' }} title="Click connection to remove">
+                  <g key={edge.id} className="cursor-pointer group animate-in fade-in" onClick={(e) => { e.stopPropagation(); if (e.ctrlKey || e.metaKey) { removeEdge(edge.id); } }} style={{ pointerEvents: 'auto' }} title="Ctrl+Click to disconnect">
                     <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke="transparent" strokeWidth={24} fill="none" />
-                    <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke={sourceTheme.line} strokeWidth={3} fill="none" markerEnd={`url(#arrow-${sourceNode?.theme || 'amber'})`} className="transition-all duration-300 group-hover:stroke-red-500 group-hover:stroke-[4px]" />
+                    <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke={sourceTheme.line} strokeWidth={3} fill="none" markerEnd={`url(#arrow-${sourceThemeKey})`} className="transition-all duration-300 group-hover:stroke-red-500 group-hover:stroke-[4px]" />
                   </g>
                 );
               })}
               
-              {connecting && (
-                <path d={drawCurve(connecting.startX, connecting.startY, connecting.currentX, connecting.currentY)} stroke={THEMES[nodes.find(n => n.id === connecting.sourceId)?.theme || 'amber'].line} strokeWidth={3} strokeDasharray="8,6" fill="none" className="animate-[dash_1s_linear_infinite]" />
-              )}
+              {connecting && (() => {
+                const sourceEntity = nodes.find(n => n.id === connecting.sourceId) || (activeWs?.images || []).find(i => i.id === connecting.sourceId) || groups.find(g => g.id === connecting.sourceId);
+                const strokeColor = THEMES[sourceEntity?.theme || 'blue'].line;
+                return (
+                  <path d={drawCurve(connecting.startX, connecting.startY, connecting.currentX, connecting.currentY)} stroke={strokeColor} strokeWidth={3} strokeDasharray="8,6" fill="none" className="animate-[dash_1s_linear_infinite]" />
+                );
+              })()}
             </svg>
 
 
+            {/* --- Canvas Image Objects --- */}
+            {(activeWs?.images || []).map(img => {
+              const imgX = draggingImage?.id === img.id ? draggingImage.currentX : img.x;
+              const imgY = draggingImage?.id === img.id ? draggingImage.currentY : img.y;
+              const imgW = img.width || 280;
+              const imgH = img.height || 180;
+
+              return (
+                <div
+                  key={img.id}
+                  className="absolute pointer-events-auto group rounded-lg border border-slate-300/60 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
+                  style={{
+                    left: imgX,
+                    top: imgY,
+                    width: imgW,
+                    height: imgH,
+                    zIndex: draggingImage?.id === img.id ? 9999 : 40
+                  }}
+                  onPointerDown={(e) => {
+                    if (e.target.closest('button')) return;
+                    e.stopPropagation();
+                    dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
+                    setDraggingImage({
+                      id: img.id,
+                      startX: e.clientX,
+                      startY: e.clientY,
+                      initialX: img.x,
+                      initialY: img.y,
+                      currentX: img.x,
+                      currentY: img.y
+                    });
+                  }}
+                >
+                  <img src={img.src} alt="Canvas image" className="w-full h-full object-cover" draggable={false} />
+                  {/* Delete button on hover */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteImage(img.id); }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="absolute top-1 right-1 p-1 bg-white/90 hover:bg-red-50 hover:text-red-500 text-slate-400 rounded shadow text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                  {/* Connection Ports */}
+                  <div
+                    className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-all opacity-0 group-hover:opacity-100 bg-indigo-500 hover:bg-indigo-400"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onPointerUp={(e) => {
+                      e.stopPropagation();
+                      if (connecting && connecting.sourceId !== img.id) {
+                        const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === img.id);
+                        if (!exists) {
+                          takeSnapshot();
+                          updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: img.id }] }));
+                        }
+                      }
+                      setConnecting(null);
+                    }}
+                  />
+                  <div
+                    className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-all opacity-0 group-hover:opacity-100 bg-indigo-500 hover:bg-indigo-400"
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      const coords = getWorkspaceCoords(e);
+                      setConnecting({ sourceId: img.id, startX: img.x + imgW, startY: img.y + imgH / 2, currentX: coords.x, currentY: coords.y });
+                    }}
+                  />
+                </div>
+              );
+            })}
+
             {/* --- Nodes Layer --- */}
             {nodes.map((node, index) => {
-              if (node.groupId) {
-                if (isGroupHidden(node.groupId, groups)) return null;
-              }
 
-              const theme = THEMES[node.theme] || THEMES.amber;
+              const theme = THEMES[node.theme] || THEMES.blue;
               const isDragging = draggingNode?.id === node.id;
+              const nodeDims = getNodeDimensions(node);
               
               const coords = getLiveCoordinates(node, false);
               const displayX = coords.x;
@@ -3918,17 +3943,24 @@ export default function WorkflowApp() {
               return (
                 <div
                   key={node.id}
-                  className={`absolute rounded-xl border w-[${NODE_WIDTH}px] flex flex-col pointer-events-auto bg-white/95 backdrop-blur-sm ${theme.wrapper} ${
-                    isDragging ? 'shadow-2xl scale-[1.03] ring-2 ring-indigo-500' : 'transition-all duration-150 shadow-md'
-                  } ${dragOverNodeId === node.id ? 'ring-4 ring-indigo-400 ring-opacity-50 scale-[1.02]' : ''} ${
+                  className={`absolute rounded-lg border shadow-sm pointer-events-auto group flex flex-col ${
+                    isDragging ? 'shadow-lg scale-[1.02] z-[9999]' : 'transition-all duration-150'
+                  } ${
                     isFocused ? 'ring-4 ring-indigo-500 animate-[pulse_1.5s_infinite]' : ''
-                  } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+                  } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-offset-1' : 'border-slate-200 hover:border-slate-300'} ${
+                    connectHoverNodeId === node.id ? 'ring-2 ring-green-400 shadow-lg shadow-green-200/50' : ''
+                  }`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
-                    width: NODE_WIDTH,
+                    width: nodeDims.width,
+                    backgroundColor: theme.cardBg || '#bfdbfe',
+                    padding: 12,
+                    ...(selectedNodeIds.includes(node.id) ? { borderColor: theme.border || '#3b82f6' } : {}),
                     zIndex: isDragging ? 9999 : (isFocused ? 999 : 50 + index) 
                   }}
+                  onPointerEnter={() => { if (connecting && connecting.sourceId !== node.id) setConnectHoverNodeId(node.id); }}
+                  onPointerLeave={() => { if (connectHoverNodeId === node.id) setConnectHoverNodeId(null); }}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3941,239 +3973,159 @@ export default function WorkflowApp() {
                     });
                     setContextMenu(null);
                   }}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverNodeId(node.id); }}
-                  onDragLeave={(e) => { e.preventDefault(); setDragOverNodeId(null); }}
-                  onDrop={(e) => handleImageDrop(e, node.id)}
+                  onPointerDown={(e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.closest('button') || e.target.closest('select')) return;
+                    e.stopPropagation();
+                    if (e.ctrlKey || e.metaKey) {
+                      e.preventDefault();
+                      setSelectedNodeIds(prev => 
+                        prev.includes(node.id) ? prev.filter(id => id !== node.id) : [...prev, node.id]
+                      );
+                      return;
+                    }
+                    nodeTapRef.current = { id: node.id, startX: e.clientX, startY: e.clientY, time: Date.now(), pointerType: e.pointerType };
+                    dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
+                    bringToFront(node.id);
+                    setDraggingNode({ 
+                      id: node.id, 
+                      startX: e.clientX, 
+                      startY: e.clientY, 
+                      initialX: node.x, 
+                      initialY: node.y,
+                      currentX: node.x,
+                      currentY: node.y
+                    });
+                    draggingNodeRef.current = {
+                      id: node.id,
+                      startX: e.clientX,
+                      startY: e.clientY,
+                      initialX: node.x,
+                      initialY: node.y,
+                      currentX: node.x,
+                      currentY: node.y
+                    };
+                  }}
+                  onPointerUp={(e) => {
+                    // Handle connection drop on entire card
+                    if (connecting && connecting.sourceId !== node.id) {
+                      e.stopPropagation();
+                      const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id);
+                      if (!exists) {
+                        takeSnapshot();
+                        updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] }));
+                      }
+                      setConnecting(null);
+                      setConnectHoverNodeId(null);
+                      return;
+                    }
+                    if (nodeTapRef.current && nodeTapRef.current.id === node.id && nodeTapRef.current.pointerType === 'touch') {
+                      const elapsed = Date.now() - nodeTapRef.current.time;
+                      const moved = Math.hypot(e.clientX - nodeTapRef.current.startX, e.clientY - nodeTapRef.current.startY);
+                      if (elapsed < 350 && moved < 10) {
+                        setMobileSheet(node.id);
+                      }
+                    }
+                    nodeTapRef.current = null;
+                  }}
                 >
-                  <div className="absolute -top-3.5 left-5 flex items-center gap-1.5 z-20">
-                    <div className={`px-3 py-0.5 rounded-full text-[10px] font-bold shadow-sm border flex items-center gap-1.5 ${theme.tag}`}>
-                      {(node.nodeType === 'concept') ? <><Sparkles className="w-3.5 h-3.5" /> CONCEPT {node.id}</> : <><FileText className="w-3.5 h-3.5" /> TASK {node.id}</>}
-                    </div>
-                    {node.cloneSourceId && (
-                      <div className="px-2 py-0.5 rounded-full text-[9px] font-bold shadow-sm border flex items-center gap-1 bg-violet-100 text-violet-700 border-violet-300">
-                        <Copy className="w-3 h-3" /> CLONE
+                  {/* Title */}
+                  <input 
+                    className="bg-transparent font-bold focus:outline-none focus:bg-slate-50 rounded px-1 w-full text-sm text-slate-800 placeholder-slate-400 cursor-grab active:cursor-grabbing" 
+                    value={node.title || ''} 
+                    placeholder="Enter Title..." 
+                    onFocus={() => takeSnapshot()} 
+                    onChange={(e) => updateNode(node.id, { title: e.target.value })} 
+                    onPointerDown={(e) => e.stopPropagation()}
+                  />
+
+                  {/* Content */}
+                  <div className="mt-2 flex-1 min-h-[3rem]" onPointerDown={(e) => e.stopPropagation()}>
+                    {editingTextNode === node.id ? (
+                      <textarea 
+                        autoFocus
+                        onBlur={() => setEditingTextNode(null)}
+                        className="w-full h-full min-h-[3rem] bg-transparent resize-none focus:outline-none text-slate-600 text-xs leading-relaxed placeholder-slate-400 custom-scrollbar" 
+                        value={node.content || ''} 
+                        onChange={(e) => updateNode(node.id, { content: e.target.value })} 
+                        placeholder="Write notes or details..." 
+                      />
+                    ) : (
+                      <div 
+                        onClick={() => { takeSnapshot(); setEditingTextNode(node.id); }}
+                        className="w-full h-full min-h-[3rem] bg-transparent overflow-y-auto text-slate-600 text-xs leading-relaxed custom-scrollbar cursor-text whitespace-pre-wrap"
+                        title="Click to edit content"
+                      >
+                        {node.content ? renderLinks(node.content) : <span className="text-slate-400 italic">Write notes or details...</span>}
                       </div>
                     )}
                   </div>
 
-                  {node.nodeType !== 'concept' && (
-                  <div className="absolute -top-3.5 right-5 flex items-center gap-1 z-20">
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase border ${
-                      node.priority === 'High' ? 'bg-red-50 text-red-700 border-red-200' :
-                      node.priority === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                      'bg-slate-50 text-slate-500 border-slate-200'
-                    }`}>
-                      {node.priority}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase border ${
-                      node.status === 'Done' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                      node.status === 'In Progress' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
-                      'bg-slate-100 text-slate-600 border-slate-200'
-                    }`}>
-                      {node.status}
-                    </span>
-                  </div>
+                  {/* Link Portal */}
+                  {node.linkToTab && (
+                    <button 
+                      onClick={() => { const target = workspaces.find(w => w.id === node.linkToTab); if (target) setActiveTab(target.id); }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      className="flex items-center justify-between px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-md border border-indigo-200/80 transition-all w-full mt-2"
+                    >
+                      <span className="flex items-center gap-1"><ExternalLink className="w-3 h-3 text-indigo-600" /> Portal</span>
+                      <span className="text-indigo-900 font-extrabold max-w-[100px] truncate text-[10px]">{workspaces.find(w => w.id === node.linkToTab)?.name || 'Linked Map'}</span>
+                    </button>
                   )}
 
-
-                  {/* Drag Handle Header */}
-                  <div
-                    className={`flex items-center justify-between px-3 h-12 rounded-t-xl border-b cursor-grab active:cursor-grabbing select-none relative ${theme.header}`}
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      if (e.target.tagName === 'INPUT' || e.target.closest('button') || e.target.closest('select')) return;
-                      if (e.ctrlKey || e.metaKey) {
-                        e.preventDefault();
-                        setSelectedNodeIds(prev => 
-                          prev.includes(node.id) ? prev.filter(id => id !== node.id) : [...prev, node.id]
-                        );
-                        return;
-                      }
-                      nodeTapRef.current = { id: node.id, startX: e.clientX, startY: e.clientY, time: Date.now(), pointerType: e.pointerType };
-                      dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
-                      bringToFront(node.id);
-                      setDraggingNode({ 
-                        id: node.id, 
-                        startX: e.clientX, 
-                        startY: e.clientY, 
-                        initialX: node.x, 
-                        initialY: node.y,
-                        currentX: node.x,
-                        currentY: node.y
-                      });
-                      draggingNodeRef.current = {
-                        id: node.id,
-                        startX: e.clientX,
-                        startY: e.clientY,
-                        initialX: node.x,
-                        initialY: node.y,
-                        currentX: node.x,
-                        currentY: node.y
-                      };
-                    }}
-                    onPointerUp={(e) => {
-                      if (nodeTapRef.current && nodeTapRef.current.id === node.id && nodeTapRef.current.pointerType === 'touch') {
-                        const elapsed = Date.now() - nodeTapRef.current.time;
-                        const moved = Math.hypot(e.clientX - nodeTapRef.current.startX, e.clientY - nodeTapRef.current.startY);
-                        if (elapsed < 350 && moved < 10) {
-                          setMobileSheet(node.id);
-                        }
-                      }
-                      nodeTapRef.current = null;
-                    }}
-                  >
-                    <div className="flex items-center gap-2 flex-1 overflow-hidden pl-2 mt-1">
-                      <GripHorizontal className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <input className="bg-transparent font-bold focus:outline-none focus:bg-white/80 rounded px-1.5 w-full text-xs text-slate-800 placeholder-slate-400" value={node.title || ''} placeholder="Enter Title..." onFocus={() => takeSnapshot()} onChange={(e) => updateNode(node.id, { title: e.target.value })} />
+                  {/* Clone indicator */}
+                  {node.cloneSourceId && (
+                    <div className="absolute bottom-2 right-2">
+                      <Copy className="w-3 h-3 text-violet-400" />
                     </div>
-                    
-                    <div className="flex items-center gap-0.5 shrink-0 ml-1 mt-1 relative">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setOpenLinkPicker(openLinkPicker === node.id ? null : node.id); setOpenColorPicker(null); }}
-                        className={`p-1 hover:bg-white/50 rounded text-slate-500 ${node.linkToTab ? 'text-indigo-600 font-bold' : ''}`}
-                        title="Link Portal to Tab"
-                      >
-                        <Link2 className="w-3.5 h-3.5" />
-                      </button>
-                      {openLinkPicker === node.id && (
-                        <div className="absolute top-10 right-0 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex flex-col gap-1 z-50 pointer-events-auto min-w-[150px]" onClick={(e) => e.stopPropagation()}>
-                          <span className="text-[9px] font-bold text-slate-400 px-2 py-1 uppercase tracking-wider">Tab Portal Link:</span>
-                          <button 
-                            onClick={() => { takeSnapshot(); updateNode(node.id, { linkToTab: null }); setOpenLinkPicker(null); }}
-                            className="w-full text-left px-2 py-1 text-xs font-semibold rounded hover:bg-slate-100 text-red-500"
-                          >
-                            Disconnect Portal
+                  )}
+
+                  {/* Hover toolbar */}
+                  <div className="absolute -top-8 right-1 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-md shadow border border-slate-200 px-1 py-0.5" onPointerDown={(e) => e.stopPropagation()}>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setOpenLinkPicker(openLinkPicker === node.id ? null : node.id); setOpenColorPicker(null); }}
+                      className={`p-1 hover:bg-slate-100 rounded text-slate-500 ${node.linkToTab ? 'text-indigo-600' : ''}`}
+                      title="Link Portal"
+                    >
+                      <Link2 className="w-3 h-3" />
+                    </button>
+                    {openLinkPicker === node.id && (
+                      <div className="absolute top-8 right-0 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex flex-col gap-1 z-50 pointer-events-auto min-w-[150px]" onClick={(e) => e.stopPropagation()}>
+                        <span className="text-[9px] font-bold text-slate-400 px-2 py-1 uppercase tracking-wider">Tab Portal Link:</span>
+                        <button onClick={() => { takeSnapshot(); updateNode(node.id, { linkToTab: null }); setOpenLinkPicker(null); }} className="w-full text-left px-2 py-1 text-xs font-semibold rounded hover:bg-slate-100 text-red-500">Disconnect Portal</button>
+                        {workspaces.map(ws => (
+                          <button key={ws.id} onClick={() => { takeSnapshot(); updateNode(node.id, { linkToTab: ws.id }); setOpenLinkPicker(null); }} className="w-full text-left px-2 py-1 text-xs font-semibold rounded hover:bg-slate-100 flex items-center justify-between text-slate-700">
+                            <span>{ws.name}</span>
+                            {node.linkToTab === ws.id && <Check className="w-3 h-3 text-indigo-600" />}
                           </button>
-                          {workspaces.map(ws => (
-                            <button
-                              key={ws.id}
-                              onClick={() => { takeSnapshot(); updateNode(node.id, { linkToTab: ws.id }); setOpenLinkPicker(null); }}
-                              className="w-full text-left px-2 py-1 text-xs font-semibold rounded hover:bg-slate-100 flex items-center justify-between text-slate-700"
-                            >
-                              <span>{ws.name}</span>
-                              {node.linkToTab === ws.id && <Check className="w-3 h-3 text-indigo-600" />}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      <button onClick={(e) => { e.stopPropagation(); setOpenColorPicker(openColorPicker === node.id ? null : node.id); setOpenLinkPicker(null); }} className="p-1 hover:bg-white/50 rounded text-slate-500" title="Node Theme"><Palette className="w-3.5 h-3.5"/></button>
-                      {openColorPicker === node.id && (
-                        <div className="absolute top-10 right-0 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex gap-1.5 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
-                          {Object.keys(THEMES).map(colorKey => (
-                            <button key={colorKey} onClick={() => { takeSnapshot(); updateNode(node.id, { theme: colorKey }); setOpenColorPicker(null); }} className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${THEMES[colorKey].port}`}>
-                              {node.theme === colorKey && <Check className="w-3 h-3 text-white" />}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      <button onClick={() => { takeSnapshot(); updateNode(node.id, { expanded: !node.expanded }); }} className="p-1 hover:bg-white/50 rounded text-slate-500" title="Expand/Collapse">{node.expanded ? <ChevronDown className="w-3.5 h-3.5"/> : <ChevronRight className="w-3.5 h-3.5"/>}</button>
-                      <button onClick={() => deleteNode(node.id)} className="p-1 hover:bg-red-100 hover:text-red-600 rounded text-slate-400" title="Delete Node"><X className="w-3.5 h-3.5"/></button>
-                    </div>
-
-
-                    {/* Connecting Ports */}
-                    <div className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4.5 h-4.5 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-transform group ${theme.port}`} onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== node.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] })); } } setConnecting(null); }}>
-                       <div className="absolute inset-0 m-auto w-8 h-8 -left-2 -top-2 rounded-full opacity-0 hover:opacity-20 bg-current transition-opacity" />
-                    </div>
-                    <div className={`absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-4.5 h-4.5 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-transform group ${theme.port}`} onPointerDown={(e) => { e.stopPropagation(); bringToFront(node.id); const coords = getWorkspaceCoords(e); setConnecting({ sourceId: node.id, startX: node.x + NODE_WIDTH, startY: node.y + HEADER_CENTER_Y, currentX: coords.x, currentY: coords.y }); }}>
-                       <div className="absolute inset-0 m-auto w-8 h-8 -left-2 -top-2 rounded-full opacity-0 hover:opacity-20 bg-current transition-opacity" title="Drag to Connect" />
-                    </div>
+                        ))}
+                      </div>
+                    )}
+                    <button onClick={(e) => { e.stopPropagation(); setOpenColorPicker(openColorPicker === node.id ? null : node.id); setOpenLinkPicker(null); }} className="p-1 hover:bg-slate-100 rounded text-slate-500" title="Theme"><Palette className="w-3 h-3"/></button>
+                    {openColorPicker === node.id && (
+                      <div className="absolute top-8 right-0 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex gap-1.5 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                        {Object.keys(THEMES).map(colorKey => (
+                          <button key={colorKey} onClick={() => { takeSnapshot(); updateNode(node.id, { theme: colorKey }); setOpenColorPicker(null); }} className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${THEMES[colorKey].port}`}>
+                            {node.theme === colorKey && <Check className="w-3 h-3 text-white" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <button onClick={() => deleteNode(node.id)} className="p-1 hover:bg-red-100 hover:text-red-600 rounded text-slate-400" title="Delete"><X className="w-3 h-3"/></button>
                   </div>
 
-                  {/* Expandable description body */}
-                  <div className={`transition-all duration-300 overflow-hidden ${node.expanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="p-4 flex flex-col gap-3 min-h-[9rem]" onPointerDown={(e) => e.stopPropagation()}>
-                      
-                      {node.linkToTab && (
-                        <button 
-                          onClick={() => {
-                            const target = workspaces.find(w => w.id === node.linkToTab);
-                            if (target) {
-                              setActiveTab(target.id);
-                            }
-                          }}
-                          className="flex items-center justify-between px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200/80 transition-all group pointer-events-auto w-full"
-                        >
-                          <span className="flex items-center gap-1.5">
-                            <ExternalLink className="w-3.5 h-3.5 animate-pulse text-indigo-600" />
-                            Portal: Jump to Map
-                          </span>
-                          <span className="text-indigo-900 font-extrabold max-w-[120px] truncate">
-                            "{workspaces.find(w => w.id === node.linkToTab)?.name || 'Linked Map'}"
-                          </span>
-                        </button>
-                      )}
-
-                      {node.image && (
-                        <div className="relative group w-full bg-black/5 rounded-lg p-2 border border-black/5 flex items-center justify-center">
-                          <img src={node.image} alt="Node attachment" className="max-h-48 w-auto object-contain rounded" draggable={false} />
-                          <button 
-                            onClick={() => { takeSnapshot(); updateNode(node.id, { image: null }); }}
-                            className="absolute top-2 right-2 p-1.5 bg-white text-slate-400 hover:text-red-500 rounded-md shadow opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Remove Image"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
-
-
-                      {/* Text Editor area */}
-                      <div className="flex-1 w-full min-h-[4rem]">
-                        {editingTextNode === node.id ? (
-                          <textarea 
-                            autoFocus
-                            onBlur={() => setEditingTextNode(null)}
-                            className="w-full h-full min-h-[4rem] bg-transparent resize-none focus:outline-none text-slate-600 text-xs leading-relaxed placeholder-slate-400 custom-scrollbar" 
-                            value={node.content || ''} 
-                            onChange={(e) => updateNode(node.id, { content: e.target.value })} 
-                            placeholder="Write detailed requirements, paste a link, or drag-and-drop an image here..." 
-                          />
-                        ) : (
-                          <div 
-                            onClick={() => { takeSnapshot(); setEditingTextNode(node.id); }}
-                            className="w-full h-full min-h-[4rem] bg-transparent overflow-y-auto text-slate-600 text-xs leading-relaxed custom-scrollbar cursor-text whitespace-pre-wrap"
-                            title="Click to edit content"
-                          >
-                            {node.content ? renderLinks(node.content) : <span className="text-slate-400 italic">Write detailed requirements, paste a link, or drag-and-drop an image here...</span>}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Task Property Editor */}
-                      {node.nodeType !== 'concept' && (
-                      <div className="flex justify-between items-center pt-2.5 border-t border-slate-100 gap-2">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">State</span>
-                          <select 
-                            className="text-xs bg-slate-50 border border-slate-200 rounded px-1 py-0.5 font-bold text-slate-700 outline-none hover:bg-slate-100 select-none cursor-pointer"
-                            value={node.status || 'Todo'}
-                            onChange={(e) => { takeSnapshot(); updateNode(node.id, { status: e.target.value }); }}
-                          >
-                            <option value="Todo">📌 Todo</option>
-                            <option value="In Progress">⚡ In Progress</option>
-                            <option value="Done">✅ Done</option>
-                            <option value="Milestone">🏁 Milestone</option>
-                          </select>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">Priority</span>
-                          <select 
-                            className="text-xs bg-slate-50 border border-slate-200 rounded px-1 py-0.5 font-bold text-slate-700 outline-none hover:bg-slate-100 select-none cursor-pointer"
-                            value={node.priority || 'Medium'}
-                            onChange={(e) => { takeSnapshot(); updateNode(node.id, { priority: e.target.value }); }}
-                          >
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">🔥 High</option>
-                          </select>
-                        </div>
-                      </div>
-                      )}
-                    </div>
+                  {/* Connection Ports - visible on hover */}
+                  <div 
+                    className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
+                    onPointerDown={(e) => e.stopPropagation()} 
+                    onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== node.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] })); } } setConnecting(null); setConnectHoverNodeId(null); }}
+                  >
+                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
+                  </div>
+                  <div 
+                    className={`absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
+                    onPointerDown={(e) => { e.stopPropagation(); bringToFront(node.id); const coords = getWorkspaceCoords(e); setConnecting({ sourceId: node.id, startX: node.x + nodeDims.width, startY: node.y + HEADER_CENTER_Y, currentX: coords.x, currentY: coords.y }); }}
+                  >
+                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
                   </div>
                 </div>
               );
@@ -4198,6 +4150,7 @@ export default function WorkflowApp() {
           <MiniMap
             nodes={nodes}
             groups={groups}
+            images={activeWs?.images || []}
             transform={transform}
             setTransform={setTransform}
             workspaceRef={workspaceRef}
@@ -4207,10 +4160,6 @@ export default function WorkflowApp() {
 
           {/* --- Bottom-Right Floating Zoom and Guides --- */}
           <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-center gap-2 sm:gap-3 z-50">
-            <div className="hidden sm:flex bg-white rounded-lg shadow-lg border border-slate-200 px-3.5 py-2.5 text-xs text-slate-500 font-medium items-center gap-2 max-w-sm">
-              <HelpCircle className="w-4 h-4 text-indigo-600 shrink-0" />
-              <span>Right click cards to duplicate/raise. Double border indicates nested sub-group.</span>
-            </div>
 
             <div className="flex flex-col items-center bg-white rounded-lg shadow-lg border border-slate-200 p-1">
               <button onClick={() => handleZoom(0.25)} className="p-1.5 sm:p-2 hover:bg-slate-100 text-slate-600 rounded-md transition-colors" title="Zoom In"><ZoomIn className="w-4 h-4 sm:w-5 sm:h-5"/></button>
@@ -4232,11 +4181,8 @@ export default function WorkflowApp() {
               onClick={(e) => e.stopPropagation()}
               onContextMenu={(e) => e.preventDefault()}
             >
-              <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { addNode(contextMenu.clientX, contextMenu.clientY, null, 'task'); setContextMenu(null); }}>
-                <Plus className="w-4 h-4 mr-2 text-indigo-600" /> Add Task Node Here
-              </button>
-              <button className="w-full text-left px-4 py-2 hover:bg-violet-50 hover:text-violet-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { addNode(contextMenu.clientX, contextMenu.clientY, null, 'concept'); setContextMenu(null); }}>
-                <Sparkles className="w-4 h-4 mr-2 text-violet-600" /> Add Concept Node Here
+              <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { addNode(contextMenu.clientX, contextMenu.clientY, null); setContextMenu(null); }}>
+                <Plus className="w-4 h-4 mr-2 text-indigo-600" /> Add Card Here
               </button>
               <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { createGroup(contextMenu.clientX, contextMenu.clientY); setContextMenu(null); }}>
                 <Layers className="w-4 h-4 mr-2 text-indigo-600" /> Create Group Here
@@ -4350,6 +4296,23 @@ export default function WorkflowApp() {
             >
               <div className="px-4 py-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">Group Actions</div>
               
+              <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 text-xs font-semibold text-slate-700 flex items-center" onClick={() => { addNode(undefined, undefined, groupContextMenu.groupId); setGroupContextMenu(null); }}>
+                <Plus className="w-3.5 h-3.5 mr-2 text-slate-500" /> Add Card
+              </button>
+
+              <div className="h-px bg-slate-150 my-1 w-full" />
+
+              <div className="px-4 py-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">Color</div>
+              <div className="px-4 py-2 flex gap-1.5 flex-wrap">
+                {Object.keys(THEMES).map(colorKey => (
+                  <button key={colorKey} onClick={() => { takeSnapshot(); updateGroup(groupContextMenu.groupId, { theme: colorKey }); setGroupContextMenu(null); }} className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${THEMES[colorKey].port}`}>
+                    {(() => { const g = groups.find(gr => gr.id === groupContextMenu.groupId); return g && g.theme === colorKey ? <Check className="w-3 h-3 text-white" /> : null; })()}
+                  </button>
+                ))}
+              </div>
+
+              <div className="h-px bg-slate-150 my-1 w-full" />
+
               <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 text-xs font-semibold text-slate-700 flex items-center" onClick={() => { copyGroup(groupContextMenu.groupId); setGroupContextMenu(null); }}>
                 <Copy className="w-3.5 h-3.5 mr-2 text-slate-500" /> Copy Group
               </button>
@@ -4414,7 +4377,7 @@ export default function WorkflowApp() {
                     <p className="text-xs text-slate-400 text-center mt-4">No clone nodes yet. Right-click a node and select "Clone Node" to create one.</p>
                   ) : (
                     sourceNodes.map(srcNode => {
-                      const srcTheme = THEMES[srcNode.theme] || THEMES.amber;
+                      const srcTheme = THEMES[srcNode.theme] || THEMES.blue;
                       const isSelected = selectedCloneSourceId === srcNode.id;
                       const totalClones = workspaces.reduce((count, ws) => count + ws.nodes.filter(n => n.cloneSourceId === srcNode.id).length, 0);
                       return (
@@ -4589,43 +4552,12 @@ export default function WorkflowApp() {
         </div>
       )}
 
-      {pendingImageDrop && (
-        <div className="absolute inset-0 bg-slate-900/50 z-[100] flex items-center justify-center backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-lg font-bold text-slate-800 mb-1">Drop Image Options</h3>
-            <p className="text-slate-500 mb-6 text-xs leading-relaxed text-left">
-              How would you like to save this image? Compressing scales down resolution slightly to save browser workspace capacity.
-            </p>
-            <div className="flex flex-col gap-2.5">
-              <button 
-                onClick={() => processImage(pendingImageDrop.file, pendingImageDrop.nodeId, true)}
-                className="w-full px-4 py-2.5 text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
-              >
-                Compress (Recommended)
-              </button>
-              <button 
-                onClick={() => processImage(pendingImageDrop.file, pendingImageDrop.nodeId, false)}
-                className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
-              >
-                Original (Could slow down browser if massive)
-              </button>
-              <button 
-                onClick={() => setPendingImageDrop(null)}
-                className="w-full px-4 py-2.5 text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-transparent rounded-lg transition-colors mt-1"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
 
       {/* --- Mobile Card Action Bottom Sheet --- */}
       {mobileSheet && (() => {
         const sheetNode = nodes.find(n => n.id === mobileSheet);
         if (!sheetNode) return null;
-        const sheetTheme = THEMES[sheetNode.theme] || THEMES.amber;
+        const sheetTheme = THEMES[sheetNode.theme] || THEMES.blue;
         return (
           <div className="fixed inset-0 z-[300] flex flex-col justify-end" onClick={() => setMobileSheet(null)}>
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
@@ -4641,8 +4573,7 @@ export default function WorkflowApp() {
               <div className={`mx-4 mt-2 mb-3 p-3 rounded-2xl border ${sheetTheme.groupHeader} ${sheetTheme.groupBg}`}>
                 <div className="flex items-center gap-2.5">
                   <div className={`w-3 h-3 rounded-full ${sheetTheme.port}`} />
-                  <span className={`font-bold text-sm flex-1 truncate ${sheetTheme.text}`}>{sheetNode.title || `Task #${sheetNode.id}`}</span>
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${sheetTheme.tag}`}>{sheetNode.status}</span>
+                  <span className={`font-bold text-sm flex-1 truncate ${sheetTheme.text}`}>{sheetNode.title || `Card #${sheetNode.id}`}</span>
                 </div>
               </div>
 
@@ -4666,25 +4597,6 @@ export default function WorkflowApp() {
                 ))}
               </div>
 
-
-              <div className="px-4 py-3 border-t border-slate-100 mt-1 flex gap-4">
-                <div className="flex-1">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Status</span>
-                  <div className="flex flex-wrap gap-1">
-                    {['Todo', 'In Progress', 'Done', 'Milestone'].map(s => (
-                      <button key={s} onClick={() => { takeSnapshot(); updateNode(mobileSheet, { status: s }); }} className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all ${sheetNode.status === s ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>{s}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Priority</span>
-                  <div className="flex gap-1">
-                    {['Low', 'Medium', 'High'].map(p => (
-                      <button key={p} onClick={() => { takeSnapshot(); updateNode(mobileSheet, { priority: p }); }} className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all ${sheetNode.priority === p ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>{p}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
 
               <div className="px-4 pb-4">
                 <button onClick={() => setMobileSheet(null)} className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm rounded-xl transition-colors">
@@ -4714,7 +4626,7 @@ export default function WorkflowApp() {
             if (selectedNodeIds.length < 2) return;
             takeSnapshot();
             const selectedNodes = nodes.filter(n => selectedNodeIds.includes(n.id));
-            const NODE_W = 340;
+            const NODE_W = 280;
             const NODE_H = 160;
             const PADDING = 30;
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -4731,7 +4643,7 @@ export default function WorkflowApp() {
             const newGroupId = `g-${Date.now()}`;
             updateActiveWorkspace(ws => {
               const updatedNodes = ws.nodes.map(n => selectedNodeIds.includes(n.id) ? { ...n, groupId: newGroupId } : n);
-              const newGroup = { id: newGroupId, name: 'New Group', x: groupX, y: groupY, width: groupW, height: groupH, expanded: true, theme: 'blue', parentGroupId: null };
+              const newGroup = { id: newGroupId, name: 'New Group', x: groupX, y: groupY, width: groupW, height: groupH, theme: 'blue', parentGroupId: null };
               const updatedGroups = [...ws.groups, newGroup];
               return { nodes: updatedNodes, groups: computeLayout(updatedGroups, updatedNodes) };
             });

@@ -1,0 +1,43 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Redesign card/node rendering to Version B clean card design: remove badges, expand/collapse, status/priority; simplify to 2 card types (normal and clone); reduce themes to 4 (blue, amber, green, purple); change card width to 280px with left border accent style.",
+  "status": "completed",
+  "steps": [
+    "Step 1 - Update THEMES object (lines 13-70 of App.jsx): Remove 'rose' and 'emerald' theme entries. Keep 'amber', 'blue', 'purple'. Add a 'green' theme (can reuse emerald's colors but rename it). Simplify each theme to only need: name, accent (hex color for left border), port (for connection dots), line (for edge color), groupBg, groupHeader, text. The new card design uses solid white bg so the old wrapper/header/tag/glow classes are no longer needed for card rendering but keep them for group rendering.",
+    "Step 2 - Update THEMES to add new card-specific properties to each theme: 'border' (the 4px left accent color as a tailwind border-l class), 'borderSelected' (accent color wraps all sides when selected). Colors: blue=#3b82f6, amber=#f59e0b, green=#10b981, purple=#8b5cf6.",
+    "Step 3 - Change NODE_WIDTH from 340 to 280 everywhere it appears: line 2748, line 2896, and inline references in computeLayout (line 215 where nW=340), getSpatiallyHoveredGroup (lines 1980, 2202).",
+    "Step 4 - Update the defaultWorkspaces nodes data (lines 96-99): Remove 'status', 'priority', 'nodeType', 'expanded' fields from each node. Change node id '4' theme from 'rose' to 'blue'. Keep only: id, x, y, title, content, theme, groupId, cloneSourceId.",
+    "Step 5 - Update addNode function (lines 2303-2330): Remove status, priority, nodeType, expanded from the newNode object. Remove the nodeType parameter from the function signature (always create normal cards). New node shape: { id, x, y, title, content, theme, groupId, cloneSourceId: null }.",
+    "Step 6 - Update clone creation (lines 2427-2441): Remove status, priority, nodeType, expanded fields from clone object. Keep: id, x, y, title, content, theme, groupId, cloneSourceId.",
+    "Step 7 - Update duplicateNode function: Remove status, priority, nodeType fields from duplicated node.",
+    "Step 8 - Rewrite the canvas node rendering (lines 3903-4210) to the new Version B card design: 280px wide, white bg (bg-white), 1px border (border-slate-200), rounded-lg (8px), shadow-sm, 12px padding, 4px left border accent color from theme. Title displayed as bold text. Content/description always visible below title (no expand/collapse). Remove ALL badge divs (the TASK/CONCEPT badge at top-left, the CLONE badge, the priority/status badges at top-right). Remove expand/collapse button. Remove the status/priority select dropdowns from the card body. Remove the header bar entirely - instead make the whole card draggable via onPointerDown on the card container. Keep: title input, content textarea, connection ports (show on hover), color picker button, link button, delete button (these go in a floating toolbar that appears on hover/select). Clone indicator: small Copy icon (12x12px) at bottom-right corner if node.cloneSourceId is set.",
+    "Step 9 - Update hover/selected/dragging states in the card: Hover = border darkens (border-slate-300) + connection ports appear. Selected = accent color border wraps all 4 sides + floating toolbar above. Dragging = scale(1.02) + shadow-lg.",
+    "Step 10 - Update the outline view renderOutlineCard function (lines 2946-2990): Remove priority/status cycling buttons and nodeType checks. Show just the color dot, title, expand/collapse for outline (this is outline-specific expand, not card expand), and delete button.",
+    "Step 11 - Update context menu (lines 4235-4241): Remove 'Add Concept Node Here' option. Change 'Add Task Node Here' to just 'Add Card Here'. Update the More menu (line 3478-3482) similarly - remove 'Add Concept Node' button, change 'Add Task Node' to 'Add Card'.",
+    "Step 12 - Update getTaskStats function (lines 2932-2939) and the sidebar stats panel (lines 3589-3640): Since status field is removed, simplify stats to just show total node count. Remove the progress bar and completed/in-progress/todo breakdowns. Replace with a simple 'Cards: N' display.",
+    "Step 13 - Update the sidebar Nodes Directory Explorer section to not reference status or priority.",
+    "Step 14 - Update MiniMap.jsx: Remove 'rose' from THEME_COLORS. Rename 'emerald' to 'green'. Remove the expanded-based dimension logic (use fixed dimensions for all nodes since expanded field is gone).",
+    "Step 15 - Clean up unused imports from lucide-react: Remove icons that are no longer used (Sparkles, CheckSquare, Clock, AlertCircle, BarChart2, ChevronDown, ChevronRight, ChevronUp if no longer used by groups, FileText if unused, etc.). Keep icons still needed by other features.",
+    "Step 16 - Fix any remaining references to node.expanded, node.status, node.priority, node.nodeType throughout the file (search and update/remove). Ensure the computeLayout function no longer uses node.expanded for height calculation."
+  ],
+  "acceptance_criteria": [
+    "npm run build completes without errors",
+    "THEMES object has exactly 4 themes: blue, amber, green, purple (no rose, no emerald)",
+    "Node data model only has: id, x, y, title, content, theme, groupId, cloneSourceId",
+    "Cards render at 280px wide with white bg, 4px left border accent, rounded-lg, shadow-sm",
+    "No expand/collapse toggle on cards - title and content always visible",
+    "No badges (no TASK/CONCEPT, no priority, no status badges)",
+    "Clone cards show a small Copy icon at bottom-right",
+    "Connection ports appear on hover",
+    "No references to node.status, node.priority, node.nodeType, node.expanded remain in functional code",
+    "Context menu and More menu only show 'Add Card' (no concept/task distinction)",
+    "MiniMap uses updated theme colors (green instead of emerald, no rose)"
+  ],
+  "verification": [
+    "Run `cd /projects/sandbox/mind-map4 && npm install && npm run build` to confirm build passes",
+    "Run grep to confirm no remaining references to node.status, node.priority, node.nodeType in functional code paths"
+  ],
+  "blocked_reason": null,
+  "findings": "All changes verified with npm run build. Removed collapseAllNodes/expandAllNodes functions entirely since node.expanded is no longer a concept. The Collapse/Expand All buttons in the More menu were replaced with just the Add Card button. Mobile sheet bottom panel status/priority section was also removed. Multi-select duplicate action still copies full node objects but since the fields are no longer present in the source data this is fine. Post-review fix: corrected 3 stale 340px constants (selection-box hit test, group-from-selection bounding box, group resize min width) to 280px. Added linkToTab and image fields to duplicateNode. Multi-select duplicate left as spread-based since it correctly copies all fields including linkToTab/image, and ghost fields from old data are harmless (they are not referenced anywhere in rendering or logic)."
+}
