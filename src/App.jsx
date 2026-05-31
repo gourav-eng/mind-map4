@@ -7,7 +7,6 @@ import {
   Grid, Move, Copy, ArrowUp, ArrowDown, RefreshCw, LayoutList, MonitorSpeaker,
   MoreVertical, ImageIcon, ChevronUp, Scissors, ClipboardPaste,
   Lock, Shield, Eye, EyeOff, GitBranch, Map, Timer, Play, Pause, RotateCcw
-  Lock, Shield, Eye, EyeOff, GitBranch, Map, Timer
 } from 'lucide-react';
 import MiniMap from './MiniMap';
 
@@ -382,13 +381,6 @@ export default function WorkflowApp() {
   const draggingNodeRef = useRef(null);
   const imageUploadInputRef = useRef(null);
   const imageUploadCoordsRef = useRef({ x: 0, y: 0 });
-
-  // --- Timer State ---
-  const [showTimer, setShowTimer] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timerDuration, setTimerDuration] = useState(300);
-  const [timerFinished, setTimerFinished] = useState(false);
 
   // --- Pan & Zoom States ---
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -4404,39 +4396,6 @@ export default function WorkflowApp() {
             visible={showMiniMap}
             openedViaShortcut={miniMapOpenedViaShortcut}
           />
-
-          {/* --- Floating Timer Widget --- */}
-          {showTimer && (
-            <div className="absolute bottom-24 left-4 sm:bottom-28 sm:left-6 z-50 bg-white rounded-xl shadow-xl border border-slate-200 p-3 w-52">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Timer</span>
-                <button onClick={() => setShowTimer(false)} className="p-0.5 hover:bg-slate-100 rounded text-slate-400"><X className="w-3.5 h-3.5" /></button>
-              </div>
-              <div className={`text-center text-3xl font-mono font-bold mb-2 rounded-lg py-2 ${timerFinished ? 'bg-red-50 text-red-600 animate-pulse' : 'bg-slate-50 text-slate-800'}`}>
-                {String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:{String(timerSeconds % 60).padStart(2, '0')}
-              </div>
-              <div className="flex gap-1 mb-2 justify-center">
-                {[{label: '1m', sec: 60}, {label: '3m', sec: 180}, {label: '5m', sec: 300}, {label: '10m', sec: 600}].map(p => (
-                  <button key={p.label} onClick={() => { setTimerSeconds(p.sec); setTimerDuration(p.sec); setTimerRunning(false); setTimerFinished(false); }} className={`px-2 py-1 text-xs font-semibold rounded-md transition-colors ${timerDuration === p.sec && !timerRunning ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{p.label}</button>
-                ))}
-              </div>
-              <div className="flex gap-1.5 justify-center">
-                <button
-                  onClick={() => { if (timerSeconds > 0) { setTimerRunning(!timerRunning); setTimerFinished(false); } else { setTimerSeconds(timerDuration); setTimerRunning(true); setTimerFinished(false); } }}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-                >
-                  {timerRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-                  {timerRunning ? 'Pause' : 'Start'}
-                </button>
-                <button
-                  onClick={() => { setTimerSeconds(timerDuration); setTimerRunning(false); setTimerFinished(false); }}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
-                >
-                  <RotateCcw className="w-3 h-3" /> Reset
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* --- Bottom-Right Floating Zoom and Guides --- */}
           <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-end gap-2 sm:gap-3 z-50">
