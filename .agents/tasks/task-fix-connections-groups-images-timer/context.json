@@ -1,0 +1,20 @@
+{
+  "project_type": "React single-page canvas/whiteboard brainstorming app",
+  "language": "JavaScript (JSX)",
+  "build_system": "Vite with Tailwind CSS, no brazil or complex build",
+  "test_framework": "None - no test files present",
+  "build_command": "cd /projects/sandbox/mind-map4 && npm run build",
+  "test_command": "N/A - no tests exist",
+  "verification_instructions": "Run npm run build to verify no compilation errors. Visually inspect functionality in browser.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "cd /projects/sandbox/mind-map4 && npm install",
+  "environment_constraints": "OPEN_INTERNET network mode. Node.js available. No test framework.",
+  "contribution_requirements": "Single-file React app pattern in src/App.jsx. All state/logic in one component.",
+  "key_patterns": "All canvas objects (nodes, groups, images) use absolute positioning with x/y coordinates. Groups use computeLayout() for auto-sizing. updateActiveWorkspace() is the primary state updater. takeSnapshot() for undo history. getDescendants() for group hierarchy traversal. Images are stored as ws.images array with {id, x, y, width, height, src}. drawCurve() draws bezier paths for edges. Groups have theme field from THEMES object.",
+  "relevant_files": [
+    "/projects/sandbox/mind-map4/src/App.jsx",
+    "/projects/sandbox/mind-map4/src/MiniMap.jsx",
+    "/projects/sandbox/mind-map4/package.json"
+  ],
+  "directory_structure": "src/App.jsx - main app (4732 lines), src/MiniMap.jsx - mini map component, src/index.css - Tailwind base styles, src/main.jsx - React entry point"
+}
