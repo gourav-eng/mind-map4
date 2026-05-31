@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
-  Plus, Trash2, GripHorizontal, X, ChevronDown, ChevronRight, 
+  Plus, Trash2, X, ChevronDown, ChevronRight, 
   FileText, Network, FolderOpen, Palette, Check, ZoomIn, ZoomOut, Focus,
   Download, Upload, Undo2, Redo2, Layers, Link2, ExternalLink, HelpCircle,
-  Sparkles, CheckSquare, Clock, AlertCircle, BarChart2, PanelLeftClose, PanelLeft,
+  Sparkles, PanelLeftClose, PanelLeft,
   Grid, Move, Copy, ArrowUp, ArrowDown, RefreshCw, LayoutList, MonitorSpeaker,
-  MoreVertical, ImageIcon, ChevronUp, Scissors, ClipboardPaste, Minimize2, Maximize2,
+  MoreVertical, ImageIcon, ChevronUp, Scissors, ClipboardPaste,
   Lock, Shield, Eye, EyeOff, GitBranch, Map
 } from 'lucide-react';
 import MiniMap from './MiniMap';
@@ -20,6 +20,7 @@ const THEMES = {
     port: 'bg-amber-500 hover:bg-amber-400 border-amber-100', 
     text: 'text-amber-900', 
     line: '#f59e0b',
+    border: '#f59e0b',
     groupBg: 'bg-amber-50/10 border-amber-300/40', 
     groupHeader: 'bg-amber-100/40 border-amber-200/50',
     glow: 'shadow-[0_0_20px_rgba(245,158,11,0.15)]'
@@ -32,23 +33,24 @@ const THEMES = {
     port: 'bg-blue-500 hover:bg-blue-400 border-blue-100', 
     text: 'text-blue-900', 
     line: '#3b82f6',
+    border: '#3b82f6',
     groupBg: 'bg-blue-50/10 border-blue-300/40', 
     groupHeader: 'bg-blue-100/40 border-blue-200/50',
     glow: 'shadow-[0_0_20px_rgba(59,130,246,0.15)]'
   },
-  emerald: { 
-    name: 'Mint Emerald', 
+  green: { 
+    name: 'Fresh Green', 
     wrapper: 'bg-emerald-50/20 border-emerald-200/80 hover:border-emerald-400/50', 
     header: 'bg-emerald-50/80 border-emerald-200', 
     tag: 'bg-emerald-100/80 border-emerald-300 text-emerald-800', 
     port: 'bg-emerald-500 hover:bg-emerald-400 border-emerald-100', 
     text: 'text-emerald-900', 
     line: '#10b981',
+    border: '#10b981',
     groupBg: 'bg-emerald-50/10 border-emerald-300/40', 
     groupHeader: 'bg-emerald-100/40 border-emerald-200/50',
     glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]'
   },
-
   purple: { 
     name: 'Royal Purple', 
     wrapper: 'bg-purple-50/20 border-purple-200/80 hover:border-purple-400/50', 
@@ -57,21 +59,10 @@ const THEMES = {
     port: 'bg-purple-500 hover:bg-purple-400 border-purple-100', 
     text: 'text-purple-900', 
     line: '#8b5cf6',
+    border: '#8b5cf6',
     groupBg: 'bg-purple-50/10 border-purple-300/40', 
     groupHeader: 'bg-purple-100/40 border-purple-200/50',
     glow: 'shadow-[0_0_20px_rgba(139,92,246,0.15)]'
-  },
-  rose: { 
-    name: 'Blush Rose', 
-    wrapper: 'bg-rose-50/20 border-rose-200/80 hover:border-rose-400/50', 
-    header: 'bg-rose-50/80 border-rose-200', 
-    tag: 'bg-rose-100/80 border-rose-300 text-rose-800', 
-    port: 'bg-rose-500 hover:bg-rose-400 border-rose-100', 
-    text: 'text-rose-900', 
-    line: '#f43f5e',
-    groupBg: 'bg-rose-50/10 border-rose-300/40', 
-    groupHeader: 'bg-rose-100/40 border-rose-200/50',
-    glow: 'shadow-[0_0_20px_rgba(244,63,94,0.15)]'
   }
 };
 
@@ -93,10 +84,10 @@ const defaultWorkspaces = [
       { id: 'g-2', name: 'Phase 2: Product Design UI', x: 580, y: 80, width: 440, height: 440, expanded: true, theme: 'purple', parentGroupId: null }
     ],
     nodes: [
-      { id: '1', x: 130, y: 150, title: 'User Interviews', content: 'Synthesize feedback from 15 target users.', expanded: true, theme: 'amber', groupId: 'g-1', status: 'In Progress', priority: 'High', nodeType: 'task', cloneSourceId: null },
-      { id: '2', x: 130, y: 310, title: 'Competitor Benchmark', content: 'Benchmark workflows against Top 3 competitors.', expanded: true, theme: 'blue', groupId: 'g-1', status: 'Todo', priority: 'Medium', nodeType: 'task', cloneSourceId: null },
-      { id: '3', x: 630, y: 150, title: 'Component Library', content: 'Establish design system in Figma.', expanded: true, theme: 'purple', groupId: 'g-2', status: 'In Progress', priority: 'High', nodeType: 'task', cloneSourceId: null },
-      { id: '4', x: 1100, y: 200, title: 'Launch Strategy Plan', content: 'Define GTM parameters.', expanded: true, theme: 'rose', groupId: null, status: 'Todo', priority: 'Low', nodeType: 'task', cloneSourceId: null }
+      { id: '1', x: 130, y: 150, title: 'User Interviews', content: 'Synthesize feedback from 15 target users.', theme: 'amber', groupId: 'g-1', cloneSourceId: null },
+      { id: '2', x: 130, y: 310, title: 'Competitor Benchmark', content: 'Benchmark workflows against Top 3 competitors.', theme: 'blue', groupId: 'g-1', cloneSourceId: null },
+      { id: '3', x: 630, y: 150, title: 'Component Library', content: 'Establish design system in Figma.', theme: 'purple', groupId: 'g-2', cloneSourceId: null },
+      { id: '4', x: 1100, y: 200, title: 'Launch Strategy Plan', content: 'Define GTM parameters.', theme: 'blue', groupId: null, cloneSourceId: null }
     ],
     edges: [
       { id: 'e1', source: '1', target: '3' },
@@ -222,8 +213,8 @@ const computeLayout = (currentGroups, currentNodes) => {
 
     innerNodes.forEach(n => {
       hasChildren = true;
-      const nW = 340;
-      const nH = n.expanded ? 280 : 120;
+      const nW = 280;
+      const nH = 180;
       minX = Math.min(minX, n.x);
       minY = Math.min(minY, n.y);
       maxX = Math.max(maxX, n.x + nW);
@@ -1977,7 +1968,7 @@ export default function WorkflowApp() {
 
   // --- Helper: Node Group Intersection Checker ---
   const getSpatiallyHoveredGroup = useCallback((nodeX, nodeY) => {
-    const NODE_WIDTH_VAL = 340;
+    const NODE_WIDTH_VAL = 280;
     const nodeCenterX = nodeX + NODE_WIDTH_VAL / 2;
     const nodeCenterY = nodeY + 80;
 
@@ -2199,7 +2190,7 @@ export default function WorkflowApp() {
             if (originalNode && originalNode.groupId) {
               const originalGroup = ws.groups.find(g => g.id === originalNode.groupId);
               if (originalGroup) {
-                const NODE_WIDTH_VAL = 340;
+                const NODE_WIDTH_VAL = 280;
                 const nodeCenterX = dragRef.currentX + NODE_WIDTH_VAL / 2;
                 const nodeCenterY = dragRef.currentY + 80;
                 const gW = originalGroup.width || 440;
@@ -2300,7 +2291,7 @@ export default function WorkflowApp() {
 
 
   // --- Node, Edge, and Group Creators ---
-  const addNode = (clientX, clientY, targetGroupId = null, nodeType = 'task') => {
+  const addNode = (clientX, clientY, targetGroupId = null) => {
     takeSnapshot();
     const rect = workspaceRef.current.getBoundingClientRect();
     let targetX, targetY;
@@ -2316,9 +2307,8 @@ export default function WorkflowApp() {
     const newNode = {
       id: nextId.toString(),
       x: targetX, y: targetY,
-      title: nodeType === 'concept' ? 'New Concept' : 'New Workspace Task', content: '', expanded: true, theme: 'amber',
-      groupId: targetGroupId, status: 'Todo', priority: 'Medium',
-      nodeType: nodeType, cloneSourceId: null
+      title: 'New Card', content: '', theme: 'amber',
+      groupId: targetGroupId, cloneSourceId: null
     };
     
     updateActiveWorkspace(ws => {
@@ -2361,11 +2351,13 @@ export default function WorkflowApp() {
     if (!target) return;
 
     const dup = {
-      ...JSON.parse(JSON.stringify(target)),
       id: nextId.toString(),
       x: target.x + 40,
       y: target.y + 40,
       title: `${target.title} (Copy)`,
+      content: target.content || '',
+      theme: target.theme,
+      groupId: target.groupId,
       cloneSourceId: null
     };
 
@@ -2393,12 +2385,8 @@ export default function WorkflowApp() {
       y: target.y + 60,
       title: target.title,
       content: target.content,
-      expanded: true,
       theme: target.theme,
       groupId: null,
-      status: target.status || 'Todo',
-      priority: target.priority || 'Medium',
-      nodeType: target.nodeType || 'task',
       cloneSourceId: sourceId
     };
 
@@ -2432,12 +2420,8 @@ export default function WorkflowApp() {
       y: cloneY,
       title: target.title,
       content: target.content,
-      expanded: true,
       theme: target.theme,
       groupId: null,
-      status: target.status || 'Todo',
-      priority: target.priority || 'Medium',
-      nodeType: target.nodeType || 'task',
       cloneSourceId: sourceId
     };
 
@@ -2662,23 +2646,6 @@ export default function WorkflowApp() {
   };
 
 
-  // --- Collapse / Expand All Nodes ---
-  const collapseAllNodes = () => {
-    takeSnapshot();
-    updateActiveWorkspace(ws => ({
-      nodes: ws.nodes.map(n => ({ ...n, expanded: false })),
-      groups: computeLayout(ws.groups, ws.nodes.map(n => ({ ...n, expanded: false })))
-    }));
-  };
-
-  const expandAllNodes = () => {
-    takeSnapshot();
-    updateActiveWorkspace(ws => ({
-      nodes: ws.nodes.map(n => ({ ...n, expanded: true })),
-      groups: computeLayout(ws.groups, ws.nodes.map(n => ({ ...n, expanded: true })))
-    }));
-  };
-
   // --- Auto-Layout Engine ---
   const autoAlignWorkspace = () => {
     takeSnapshot();
@@ -2745,7 +2712,7 @@ export default function WorkflowApp() {
           columns[d].push(n);
         });
 
-        const NODE_WIDTH = 340;
+        const NODE_WIDTH = 280;
         const H_GAP = 80;
         const V_GAP = 30;
         const baseX = startX + 40;
@@ -2760,7 +2727,7 @@ export default function WorkflowApp() {
           let colY = baseY;
           columns[d].forEach(n => {
             positionMap[n.id] = { x: colX, y: colY };
-            colY += (n.expanded ? 280 : 120) + V_GAP;
+            colY += 180 + V_GAP;
           });
           maxBottomY = Math.max(maxBottomY, colY);
         });
@@ -2780,7 +2747,7 @@ export default function WorkflowApp() {
         if (n.groupId === groupId && !connectedNodeIds.has(n.id)) {
           const nodeX = startX + 40;
           const nodeY = currentY;
-          currentY += (n.expanded ? 280 : 120) + 30;
+          currentY += 180 + 30;
           return { ...n, x: nodeX, y: nodeY };
         }
         return n;
@@ -2800,8 +2767,8 @@ export default function WorkflowApp() {
           let maxChildY = sgY + 160;
           let maxChildX = sgX + 400;
           innerN.forEach(n => {
-            maxChildY = Math.max(maxChildY, n.y + (n.expanded ? 280 : 120));
-            maxChildX = Math.max(maxChildX, n.x + 340);
+            maxChildY = Math.max(maxChildY, n.y + 180);
+            maxChildX = Math.max(maxChildX, n.x + 280);
           });
           innerS.forEach(s => {
             maxChildY = Math.max(maxChildY, s.y + (s.height || 420));
@@ -2841,7 +2808,7 @@ export default function WorkflowApp() {
       allNodeIds.forEach(nid => {
         const n = workingNodes.find(nd => nd.id === nid);
         if (n) {
-          maxX = Math.max(maxX, n.x + 340);
+          maxX = Math.max(maxX, n.x + 280);
         }
       });
 
@@ -2862,7 +2829,7 @@ export default function WorkflowApp() {
     workingNodes = workingNodes.map(node => {
       if (!node.groupId) {
         const nodeY = looseY;
-        looseY += (node.expanded ? 280 : 120) + 40;
+        looseY += 180 + 40;
         return { ...node, x: looseX, y: nodeY };
       }
       return node;
@@ -2893,7 +2860,7 @@ export default function WorkflowApp() {
     });
   };
 
-  const NODE_WIDTH = 340;
+  const NODE_WIDTH = 280;
   const HEADER_CENTER_Y = 24;
 
   const getConnectionPoint = (nodeId, isSource) => {
@@ -2931,11 +2898,7 @@ export default function WorkflowApp() {
 
   const getTaskStats = () => {
     const total = nodes.length;
-    const completed = nodes.filter(n => n.status === 'Done').length;
-    const inProgress = nodes.filter(n => n.status === 'In Progress').length;
-    const todo = nodes.filter(n => n.status === 'Todo').length;
-    const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
-    return { total, completed, inProgress, todo, progressPercent };
+    return { total };
   };
 
   const stats = getTaskStats();
@@ -2951,10 +2914,8 @@ export default function WorkflowApp() {
       <div key={node.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-200">
         <div className={`flex items-center gap-2 px-3 py-2.5 border-b ${isExpanded ? 'border-slate-100' : 'border-transparent'}`}>
           <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${nTheme.port}`} />
-          <span className="flex-1 text-xs font-semibold text-slate-700 truncate">{node.title || `Task #${node.id}`}</span>
+          <span className="flex-1 text-xs font-semibold text-slate-700 truncate">{node.title || `Card #${node.id}`}</span>
           <div className="flex items-center gap-1 shrink-0">
-            {node.nodeType !== 'concept' && <button onClick={() => { takeSnapshot(); updateNode(node.id, { priority: node.priority === 'High' ? 'Medium' : node.priority === 'Medium' ? 'Low' : 'High' }); }} className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase border transition-all cursor-pointer hover:opacity-80 ${node.priority === 'High' ? 'bg-red-50 text-red-700 border-red-200' : node.priority === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`} title="Tap to cycle priority">{node.priority}</button>}
-            {node.nodeType !== 'concept' && <button onClick={() => { takeSnapshot(); const statuses = ['Todo', 'In Progress', 'Done', 'Milestone']; const idx = statuses.indexOf(node.status); updateNode(node.id, { status: statuses[(idx + 1) % statuses.length] }); }} className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase border transition-all cursor-pointer hover:opacity-80 ${node.status === 'Done' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : node.status === 'In Progress' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : node.status === 'Milestone' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`} title="Tap to cycle status">{node.status}</button>}
             <button onClick={() => setExpandedOutlineCards(prev => ({...prev, [node.id]: !prev[node.id]}))} className="p-1 hover:bg-slate-100 rounded-md text-slate-400">
               {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
@@ -3465,21 +3426,12 @@ export default function WorkflowApp() {
               <button onClick={() => { autoAlignWorkspace(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                 <Sparkles className="w-4 h-4 mr-2.5 text-indigo-600" /> Auto-Align Canvas
               </button>
-              <button onClick={() => { collapseAllNodes(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                <Minimize2 className="w-4 h-4 mr-2.5 text-amber-600" /> Collapse All Nodes
-              </button>
-              <button onClick={() => { expandAllNodes(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                <Maximize2 className="w-4 h-4 mr-2.5 text-emerald-600" /> Expand All Nodes
-              </button>
               <div className="h-px bg-slate-100 my-1 mx-3"></div>
               <button onClick={() => { createGroup(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors">
                 <Layers className="w-4 h-4 mr-2.5" /> New Group
               </button>
-              <button onClick={() => { addNode(undefined, undefined, null, 'task'); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors">
-                <Plus className="w-4 h-4 mr-2.5" /> Add Task Node
-              </button>
-              <button onClick={() => { addNode(undefined, undefined, null, 'concept'); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-violet-700 hover:bg-violet-50 transition-colors">
-                <Sparkles className="w-4 h-4 mr-2.5" /> Add Concept Node
+              <button onClick={() => { addNode(undefined, undefined, null); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors">
+                <Plus className="w-4 h-4 mr-2.5" /> Add Card
               </button>
               <div className="h-px bg-slate-100 my-1 mx-3"></div>
               <button onClick={() => { exportAllData(); setShowMoreMenu(false); }} className="w-full flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
@@ -3587,45 +3539,11 @@ export default function WorkflowApp() {
 
 
             <div className="p-4 border-b border-slate-100">
-              <span className="text-xs font-bold text-slate-400 tracking-wider uppercase block mb-3">Task Completion Stats</span>
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-3 cursor-pointer select-none" onClick={handleLogoTap}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-bold text-slate-500">Progress</span>
-                  <span className="text-sm font-bold text-indigo-600">{stats.progressPercent}%</span>
-                </div>
-                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                  <div className="bg-indigo-600 h-2 rounded-full transition-all duration-500" style={{ width: `${stats.progressPercent}%` }} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-slate-800">{stats.completed}</div>
-                    <div className="text-slate-400 font-medium">Completed</div>
-                  </div>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-amber-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-slate-800">{stats.inProgress}</div>
-                    <div className="text-slate-400 font-medium">In Progress</div>
-                  </div>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-blue-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-slate-800">{stats.todo}</div>
-                    <div className="text-slate-400 font-medium">Todo Items</div>
-                  </div>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
-                  <BarChart2 className="w-4 h-4 text-purple-500 shrink-0" />
-                  <div>
-                    <div className="font-bold text-slate-800">{stats.total}</div>
-                    <div className="text-slate-400 font-medium">Total Tasks</div>
-                  </div>
+              <span className="text-xs font-bold text-slate-400 tracking-wider uppercase block mb-3">Workspace Stats</span>
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 cursor-pointer select-none" onClick={handleLogoTap}>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-bold text-slate-500">Total Cards</span>
+                  <span className="text-sm font-bold text-indigo-600">{stats.total}</span>
                 </div>
               </div>
             </div>
@@ -3666,11 +3584,8 @@ export default function WorkflowApp() {
                     >
                       <div className="flex items-center gap-1.5 overflow-hidden">
                         <div className={`w-2.5 h-2.5 rounded-full ${THEMES[n.theme]?.port || 'bg-amber-400'}`} />
-                        <span className="truncate">{n.title || `Task Node #${n.id}`}</span>
+                        <span className="truncate">{n.title || `Card #${n.id}`}</span>
                       </div>
-                      <span className="text-[10px] bg-slate-200/80 px-1.5 py-0.5 rounded text-slate-500 uppercase shrink-0 font-bold tracking-wide">
-                        {n.status}
-                      </span>
                     </div>
                   ))
                 )}
@@ -3918,15 +3833,18 @@ export default function WorkflowApp() {
               return (
                 <div
                   key={node.id}
-                  className={`absolute rounded-xl border w-[${NODE_WIDTH}px] flex flex-col pointer-events-auto bg-white/95 backdrop-blur-sm ${theme.wrapper} ${
-                    isDragging ? 'shadow-2xl scale-[1.03] ring-2 ring-indigo-500' : 'transition-all duration-150 shadow-md'
+                  className={`absolute rounded-lg bg-white border shadow-sm pointer-events-auto group flex flex-col ${
+                    isDragging ? 'shadow-lg scale-[1.02] z-[9999]' : 'transition-all duration-150'
                   } ${dragOverNodeId === node.id ? 'ring-4 ring-indigo-400 ring-opacity-50 scale-[1.02]' : ''} ${
                     isFocused ? 'ring-4 ring-indigo-500 animate-[pulse_1.5s_infinite]' : ''
-                  } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+                  } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-offset-1' : 'border-slate-200 hover:border-slate-300'}`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
-                    width: NODE_WIDTH,
+                    width: 280,
+                    borderLeft: `4px solid ${theme.border || '#3b82f6'}`,
+                    padding: 12,
+                    ...(selectedNodeIds.includes(node.id) ? { borderColor: theme.border || '#3b82f6' } : {}),
                     zIndex: isDragging ? 9999 : (isFocused ? 999 : 50 + index) 
                   }}
                   onContextMenu={(e) => {
@@ -3944,236 +3862,152 @@ export default function WorkflowApp() {
                   onDragOver={(e) => { e.preventDefault(); setDragOverNodeId(node.id); }}
                   onDragLeave={(e) => { e.preventDefault(); setDragOverNodeId(null); }}
                   onDrop={(e) => handleImageDrop(e, node.id)}
+                  onPointerDown={(e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.closest('button') || e.target.closest('select')) return;
+                    e.stopPropagation();
+                    if (e.ctrlKey || e.metaKey) {
+                      e.preventDefault();
+                      setSelectedNodeIds(prev => 
+                        prev.includes(node.id) ? prev.filter(id => id !== node.id) : [...prev, node.id]
+                      );
+                      return;
+                    }
+                    nodeTapRef.current = { id: node.id, startX: e.clientX, startY: e.clientY, time: Date.now(), pointerType: e.pointerType };
+                    dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
+                    bringToFront(node.id);
+                    setDraggingNode({ 
+                      id: node.id, 
+                      startX: e.clientX, 
+                      startY: e.clientY, 
+                      initialX: node.x, 
+                      initialY: node.y,
+                      currentX: node.x,
+                      currentY: node.y
+                    });
+                    draggingNodeRef.current = {
+                      id: node.id,
+                      startX: e.clientX,
+                      startY: e.clientY,
+                      initialX: node.x,
+                      initialY: node.y,
+                      currentX: node.x,
+                      currentY: node.y
+                    };
+                  }}
+                  onPointerUp={(e) => {
+                    if (nodeTapRef.current && nodeTapRef.current.id === node.id && nodeTapRef.current.pointerType === 'touch') {
+                      const elapsed = Date.now() - nodeTapRef.current.time;
+                      const moved = Math.hypot(e.clientX - nodeTapRef.current.startX, e.clientY - nodeTapRef.current.startY);
+                      if (elapsed < 350 && moved < 10) {
+                        setMobileSheet(node.id);
+                      }
+                    }
+                    nodeTapRef.current = null;
+                  }}
                 >
-                  <div className="absolute -top-3.5 left-5 flex items-center gap-1.5 z-20">
-                    <div className={`px-3 py-0.5 rounded-full text-[10px] font-bold shadow-sm border flex items-center gap-1.5 ${theme.tag}`}>
-                      {(node.nodeType === 'concept') ? <><Sparkles className="w-3.5 h-3.5" /> CONCEPT {node.id}</> : <><FileText className="w-3.5 h-3.5" /> TASK {node.id}</>}
-                    </div>
-                    {node.cloneSourceId && (
-                      <div className="px-2 py-0.5 rounded-full text-[9px] font-bold shadow-sm border flex items-center gap-1 bg-violet-100 text-violet-700 border-violet-300">
-                        <Copy className="w-3 h-3" /> CLONE
+                  {/* Title */}
+                  <input 
+                    className="bg-transparent font-bold focus:outline-none focus:bg-slate-50 rounded px-1 w-full text-sm text-slate-800 placeholder-slate-400 cursor-grab active:cursor-grabbing" 
+                    value={node.title || ''} 
+                    placeholder="Enter Title..." 
+                    onFocus={() => takeSnapshot()} 
+                    onChange={(e) => updateNode(node.id, { title: e.target.value })} 
+                    onPointerDown={(e) => e.stopPropagation()}
+                  />
+
+                  {/* Content */}
+                  <div className="mt-2 flex-1 min-h-[3rem]" onPointerDown={(e) => e.stopPropagation()}>
+                    {editingTextNode === node.id ? (
+                      <textarea 
+                        autoFocus
+                        onBlur={() => setEditingTextNode(null)}
+                        className="w-full h-full min-h-[3rem] bg-transparent resize-none focus:outline-none text-slate-600 text-xs leading-relaxed placeholder-slate-400 custom-scrollbar" 
+                        value={node.content || ''} 
+                        onChange={(e) => updateNode(node.id, { content: e.target.value })} 
+                        placeholder="Write notes or details..." 
+                      />
+                    ) : (
+                      <div 
+                        onClick={() => { takeSnapshot(); setEditingTextNode(node.id); }}
+                        className="w-full h-full min-h-[3rem] bg-transparent overflow-y-auto text-slate-600 text-xs leading-relaxed custom-scrollbar cursor-text whitespace-pre-wrap"
+                        title="Click to edit content"
+                      >
+                        {node.content ? renderLinks(node.content) : <span className="text-slate-400 italic">Write notes or details...</span>}
                       </div>
                     )}
                   </div>
 
-                  {node.nodeType !== 'concept' && (
-                  <div className="absolute -top-3.5 right-5 flex items-center gap-1 z-20">
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase border ${
-                      node.priority === 'High' ? 'bg-red-50 text-red-700 border-red-200' :
-                      node.priority === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                      'bg-slate-50 text-slate-500 border-slate-200'
-                    }`}>
-                      {node.priority}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase border ${
-                      node.status === 'Done' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                      node.status === 'In Progress' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
-                      'bg-slate-100 text-slate-600 border-slate-200'
-                    }`}>
-                      {node.status}
-                    </span>
-                  </div>
+                  {/* Link Portal */}
+                  {node.linkToTab && (
+                    <button 
+                      onClick={() => { const target = workspaces.find(w => w.id === node.linkToTab); if (target) setActiveTab(target.id); }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      className="flex items-center justify-between px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-md border border-indigo-200/80 transition-all w-full mt-2"
+                    >
+                      <span className="flex items-center gap-1"><ExternalLink className="w-3 h-3 text-indigo-600" /> Portal</span>
+                      <span className="text-indigo-900 font-extrabold max-w-[100px] truncate text-[10px]">{workspaces.find(w => w.id === node.linkToTab)?.name || 'Linked Map'}</span>
+                    </button>
                   )}
 
-
-                  {/* Drag Handle Header */}
-                  <div
-                    className={`flex items-center justify-between px-3 h-12 rounded-t-xl border-b cursor-grab active:cursor-grabbing select-none relative ${theme.header}`}
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      if (e.target.tagName === 'INPUT' || e.target.closest('button') || e.target.closest('select')) return;
-                      if (e.ctrlKey || e.metaKey) {
-                        e.preventDefault();
-                        setSelectedNodeIds(prev => 
-                          prev.includes(node.id) ? prev.filter(id => id !== node.id) : [...prev, node.id]
-                        );
-                        return;
-                      }
-                      nodeTapRef.current = { id: node.id, startX: e.clientX, startY: e.clientY, time: Date.now(), pointerType: e.pointerType };
-                      dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
-                      bringToFront(node.id);
-                      setDraggingNode({ 
-                        id: node.id, 
-                        startX: e.clientX, 
-                        startY: e.clientY, 
-                        initialX: node.x, 
-                        initialY: node.y,
-                        currentX: node.x,
-                        currentY: node.y
-                      });
-                      draggingNodeRef.current = {
-                        id: node.id,
-                        startX: e.clientX,
-                        startY: e.clientY,
-                        initialX: node.x,
-                        initialY: node.y,
-                        currentX: node.x,
-                        currentY: node.y
-                      };
-                    }}
-                    onPointerUp={(e) => {
-                      if (nodeTapRef.current && nodeTapRef.current.id === node.id && nodeTapRef.current.pointerType === 'touch') {
-                        const elapsed = Date.now() - nodeTapRef.current.time;
-                        const moved = Math.hypot(e.clientX - nodeTapRef.current.startX, e.clientY - nodeTapRef.current.startY);
-                        if (elapsed < 350 && moved < 10) {
-                          setMobileSheet(node.id);
-                        }
-                      }
-                      nodeTapRef.current = null;
-                    }}
-                  >
-                    <div className="flex items-center gap-2 flex-1 overflow-hidden pl-2 mt-1">
-                      <GripHorizontal className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <input className="bg-transparent font-bold focus:outline-none focus:bg-white/80 rounded px-1.5 w-full text-xs text-slate-800 placeholder-slate-400" value={node.title || ''} placeholder="Enter Title..." onFocus={() => takeSnapshot()} onChange={(e) => updateNode(node.id, { title: e.target.value })} />
-                    </div>
-                    
-                    <div className="flex items-center gap-0.5 shrink-0 ml-1 mt-1 relative">
+                  {/* Image */}
+                  {node.image && (
+                    <div className="relative mt-2 w-full bg-black/5 rounded-md p-1 border border-black/5 flex items-center justify-center">
+                      <img src={node.image} alt="Node attachment" className="max-h-32 w-auto object-contain rounded" draggable={false} />
                       <button 
-                        onClick={(e) => { e.stopPropagation(); setOpenLinkPicker(openLinkPicker === node.id ? null : node.id); setOpenColorPicker(null); }}
-                        className={`p-1 hover:bg-white/50 rounded text-slate-500 ${node.linkToTab ? 'text-indigo-600 font-bold' : ''}`}
-                        title="Link Portal to Tab"
+                        onClick={() => { takeSnapshot(); updateNode(node.id, { image: null }); }}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        className="absolute top-1 right-1 p-1 bg-white text-slate-400 hover:text-red-500 rounded shadow text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <Link2 className="w-3.5 h-3.5" />
+                        <X className="w-3 h-3" />
                       </button>
-                      {openLinkPicker === node.id && (
-                        <div className="absolute top-10 right-0 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex flex-col gap-1 z-50 pointer-events-auto min-w-[150px]" onClick={(e) => e.stopPropagation()}>
-                          <span className="text-[9px] font-bold text-slate-400 px-2 py-1 uppercase tracking-wider">Tab Portal Link:</span>
-                          <button 
-                            onClick={() => { takeSnapshot(); updateNode(node.id, { linkToTab: null }); setOpenLinkPicker(null); }}
-                            className="w-full text-left px-2 py-1 text-xs font-semibold rounded hover:bg-slate-100 text-red-500"
-                          >
-                            Disconnect Portal
+                    </div>
+                  )}
+
+                  {/* Clone indicator */}
+                  {node.cloneSourceId && (
+                    <div className="absolute bottom-2 right-2">
+                      <Copy className="w-3 h-3 text-violet-400" />
+                    </div>
+                  )}
+
+                  {/* Hover toolbar */}
+                  <div className="absolute -top-8 right-1 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-md shadow border border-slate-200 px-1 py-0.5" onPointerDown={(e) => e.stopPropagation()}>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setOpenLinkPicker(openLinkPicker === node.id ? null : node.id); setOpenColorPicker(null); }}
+                      className={`p-1 hover:bg-slate-100 rounded text-slate-500 ${node.linkToTab ? 'text-indigo-600' : ''}`}
+                      title="Link Portal"
+                    >
+                      <Link2 className="w-3 h-3" />
+                    </button>
+                    {openLinkPicker === node.id && (
+                      <div className="absolute top-8 right-0 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex flex-col gap-1 z-50 pointer-events-auto min-w-[150px]" onClick={(e) => e.stopPropagation()}>
+                        <span className="text-[9px] font-bold text-slate-400 px-2 py-1 uppercase tracking-wider">Tab Portal Link:</span>
+                        <button onClick={() => { takeSnapshot(); updateNode(node.id, { linkToTab: null }); setOpenLinkPicker(null); }} className="w-full text-left px-2 py-1 text-xs font-semibold rounded hover:bg-slate-100 text-red-500">Disconnect Portal</button>
+                        {workspaces.map(ws => (
+                          <button key={ws.id} onClick={() => { takeSnapshot(); updateNode(node.id, { linkToTab: ws.id }); setOpenLinkPicker(null); }} className="w-full text-left px-2 py-1 text-xs font-semibold rounded hover:bg-slate-100 flex items-center justify-between text-slate-700">
+                            <span>{ws.name}</span>
+                            {node.linkToTab === ws.id && <Check className="w-3 h-3 text-indigo-600" />}
                           </button>
-                          {workspaces.map(ws => (
-                            <button
-                              key={ws.id}
-                              onClick={() => { takeSnapshot(); updateNode(node.id, { linkToTab: ws.id }); setOpenLinkPicker(null); }}
-                              className="w-full text-left px-2 py-1 text-xs font-semibold rounded hover:bg-slate-100 flex items-center justify-between text-slate-700"
-                            >
-                              <span>{ws.name}</span>
-                              {node.linkToTab === ws.id && <Check className="w-3 h-3 text-indigo-600" />}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      <button onClick={(e) => { e.stopPropagation(); setOpenColorPicker(openColorPicker === node.id ? null : node.id); setOpenLinkPicker(null); }} className="p-1 hover:bg-white/50 rounded text-slate-500" title="Node Theme"><Palette className="w-3.5 h-3.5"/></button>
-                      {openColorPicker === node.id && (
-                        <div className="absolute top-10 right-0 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex gap-1.5 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
-                          {Object.keys(THEMES).map(colorKey => (
-                            <button key={colorKey} onClick={() => { takeSnapshot(); updateNode(node.id, { theme: colorKey }); setOpenColorPicker(null); }} className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${THEMES[colorKey].port}`}>
-                              {node.theme === colorKey && <Check className="w-3 h-3 text-white" />}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      <button onClick={() => { takeSnapshot(); updateNode(node.id, { expanded: !node.expanded }); }} className="p-1 hover:bg-white/50 rounded text-slate-500" title="Expand/Collapse">{node.expanded ? <ChevronDown className="w-3.5 h-3.5"/> : <ChevronRight className="w-3.5 h-3.5"/>}</button>
-                      <button onClick={() => deleteNode(node.id)} className="p-1 hover:bg-red-100 hover:text-red-600 rounded text-slate-400" title="Delete Node"><X className="w-3.5 h-3.5"/></button>
-                    </div>
-
-
-                    {/* Connecting Ports */}
-                    <div className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4.5 h-4.5 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-transform group ${theme.port}`} onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== node.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] })); } } setConnecting(null); }}>
-                       <div className="absolute inset-0 m-auto w-8 h-8 -left-2 -top-2 rounded-full opacity-0 hover:opacity-20 bg-current transition-opacity" />
-                    </div>
-                    <div className={`absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-4.5 h-4.5 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-transform group ${theme.port}`} onPointerDown={(e) => { e.stopPropagation(); bringToFront(node.id); const coords = getWorkspaceCoords(e); setConnecting({ sourceId: node.id, startX: node.x + NODE_WIDTH, startY: node.y + HEADER_CENTER_Y, currentX: coords.x, currentY: coords.y }); }}>
-                       <div className="absolute inset-0 m-auto w-8 h-8 -left-2 -top-2 rounded-full opacity-0 hover:opacity-20 bg-current transition-opacity" title="Drag to Connect" />
-                    </div>
+                        ))}
+                      </div>
+                    )}
+                    <button onClick={(e) => { e.stopPropagation(); setOpenColorPicker(openColorPicker === node.id ? null : node.id); setOpenLinkPicker(null); }} className="p-1 hover:bg-slate-100 rounded text-slate-500" title="Theme"><Palette className="w-3 h-3"/></button>
+                    {openColorPicker === node.id && (
+                      <div className="absolute top-8 right-0 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex gap-1.5 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                        {Object.keys(THEMES).map(colorKey => (
+                          <button key={colorKey} onClick={() => { takeSnapshot(); updateNode(node.id, { theme: colorKey }); setOpenColorPicker(null); }} className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${THEMES[colorKey].port}`}>
+                            {node.theme === colorKey && <Check className="w-3 h-3 text-white" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <button onClick={() => deleteNode(node.id)} className="p-1 hover:bg-red-100 hover:text-red-600 rounded text-slate-400" title="Delete"><X className="w-3 h-3"/></button>
                   </div>
 
-                  {/* Expandable description body */}
-                  <div className={`transition-all duration-300 overflow-hidden ${node.expanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="p-4 flex flex-col gap-3 min-h-[9rem]" onPointerDown={(e) => e.stopPropagation()}>
-                      
-                      {node.linkToTab && (
-                        <button 
-                          onClick={() => {
-                            const target = workspaces.find(w => w.id === node.linkToTab);
-                            if (target) {
-                              setActiveTab(target.id);
-                            }
-                          }}
-                          className="flex items-center justify-between px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200/80 transition-all group pointer-events-auto w-full"
-                        >
-                          <span className="flex items-center gap-1.5">
-                            <ExternalLink className="w-3.5 h-3.5 animate-pulse text-indigo-600" />
-                            Portal: Jump to Map
-                          </span>
-                          <span className="text-indigo-900 font-extrabold max-w-[120px] truncate">
-                            "{workspaces.find(w => w.id === node.linkToTab)?.name || 'Linked Map'}"
-                          </span>
-                        </button>
-                      )}
-
-                      {node.image && (
-                        <div className="relative group w-full bg-black/5 rounded-lg p-2 border border-black/5 flex items-center justify-center">
-                          <img src={node.image} alt="Node attachment" className="max-h-48 w-auto object-contain rounded" draggable={false} />
-                          <button 
-                            onClick={() => { takeSnapshot(); updateNode(node.id, { image: null }); }}
-                            className="absolute top-2 right-2 p-1.5 bg-white text-slate-400 hover:text-red-500 rounded-md shadow opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Remove Image"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
-
-
-                      {/* Text Editor area */}
-                      <div className="flex-1 w-full min-h-[4rem]">
-                        {editingTextNode === node.id ? (
-                          <textarea 
-                            autoFocus
-                            onBlur={() => setEditingTextNode(null)}
-                            className="w-full h-full min-h-[4rem] bg-transparent resize-none focus:outline-none text-slate-600 text-xs leading-relaxed placeholder-slate-400 custom-scrollbar" 
-                            value={node.content || ''} 
-                            onChange={(e) => updateNode(node.id, { content: e.target.value })} 
-                            placeholder="Write detailed requirements, paste a link, or drag-and-drop an image here..." 
-                          />
-                        ) : (
-                          <div 
-                            onClick={() => { takeSnapshot(); setEditingTextNode(node.id); }}
-                            className="w-full h-full min-h-[4rem] bg-transparent overflow-y-auto text-slate-600 text-xs leading-relaxed custom-scrollbar cursor-text whitespace-pre-wrap"
-                            title="Click to edit content"
-                          >
-                            {node.content ? renderLinks(node.content) : <span className="text-slate-400 italic">Write detailed requirements, paste a link, or drag-and-drop an image here...</span>}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Task Property Editor */}
-                      {node.nodeType !== 'concept' && (
-                      <div className="flex justify-between items-center pt-2.5 border-t border-slate-100 gap-2">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">State</span>
-                          <select 
-                            className="text-xs bg-slate-50 border border-slate-200 rounded px-1 py-0.5 font-bold text-slate-700 outline-none hover:bg-slate-100 select-none cursor-pointer"
-                            value={node.status || 'Todo'}
-                            onChange={(e) => { takeSnapshot(); updateNode(node.id, { status: e.target.value }); }}
-                          >
-                            <option value="Todo">📌 Todo</option>
-                            <option value="In Progress">⚡ In Progress</option>
-                            <option value="Done">✅ Done</option>
-                            <option value="Milestone">🏁 Milestone</option>
-                          </select>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">Priority</span>
-                          <select 
-                            className="text-xs bg-slate-50 border border-slate-200 rounded px-1 py-0.5 font-bold text-slate-700 outline-none hover:bg-slate-100 select-none cursor-pointer"
-                            value={node.priority || 'Medium'}
-                            onChange={(e) => { takeSnapshot(); updateNode(node.id, { priority: e.target.value }); }}
-                          >
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">🔥 High</option>
-                          </select>
-                        </div>
-                      </div>
-                      )}
-                    </div>
+                  {/* Connection Ports - visible on hover */}
+                  <div className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-all opacity-0 group-hover:opacity-100 ${theme.port}`} onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== node.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] })); } } setConnecting(null); }}>
+                  </div>
+                  <div className={`absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-all opacity-0 group-hover:opacity-100 ${theme.port}`} onPointerDown={(e) => { e.stopPropagation(); bringToFront(node.id); const coords = getWorkspaceCoords(e); setConnecting({ sourceId: node.id, startX: node.x + NODE_WIDTH, startY: node.y + HEADER_CENTER_Y, currentX: coords.x, currentY: coords.y }); }}>
                   </div>
                 </div>
               );
@@ -4232,11 +4066,8 @@ export default function WorkflowApp() {
               onClick={(e) => e.stopPropagation()}
               onContextMenu={(e) => e.preventDefault()}
             >
-              <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { addNode(contextMenu.clientX, contextMenu.clientY, null, 'task'); setContextMenu(null); }}>
-                <Plus className="w-4 h-4 mr-2 text-indigo-600" /> Add Task Node Here
-              </button>
-              <button className="w-full text-left px-4 py-2 hover:bg-violet-50 hover:text-violet-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { addNode(contextMenu.clientX, contextMenu.clientY, null, 'concept'); setContextMenu(null); }}>
-                <Sparkles className="w-4 h-4 mr-2 text-violet-600" /> Add Concept Node Here
+              <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { addNode(contextMenu.clientX, contextMenu.clientY, null); setContextMenu(null); }}>
+                <Plus className="w-4 h-4 mr-2 text-indigo-600" /> Add Card Here
               </button>
               <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { createGroup(contextMenu.clientX, contextMenu.clientY); setContextMenu(null); }}>
                 <Layers className="w-4 h-4 mr-2 text-indigo-600" /> Create Group Here
@@ -4641,8 +4472,7 @@ export default function WorkflowApp() {
               <div className={`mx-4 mt-2 mb-3 p-3 rounded-2xl border ${sheetTheme.groupHeader} ${sheetTheme.groupBg}`}>
                 <div className="flex items-center gap-2.5">
                   <div className={`w-3 h-3 rounded-full ${sheetTheme.port}`} />
-                  <span className={`font-bold text-sm flex-1 truncate ${sheetTheme.text}`}>{sheetNode.title || `Task #${sheetNode.id}`}</span>
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${sheetTheme.tag}`}>{sheetNode.status}</span>
+                  <span className={`font-bold text-sm flex-1 truncate ${sheetTheme.text}`}>{sheetNode.title || `Card #${sheetNode.id}`}</span>
                 </div>
               </div>
 
@@ -4666,25 +4496,6 @@ export default function WorkflowApp() {
                 ))}
               </div>
 
-
-              <div className="px-4 py-3 border-t border-slate-100 mt-1 flex gap-4">
-                <div className="flex-1">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Status</span>
-                  <div className="flex flex-wrap gap-1">
-                    {['Todo', 'In Progress', 'Done', 'Milestone'].map(s => (
-                      <button key={s} onClick={() => { takeSnapshot(); updateNode(mobileSheet, { status: s }); }} className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all ${sheetNode.status === s ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>{s}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Priority</span>
-                  <div className="flex gap-1">
-                    {['Low', 'Medium', 'High'].map(p => (
-                      <button key={p} onClick={() => { takeSnapshot(); updateNode(mobileSheet, { priority: p }); }} className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all ${sheetNode.priority === p ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>{p}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
 
               <div className="px-4 pb-4">
                 <button onClick={() => setMobileSheet(null)} className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm rounded-xl transition-colors">

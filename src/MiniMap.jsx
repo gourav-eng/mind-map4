@@ -4,9 +4,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 const THEME_COLORS = {
   amber: '#f59e0b',
   blue: '#3b82f6',
-  emerald: '#10b981',
+  green: '#10b981',
   purple: '#8b5cf6',
-  rose: '#f43f5e',
 };
 
 const DEFAULT_WIDTH = 220;
@@ -20,9 +19,7 @@ const ARROW_STEP = 50;
 
 // Node dimensions used in the minimap rendering
 const NODE_EXPANDED_WIDTH = 260;
-const NODE_COLLAPSED_WIDTH = 200;
 const NODE_EXPANDED_HEIGHT = 120;
-const NODE_COLLAPSED_HEIGHT = 40;
 
 export default function MiniMap({
   nodes,
@@ -57,8 +54,8 @@ export default function MiniMap({
 
     nodes.forEach(node => {
       hasContent = true;
-      const w = node.expanded !== false ? NODE_EXPANDED_WIDTH : NODE_COLLAPSED_WIDTH;
-      const h = node.expanded !== false ? NODE_EXPANDED_HEIGHT : NODE_COLLAPSED_HEIGHT;
+      const w = NODE_EXPANDED_WIDTH;
+      const h = NODE_EXPANDED_HEIGHT;
       minX = Math.min(minX, node.x);
       minY = Math.min(minY, node.y);
       maxX = Math.max(maxX, node.x + w);
@@ -334,8 +331,8 @@ export default function MiniMap({
 
       {/* Render nodes */}
       {nodes.map(node => {
-        const w = node.expanded !== false ? NODE_EXPANDED_WIDTH : NODE_COLLAPSED_WIDTH;
-        const h = node.expanded !== false ? NODE_EXPANDED_HEIGHT : NODE_COLLAPSED_HEIGHT;
+        const w = NODE_EXPANDED_WIDTH;
+        const h = NODE_EXPANDED_HEIGHT;
         const pos = worldToMiniMap(node.x, node.y, bounds);
         const endPos = worldToMiniMap(node.x + w, node.y + h, bounds);
         const color = THEME_COLORS[node.theme] || THEME_COLORS.blue;
