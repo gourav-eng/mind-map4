@@ -2076,7 +2076,7 @@ export default function WorkflowApp() {
       const maxX = Math.max(selectionBox.startX, coords.x);
       const minY = Math.min(selectionBox.startY, coords.y);
       const maxY = Math.max(selectionBox.startY, coords.y);
-      const NODE_W = 340;
+      const NODE_W = 280;
       const NODE_H = 160;
       const insideNodes = nodes.filter(n => {
         const nx = n.x, ny = n.y;
@@ -2144,7 +2144,7 @@ export default function WorkflowApp() {
           if (g.id === resizingGroup.id) {
             return {
               ...g,
-              manualWidth: Math.max(340, resizingGroup.initialWidth + dx),
+              manualWidth: Math.max(280, resizingGroup.initialWidth + dx),
               manualHeight: Math.max(160, resizingGroup.initialHeight + dy)
             };
           }
@@ -2358,7 +2358,9 @@ export default function WorkflowApp() {
       content: target.content || '',
       theme: target.theme,
       groupId: target.groupId,
-      cloneSourceId: null
+      cloneSourceId: null,
+      linkToTab: target.linkToTab || null,
+      image: target.image || null
     };
 
     updateActiveWorkspace(ws => {
@@ -4525,7 +4527,7 @@ export default function WorkflowApp() {
             if (selectedNodeIds.length < 2) return;
             takeSnapshot();
             const selectedNodes = nodes.filter(n => selectedNodeIds.includes(n.id));
-            const NODE_W = 340;
+            const NODE_W = 280;
             const NODE_H = 160;
             const PADDING = 30;
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
