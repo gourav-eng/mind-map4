@@ -217,15 +217,6 @@ const getDescendants = (groupId, currentGroups, currentNodes) => {
   return { descendantGroupIds, descendantNodeIds };
 };
 
-const isGroupHidden = (groupId, currentGroups) => {
-  return false;
-};
-
-const shareCollapsedAncestor = (nodeA, nodeB, currentGroups) => {
-  return false;
-};
-
-
 // --- Bottom-up Layout Auto-adjuster ---
 const computeLayout = (currentGroups, currentNodes) => {
   if (!currentGroups || currentGroups.length === 0) return currentGroups;
@@ -2407,7 +2398,7 @@ export default function WorkflowApp() {
         takeSnapshot();
         updateActiveWorkspace(ws => ({
           images: [...(ws.images || []), {
-            id: `img-${Date.now()}`,
+            id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
             x: dropX,
             y: dropY,
             width: displayWidth,
@@ -3649,9 +3640,6 @@ export default function WorkflowApp() {
             
             {/* --- Render Phase Groups and Nested Subgroups --- */}
             {groups.map(group => {
-              if (group.parentGroupId) {
-                if (isGroupHidden(group.parentGroupId, groups)) return null;
-              }
 
               const theme = THEMES[group.theme] || THEMES.blue;
               const isGrpDragging = draggingGroup?.id === group.id;
@@ -3799,10 +3787,6 @@ export default function WorkflowApp() {
                 const sourceNode = nodes.find(n => n.id === edge.source);
                 const targetNode = nodes.find(n => n.id === edge.target);
 
-                if (sourceNode && targetNode) {
-                  if (shareCollapsedAncestor(sourceNode, targetNode, groups)) return null;
-                }
-
                 const sourceTheme = sourceNode ? (THEMES[sourceNode.theme] || THEMES.blue) : THEMES.blue;
 
                 return (
@@ -3813,9 +3797,13 @@ export default function WorkflowApp() {
                 );
               })}
               
-              {connecting && (
-                <path d={drawCurve(connecting.startX, connecting.startY, connecting.currentX, connecting.currentY)} stroke={THEMES[nodes.find(n => n.id === connecting.sourceId)?.theme || 'blue'].line} strokeWidth={3} strokeDasharray="8,6" fill="none" className="animate-[dash_1s_linear_infinite]" />
-              )}
+              {connecting && (() => {
+                const sourceEntity = nodes.find(n => n.id === connecting.sourceId) || (activeWs?.images || []).find(i => i.id === connecting.sourceId);
+                const strokeColor = THEMES[sourceEntity?.theme || 'blue'].line;
+                return (
+                  <path d={drawCurve(connecting.startX, connecting.startY, connecting.currentX, connecting.currentY)} stroke={strokeColor} strokeWidth={3} strokeDasharray="8,6" fill="none" className="animate-[dash_1s_linear_infinite]" />
+                );
+              })()}
             </svg>
 
 
@@ -3891,9 +3879,6 @@ export default function WorkflowApp() {
 
             {/* --- Nodes Layer --- */}
             {nodes.map((node, index) => {
-              if (node.groupId) {
-                if (isGroupHidden(node.groupId, groups)) return null;
-              }
 
               const theme = THEMES[node.theme] || THEMES.blue;
               const isDragging = draggingNode?.id === node.id;

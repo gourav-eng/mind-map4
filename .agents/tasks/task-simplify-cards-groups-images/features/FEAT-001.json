@@ -26,5 +26,5 @@
     "cd /projects/sandbox/mind-map4 && npm run build"
   ],
   "blocked_reason": null,
-  "findings": "All changes compiled successfully with npm run build. Removed ChevronRight from imports as it was no longer used after removing group expand/collapse. The amber theme was replaced with 10 new themes - existing data referencing amber will gracefully fall back to the blue theme via the || THEMES.blue pattern. The images array is added to workspace data and persists through the same localStorage mechanism as other workspace properties."
+  "findings": "All changes compiled successfully with npm run build. Removed ChevronRight from imports as it was no longer used after removing group expand/collapse. The amber theme was replaced with 10 new themes - existing data referencing amber will gracefully fall back to the blue theme via the || THEMES.blue pattern. The images array is added to workspace data and persists through the same localStorage mechanism as other workspace properties. Post-review v1 fixes applied: removed dead isGroupHidden/shareCollapsedAncestor stubs and their call sites, added random suffix to image IDs for collision avoidance, and fixed connecting-line color to check images array as fallback source."
 }
