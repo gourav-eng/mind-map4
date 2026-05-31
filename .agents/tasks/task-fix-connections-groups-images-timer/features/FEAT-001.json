@@ -20,5 +20,5 @@
     "Run cd /projects/sandbox/mind-map4 && npm run build and confirm zero errors"
   ],
   "blocked_reason": null,
-  "findings": "All 4 changes implemented successfully. Build passes. Timer icon imported from lucide-react. The outline board group div overflow-hidden was replaced with inline style overflow:visible to allow color picker dropdown to display. Image groupId support added to drop handler, group drag handler, and image drag-end handler."
+  "findings": "All 4 changes implemented successfully. Build passes. Timer icon imported from lucide-react. The outline board group div overflow-hidden was replaced with inline style overflow:visible to allow color picker dropdown to display. Image groupId support added to drop handler, group drag handler, and image drag-end handler. Review fixes applied: (1) Removed timerSeconds from useEffect deps to prevent interval churn, (2) Added audioCtx.close() after oscillator stops to prevent AudioContext leak, (3) Image drop handler now collects all containing groups, sorts by depth, and picks deepest - matching drag-end logic, (4) getDescendants called once in group-drag handler instead of 3 times."
 }
