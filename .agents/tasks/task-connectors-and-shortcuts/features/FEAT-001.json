@@ -33,5 +33,5 @@
     "Grep for connection port divs inside group rendering to confirm they exist"
   ],
   "blocked_reason": null,
-  "findings": "All 8 changes implemented successfully. Build passes without errors. HelpCircle import removed since tooltip was deleted. The addNode function already handles being called without arguments (creates card at viewport center), so the N key useEffect works with an empty dependency array. Groups now fully support connections as both source and target."
+  "findings": "All 8 changes implemented successfully. Build passes without errors. HelpCircle import removed since tooltip was deleted. The addNode function already handles being called without arguments (creates card at viewport center), so the N key useEffect works with an empty dependency array. Groups now fully support connections as both source and target. Review v1 fixes: (1) Added addNodeRef pattern to prevent stale closure in N key shortcut - ensures transform state is always current after pan/zoom. (2) Wrapped setConnecting/setConnectHoverNodeId cleanup inside if(connecting) guard in group left port onPointerUp. Issues 3 and 4 from review (image theme resolution and red hover cue) left as-is per guidance - cosmetic/future concerns, not bugs."
 }
