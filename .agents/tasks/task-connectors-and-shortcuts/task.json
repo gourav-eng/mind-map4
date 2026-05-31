@@ -1,0 +1,7 @@
+{
+  "task_id": "task-connectors-and-shortcuts",
+  "task_description": "Add connection ports to groups, fix image connectors, prevent crashes, remove tooltip, add N key shortcut for new card, add Ctrl+click to disconnect edges, and change project panel easter egg to 6 clicks on total bar.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001"],
+  "blocked_reason": null
+}

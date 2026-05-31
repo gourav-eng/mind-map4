@@ -1,0 +1,16 @@
+{
+  "project_type": "React single-page canvas/whiteboard brainstorming app",
+  "language": "JavaScript (JSX)",
+  "build_system": "Vite with React plugin, Tailwind CSS",
+  "test_framework": "None - no test infrastructure exists",
+  "build_command": "cd /projects/sandbox/mind-map4 && npm run build",
+  "test_command": "N/A - no tests exist",
+  "verification_instructions": "Run 'npm run build' successfully with no errors. Manual verification of features.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "cd /projects/sandbox/mind-map4 && npm install",
+  "environment_constraints": "OPEN_INTERNET network. Node.js v22 available via nvm.",
+  "contribution_requirements": "Single-file React app in src/App.jsx. All changes go there.",
+  "key_patterns": "Single monolithic App.jsx (~4673 lines). Uses React hooks extensively. Canvas uses pointer events for drag/pan/zoom. Connection ports appear on hover using 'group-hover:opacity-100'. Edges rendered as SVG paths inside an absolutely positioned <svg> element. Groups are rendered as div elements with border-dashed styling. The getConnectionPoint function resolves edge endpoints for nodes and images. handleLogoTap with ref counting opens the project panel. Keyboard shortcuts use useEffect with window.addEventListener('keydown'...).",
+  "relevant_files": ["/projects/sandbox/mind-map4/src/App.jsx"],
+  "directory_structure": "src/App.jsx - main app component (4673 lines), src/MiniMap.jsx - minimap component, src/index.css - tailwind styles, src/main.jsx - entry point"
+}

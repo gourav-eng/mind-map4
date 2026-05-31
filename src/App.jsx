@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Plus, Trash2, X, ChevronDown, 
   FileText, Network, FolderOpen, Palette, Check, ZoomIn, ZoomOut, Focus,
-  Download, Upload, Undo2, Redo2, Layers, Link2, ExternalLink, HelpCircle,
+  Download, Upload, Undo2, Redo2, Layers, Link2, ExternalLink,
   Sparkles, PanelLeftClose, PanelLeft,
   Grid, Move, Copy, ArrowUp, ArrowDown, RefreshCw, LayoutList, MonitorSpeaker,
   MoreVertical, ImageIcon, ChevronUp, Scissors, ClipboardPaste,
@@ -1227,6 +1227,20 @@ export default function WorkflowApp() {
     return () => window.removeEventListener('keydown', handleMiniMapKey);
   }, []);
 
+  // --- N key creates new card ---
+  useEffect(() => {
+    const handleNewCardKey = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        addNode();
+      }
+    };
+    window.addEventListener('keydown', handleNewCardKey);
+    return () => window.removeEventListener('keydown', handleNewCardKey);
+  }, []);
+
   // --- Arrow key movement for selected nodes ---
   useEffect(() => {
     const handleArrowKeys = (e) => {
@@ -1310,7 +1324,7 @@ export default function WorkflowApp() {
       ref.count = 1;
     }
     ref.lastTap = now;
-    if (ref.count >= 3) {
+    if (ref.count >= 6) {
       ref.count = 0;
       openProjectPanel();
     }
@@ -2954,11 +2968,26 @@ export default function WorkflowApp() {
     if (!node) {
       // Check if it's an image object
       const img = (activeWs?.images || []).find(i => i.id === nodeId);
-      if (!img) return null;
-      return {
-        x: isSource ? img.x + (img.width || 280) : img.x,
-        y: img.y + (img.height || 180) / 2
-      };
+      if (img) {
+        const imgX = draggingImage?.id === img.id ? draggingImage.currentX : img.x;
+        const imgY = draggingImage?.id === img.id ? draggingImage.currentY : img.y;
+        return {
+          x: isSource ? imgX + (img.width || 280) : imgX,
+          y: imgY + (img.height || 180) / 2
+        };
+      }
+      // Check if it's a group
+      const group = groups.find(g => g.id === nodeId);
+      if (group) {
+        const coords = getLiveCoordinates(group, true);
+        const gW = group.width || 440;
+        const gH = group.height || 420;
+        return {
+          x: isSource ? coords.x + gW : coords.x,
+          y: coords.y + gH / 2
+        };
+      }
+      return null;
     }
 
     const dims = getNodeDimensions(node);
@@ -3676,13 +3705,29 @@ export default function WorkflowApp() {
                   key={group.id}
                   className={`absolute rounded-xl border-2 pointer-events-auto group transition-shadow duration-150 cursor-grab active:cursor-grabbing ${theme.groupBg} ${
                     isGrpDragging ? 'shadow-2xl border-indigo-500 z-20' : 'z-0'
-                  } ${isTargetHover ? 'ring-4 ring-indigo-500/30 border-indigo-500 border-solid bg-indigo-50/10' : 'border-dashed'}`}
+                  } ${isTargetHover ? 'ring-4 ring-indigo-500/30 border-indigo-500 border-solid bg-indigo-50/10' : 'border-dashed'} ${
+                    connectHoverNodeId === group.id ? 'ring-2 ring-green-400 shadow-lg shadow-green-200/50' : ''
+                  }`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
                     width: displayW,
                     height: displayH,
                     backgroundColor: theme.cardBg + '40'
+                  }}
+                  onPointerEnter={() => { if (connecting && connecting.sourceId !== group.id) setConnectHoverNodeId(group.id); }}
+                  onPointerLeave={() => { if (connectHoverNodeId === group.id) setConnectHoverNodeId(null); }}
+                  onPointerUp={(e) => {
+                    if (connecting && connecting.sourceId !== group.id) {
+                      e.stopPropagation();
+                      const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === group.id);
+                      if (!exists) {
+                        takeSnapshot();
+                        updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: group.id }] }));
+                      }
+                      setConnecting(null);
+                      setConnectHoverNodeId(null);
+                    }
                   }}
                   onPointerDown={(e) => {
                     if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
@@ -3750,6 +3795,21 @@ export default function WorkflowApp() {
                       <path d="M12,0 L0,12 M12,4 L4,12 M12,8 L8,12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   </div>
+
+                  {/* Connection Ports - visible on hover */}
+                  <div 
+                    className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
+                    onPointerDown={(e) => e.stopPropagation()} 
+                    onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== group.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === group.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: group.id }] })); } } setConnecting(null); setConnectHoverNodeId(null); }}
+                  >
+                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
+                  </div>
+                  <div 
+                    className={`absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
+                    onPointerDown={(e) => { e.stopPropagation(); const coords = getWorkspaceCoords(e); setConnecting({ sourceId: group.id, startX: displayX + displayW, startY: displayY + displayH / 2, currentX: coords.x, currentY: coords.y }); }}
+                  >
+                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
+                  </div>
                 </div>
               );
             })}
@@ -3771,20 +3831,21 @@ export default function WorkflowApp() {
                 if (!startPos || !endPos) return null;
 
                 const sourceNode = nodes.find(n => n.id === edge.source);
-                const targetNode = nodes.find(n => n.id === edge.target);
-
-                const sourceTheme = sourceNode ? (THEMES[sourceNode.theme] || THEMES.blue) : THEMES.blue;
+                const sourceImage = !sourceNode ? (activeWs?.images || []).find(i => i.id === edge.source) : null;
+                const sourceGroup = (!sourceNode && !sourceImage) ? groups.find(g => g.id === edge.source) : null;
+                const sourceThemeKey = sourceNode?.theme || sourceGroup?.theme || 'blue';
+                const sourceTheme = THEMES[sourceThemeKey] || THEMES.blue;
 
                 return (
-                  <g key={edge.id} className="cursor-pointer group animate-in fade-in" onClick={(e) => { e.stopPropagation(); removeEdge(edge.id); }} style={{ pointerEvents: 'auto' }} title="Click connection to remove">
+                  <g key={edge.id} className="cursor-pointer group animate-in fade-in" onClick={(e) => { e.stopPropagation(); if (e.ctrlKey || e.metaKey) { removeEdge(edge.id); } }} style={{ pointerEvents: 'auto' }} title="Ctrl+Click to disconnect">
                     <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke="transparent" strokeWidth={24} fill="none" />
-                    <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke={sourceTheme.line} strokeWidth={3} fill="none" markerEnd={`url(#arrow-${sourceNode?.theme || 'blue'})`} className="transition-all duration-300 group-hover:stroke-red-500 group-hover:stroke-[4px]" />
+                    <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke={sourceTheme.line} strokeWidth={3} fill="none" markerEnd={`url(#arrow-${sourceThemeKey})`} className="transition-all duration-300 group-hover:stroke-red-500 group-hover:stroke-[4px]" />
                   </g>
                 );
               })}
               
               {connecting && (() => {
-                const sourceEntity = nodes.find(n => n.id === connecting.sourceId) || (activeWs?.images || []).find(i => i.id === connecting.sourceId);
+                const sourceEntity = nodes.find(n => n.id === connecting.sourceId) || (activeWs?.images || []).find(i => i.id === connecting.sourceId) || groups.find(g => g.id === connecting.sourceId);
                 const strokeColor = THEMES[sourceEntity?.theme || 'blue'].line;
                 return (
                   <path d={drawCurve(connecting.startX, connecting.startY, connecting.currentX, connecting.currentY)} stroke={strokeColor} strokeWidth={3} strokeDasharray="8,6" fill="none" className="animate-[dash_1s_linear_infinite]" />
@@ -4096,10 +4157,6 @@ export default function WorkflowApp() {
 
           {/* --- Bottom-Right Floating Zoom and Guides --- */}
           <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-center gap-2 sm:gap-3 z-50">
-            <div className="hidden sm:flex bg-white rounded-lg shadow-lg border border-slate-200 px-3.5 py-2.5 text-xs text-slate-500 font-medium items-center gap-2 max-w-sm">
-              <HelpCircle className="w-4 h-4 text-indigo-600 shrink-0" />
-              <span>Right click cards to duplicate/raise. Double border indicates nested sub-group.</span>
-            </div>
 
             <div className="flex flex-col items-center bg-white rounded-lg shadow-lg border border-slate-200 p-1">
               <button onClick={() => handleZoom(0.25)} className="p-1.5 sm:p-2 hover:bg-slate-100 text-slate-600 rounded-md transition-colors" title="Zoom In"><ZoomIn className="w-4 h-4 sm:w-5 sm:h-5"/></button>

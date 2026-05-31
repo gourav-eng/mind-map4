@@ -1,0 +1,37 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Implement all 7 requested changes to the canvas app: group connection ports, image connector fixes, crash prevention, tooltip removal, N key shortcut, Ctrl+click edge disconnect, and 6-click total bar easter egg.",
+  "status": "in_progress",
+  "steps": [
+    "1. Add connection ports to groups (lines ~3661-3753 in App.jsx): Inside the group rendering block (the div with className containing 'rounded-xl border-2 pointer-events-auto group'), add left and right connection port divs following the same pattern as cards (lines ~4221-4231). Left port should have onPointerUp to accept incoming connections, right port should have onPointerDown to start connections. Groups should NOT have any text/description input or title editing inline (they already only have the external floating label input, which is fine). The ports should use the theme.port color class. The connection ports should use the group.id as sourceId when starting a connection.",
+    "2. Update getConnectionPoint function (around line 2952) to handle groups: After checking for images, add a check for groups. If the nodeId matches a group, return coordinates based on group position and dimensions (left edge center for target, right edge center for source). Use getLiveCoordinates(group, true) to get the current position.",
+    "3. Fix image connectors: The image connection ports (lines ~3849-3868) currently work but the getConnectionPoint function (line 2952) uses img.x and img.y directly without considering dragging state (draggingImage). Update getConnectionPoint to use draggingImage.currentX/Y when the image is being dragged. Also ensure connection from image to image and image to group works.",
+    "4. Crash prevention: In the edges.map rendering block (around line 3770), getConnectionPoint already returns null and the code has 'if (!startPos || !endPos) return null'. This is correct. Additionally, add a guard in the edge rendering for cases where sourceNode is null (it already falls back to THEMES.blue). Verify the markerEnd URL also has a fallback. The current code handles this acceptably but ensure the theme lookup for edges with group/image sources also resolves correctly.",
+    "5. Remove the tooltip (line 4099-4102): Delete the entire div that contains 'Right click cards to duplicate/raise. Double border indicates nested sub-group.' - this is the hidden sm:flex div in the bottom-right floating section.",
+    "6. Add 'N' key shortcut to create a new card: Add a new useEffect similar to the M key handler (line 1213-1228). When 'n' or 'N' is pressed (not in INPUT/TEXTAREA, no modifier keys), call addNode() to create a card at the center of the viewport.",
+    "7. Ctrl+click on edge to disconnect: In the edges.map SVG rendering (around line 3770), modify the onClick handler on the <g> element. Currently it always calls removeEdge. Change it to only remove the edge if e.ctrlKey or e.metaKey is held. Without Ctrl, clicking should do nothing (or keep existing behavior if the user wants click to remove - based on the request, only Ctrl+click should disconnect).",
+    "8. Change the handleLogoTap function (around line 1369) to require 6 clicks instead of 3: Change 'if (ref.count >= 3)' to 'if (ref.count >= 6)'. This function is called when clicking the 'Total Cards' stat box in the sidebar.",
+    "9. Update the onPointerUp handler on group elements to accept incoming connections (similar to how cards accept connections on onPointerUp at line 4196-4204). When a connection is being drawn and released on a group, create the edge.",
+    "10. Ensure the connecting state visual feedback works for groups: Add onPointerEnter/onPointerLeave to the group div to set connectHoverNodeId when a connection is active, and add visual ring styling to the group when it's the hover target (similar to connectHoverNodeId styling on cards)."
+  ],
+  "acceptance_criteria": [
+    "npm run build completes without errors",
+    "Groups have visible connection ports on hover (left and right) that can initiate and accept connections",
+    "Groups do NOT have any inline text input or description textarea (only external floating label)",
+    "Image connection ports work to connect images to cards, groups, and other images",
+    "Edges that reference non-existent nodes/images/groups render safely (no crash, just skip)",
+    "The tooltip 'Right click cards to duplicate/raise...' is removed from the UI",
+    "Pressing 'N' (not in input) creates a new card at viewport center",
+    "Ctrl+clicking on an edge removes it; regular click does NOT remove edges",
+    "Clicking the Total Cards stat box 6 times rapidly opens the project panel"
+  ],
+  "verification": [
+    "Run 'cd /projects/sandbox/mind-map4 && npm run build' and confirm it completes with exit code 0",
+    "Grep for 'Right click cards' to confirm tooltip text is removed",
+    "Grep for 'ref.count >= 6' to confirm 6-click threshold",
+    "Grep for connection port divs inside group rendering to confirm they exist"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
