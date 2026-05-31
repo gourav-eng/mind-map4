@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Implement all 7 requested changes to the canvas app: group connection ports, image connector fixes, crash prevention, tooltip removal, N key shortcut, Ctrl+click edge disconnect, and 6-click total bar easter egg.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Add connection ports to groups (lines ~3661-3753 in App.jsx): Inside the group rendering block (the div with className containing 'rounded-xl border-2 pointer-events-auto group'), add left and right connection port divs following the same pattern as cards (lines ~4221-4231). Left port should have onPointerUp to accept incoming connections, right port should have onPointerDown to start connections. Groups should NOT have any text/description input or title editing inline (they already only have the external floating label input, which is fine). The ports should use the theme.port color class. The connection ports should use the group.id as sourceId when starting a connection.",
     "2. Update getConnectionPoint function (around line 2952) to handle groups: After checking for images, add a check for groups. If the nodeId matches a group, return coordinates based on group position and dimensions (left edge center for target, right edge center for source). Use getLiveCoordinates(group, true) to get the current position.",
@@ -33,5 +33,5 @@
     "Grep for connection port divs inside group rendering to confirm they exist"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 8 changes implemented successfully. Build passes without errors. HelpCircle import removed since tooltip was deleted. The addNode function already handles being called without arguments (creates card at viewport center), so the N key useEffect works with an empty dependency array. Groups now fully support connections as both source and target."
 }
