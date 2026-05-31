@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "fix",
   "description": "Fix short/close connection curves, fix group color modification, add image-in-group support, and add standalone timer widget",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Step 1 - Fix drawCurve function (line ~2712 in src/App.jsx): The current implementation uses `const offset = Math.max(dx * 0.5, 80)` which forces a minimum 80px control point offset even when nodes are very close, causing ugly looping curves. Replace with a distance-aware algorithm: calculate the total distance between points, and scale the offset proportionally. For very short distances (e.g., under 100px), use a much smaller offset or a nearly straight line. For example: `const dist = Math.hypot(x2-x1, y2-y1); const offset = Math.min(dist * 0.4, Math.max(dx * 0.5, 30));` Also handle the case where x2 < x1 (target is to the left of source) gracefully with a small arc instead of a loop.",
     "Step 2 - Fix group color modification: The updateGroup function at line ~2610 looks correct, and the group context menu at line ~4306 has color buttons that call updateGroup. However, inspect the updateGroup function - it wraps the result in computeLayout which re-positions groups. The issue might be that updateGroup does not call takeSnapshot() before making the change (the context menu handler does call takeSnapshot). Verify the group header's inline color picker at line ~3058-3062 also calls takeSnapshot before updateGroup. Make sure both color pickers (header and context menu) properly persist the theme change.",
@@ -20,5 +20,5 @@
     "Run cd /projects/sandbox/mind-map4 && npm run build and confirm zero errors"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 4 changes implemented successfully. Build passes. Timer icon imported from lucide-react. The outline board group div overflow-hidden was replaced with inline style overflow:visible to allow color picker dropdown to display. Image groupId support added to drop handler, group drag handler, and image drag-end handler."
 }
