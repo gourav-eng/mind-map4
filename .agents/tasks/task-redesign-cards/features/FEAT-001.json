@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Redesign card/node rendering to Version B clean card design: remove badges, expand/collapse, status/priority; simplify to 2 card types (normal and clone); reduce themes to 4 (blue, amber, green, purple); change card width to 280px with left border accent style.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Step 1 - Update THEMES object (lines 13-70 of App.jsx): Remove 'rose' and 'emerald' theme entries. Keep 'amber', 'blue', 'purple'. Add a 'green' theme (can reuse emerald's colors but rename it). Simplify each theme to only need: name, accent (hex color for left border), port (for connection dots), line (for edge color), groupBg, groupHeader, text. The new card design uses solid white bg so the old wrapper/header/tag/glow classes are no longer needed for card rendering but keep them for group rendering.",
     "Step 2 - Update THEMES to add new card-specific properties to each theme: 'border' (the 4px left accent color as a tailwind border-l class), 'borderSelected' (accent color wraps all sides when selected). Colors: blue=#3b82f6, amber=#f59e0b, green=#10b981, purple=#8b5cf6.",
@@ -39,5 +39,5 @@
     "Run grep to confirm no remaining references to node.status, node.priority, node.nodeType in functional code paths"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All changes verified with npm run build. Removed collapseAllNodes/expandAllNodes functions entirely since node.expanded is no longer a concept. The Collapse/Expand All buttons in the More menu were replaced with just the Add Card button. Mobile sheet bottom panel status/priority section was also removed. Multi-select duplicate action still copies full node objects but since the fields are no longer present in the source data this is fine."
 }
