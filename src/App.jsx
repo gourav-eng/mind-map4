@@ -380,6 +380,7 @@ export default function WorkflowApp() {
   const dragSnapshot = useRef(null);
   const draggingNodeRef = useRef(null);
   const imageUploadInputRef = useRef(null);
+  const imageUploadCoordsRef = useRef({ x: 0, y: 0 });
 
   // --- Timer State ---
   const [showTimer, setShowTimer] = useState(false);
@@ -745,7 +746,7 @@ export default function WorkflowApp() {
 
   // --- Timer Countdown Effect ---
   useEffect(() => {
-    if (!timerRunning || timerSeconds <= 0) return;
+    if (!timerRunning) return;
     const interval = setInterval(() => {
       setTimerSeconds(prev => {
         if (prev <= 1) {
@@ -753,11 +754,12 @@ export default function WorkflowApp() {
           setTimerFinished(true);
           return 0;
         }
+        if (prev <= 0) return prev;
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [timerRunning, timerSeconds]);
+  }, [timerRunning]);
 
   // Keep projectsRef in sync with projects state for debounced localStorage writes
   useEffect(() => {
@@ -3522,8 +3524,8 @@ export default function WorkflowApp() {
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (!file || !file.type.startsWith('image/')) return;
-          const ctxX = imageUploadInputRef.current._contextX;
-          const ctxY = imageUploadInputRef.current._contextY;
+          const ctxX = imageUploadCoordsRef.current.x;
+          const ctxY = imageUploadCoordsRef.current.y;
           const reader = new FileReader();
           reader.onload = (event) => {
             const img = new Image();
@@ -3544,6 +3546,23 @@ export default function WorkflowApp() {
               const dropY = (ctxY - rect.top - transform.y) / transform.scale;
               const displayWidth = 280;
               const displayHeight = Math.round((h / w) * displayWidth);
+              // Check if drop point is inside a group (deepest-first)
+              const dropCenterX = dropX + displayWidth / 2;
+              const dropCenterY = dropY + displayHeight / 2;
+              let foundGroupId = null;
+              const sortedGroups = [...groups].sort((a, b) => {
+                const depthA = (() => { let d = 0, c = a; while (c && c.parentGroupId) { d++; c = groups.find(p => p.id === c.parentGroupId); } return d; })();
+                const depthB = (() => { let d = 0, c = b; while (c && c.parentGroupId) { d++; c = groups.find(p => p.id === c.parentGroupId); } return d; })();
+                return depthB - depthA;
+              });
+              for (const group of sortedGroups) {
+                const gW = group.width || 440;
+                const gH = group.height || 420;
+                if (dropCenterX >= group.x && dropCenterX <= group.x + gW && dropCenterY >= group.y && dropCenterY <= group.y + gH) {
+                  foundGroupId = group.id;
+                  break;
+                }
+              }
               takeSnapshot();
               updateActiveWorkspace(ws => ({
                 images: [...(ws.images || []), {
@@ -3553,7 +3572,7 @@ export default function WorkflowApp() {
                   width: displayWidth,
                   height: displayHeight,
                   src: compressedBase64,
-                  groupId: null
+                  groupId: foundGroupId
                 }]
               }));
             };
@@ -4396,7 +4415,7 @@ export default function WorkflowApp() {
               <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { createGroup(contextMenu.clientX, contextMenu.clientY); setContextMenu(null); }}>
                 <Layers className="w-4 h-4 mr-2 text-indigo-600" /> Create Group Here
               </button>
-              <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { imageUploadInputRef.current._contextX = contextMenu.clientX; imageUploadInputRef.current._contextY = contextMenu.clientY; imageUploadInputRef.current.click(); setContextMenu(null); }}>
+              <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 hover:text-indigo-900 text-sm font-semibold text-slate-700 flex items-center" onClick={() => { imageUploadCoordsRef.current = { x: contextMenu.clientX, y: contextMenu.clientY }; imageUploadInputRef.current.click(); setContextMenu(null); }}>
                 <ImageIcon className="w-4 h-4 mr-2 text-indigo-600" /> Add Image Here
               </button>
               {localStorage.getItem('nexus-clipboard') && (
