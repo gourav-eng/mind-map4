@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "refactor",
   "description": "Expand THEMES to 10 colors with full card background tints, remove image-inside-card functionality, add images as separate canvas objects with connectors, and simplify groups to flat colored rectangles without expand/collapse.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. EXPAND THEMES TO 10 COLORS WITH CARD BACKGROUND TINT: In /projects/sandbox/mind-map4/src/App.jsx, replace the existing 4-theme THEMES object (amber, blue, green, purple) with 10 themes. New keys: blue, green, pink, yellow, purple, orange, teal, rose, indigo, slate. Each theme should have a `cardBg` field with a pastel CSS color (e.g., '#eff6ff' for blue, '#f0fdf4' for green, '#fdf2f8' for pink, '#fefce8' for yellow, '#faf5ff' for purple, '#fff7ed' for orange, '#f0fdfa' for teal, '#fff1f2' for rose, '#eef2ff' for indigo, '#f8fafc' for slate). The card styling (currently white bg with left border accent at line ~3856: `borderLeft: 4px solid ${theme.border}`) should change to: remove the borderLeft accent, set backgroundColor to theme.cardBg. Each theme also needs: name, port (tailwind dot color class), text (tailwind text class), line (hex for edge color), border (hex), groupBg (tailwind bg class), groupHeader (tailwind bg class), glow, tag, wrapper, header. Update the THEME_COLORS in MiniMap.jsx to match all 10 themes.",
     "2. UPDATE CARD RENDERING - FULL BACKGROUND COLOR: In the canvas node rendering (around line 3855-3870), change the card style from `bg-white` with `borderLeft: 4px solid ${theme.border}` to use `backgroundColor: theme.cardBg` (remove the borderLeft entirely). The card should be a rounded rectangle filled with the pastel color. Keep the white text inputs/content areas as-is but the outer card div gets the tint. Also update the color picker dropdown to show all 10 colors.",
@@ -26,5 +26,5 @@
     "cd /projects/sandbox/mind-map4 && npm run build"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All changes compiled successfully with npm run build. Removed ChevronRight from imports as it was no longer used after removing group expand/collapse. The amber theme was replaced with 10 new themes - existing data referencing amber will gracefully fall back to the blue theme via the || THEMES.blue pattern. The images array is added to workspace data and persists through the same localStorage mechanism as other workspace properties."
 }
