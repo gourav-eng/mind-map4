@@ -24,5 +24,5 @@
     "cd /projects/sandbox/mind-map4 && npm run build"
   ],
   "blocked_reason": null,
-  "findings": "All changes implemented successfully. Build passes with no errors. The NODE_WIDTH=280 constant is kept at line 2942 for use by the focus-on-node feature and at line 2794 for auto-layout spacing. The NODE_W=280 approximations for selection box and group-from-selection are also kept as-is. The connectHoverNodeId state was added for connection hover feedback."
+  "findings": "All changes implemented successfully. Build passes with no errors. The NODE_WIDTH=280 constant is kept at line 2942 for use by the focus-on-node feature and at line 2794 for auto-layout spacing. The NODE_W=280 approximations for selection box and group-from-selection are also kept as-is. The connectHoverNodeId state was added for connection hover feedback. Post-review fixes applied: (1) connectHoverNodeId now cleared in global pointer-up and left-port onPointerUp, (2) auto-layout uses NODE_WIDTH=380 for safe spacing, (3) getSpatiallyHoveredGroup and drag-out handler use getNodeDimensions for accurate center calculation, (4) getNodeDimensions accounts for newlines in content, (5) removed stale unused NODE_WIDTH=280 constant and updated focus-on-node to use getNodeDimensions."
 }
