@@ -1234,7 +1234,7 @@ export default function WorkflowApp() {
       if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
       if (e.key === 'n' || e.key === 'N') {
         e.preventDefault();
-        addNode();
+        addNodeRef.current();
       }
     };
     window.addEventListener('keydown', handleNewCardKey);
@@ -2482,6 +2482,9 @@ export default function WorkflowApp() {
     });
     setNextId(prev => prev + 1);
   };
+
+  const addNodeRef = useRef(addNode);
+  useEffect(() => { addNodeRef.current = addNode; });
 
   const createGroup = (clientX, clientY) => {
     takeSnapshot();
@@ -3800,7 +3803,7 @@ export default function WorkflowApp() {
                   <div 
                     className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
                     onPointerDown={(e) => e.stopPropagation()} 
-                    onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== group.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === group.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: group.id }] })); } } setConnecting(null); setConnectHoverNodeId(null); }}
+                    onPointerUp={(e) => { e.stopPropagation(); if (connecting) { if (connecting.sourceId !== group.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === group.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: group.id }] })); } } setConnecting(null); setConnectHoverNodeId(null); } }}
                   >
                     <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
                   </div>
