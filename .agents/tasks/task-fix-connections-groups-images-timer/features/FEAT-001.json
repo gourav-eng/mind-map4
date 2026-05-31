@@ -1,0 +1,24 @@
+{
+  "id": "FEAT-001",
+  "type": "fix",
+  "description": "Fix short/close connection curves, fix group color modification, add image-in-group support, and add standalone timer widget",
+  "status": "completed",
+  "steps": [
+    "Step 1 - Fix drawCurve function (line ~2712 in src/App.jsx): The current implementation uses `const offset = Math.max(dx * 0.5, 80)` which forces a minimum 80px control point offset even when nodes are very close, causing ugly looping curves. Replace with a distance-aware algorithm: calculate the total distance between points, and scale the offset proportionally. For very short distances (e.g., under 100px), use a much smaller offset or a nearly straight line. For example: `const dist = Math.hypot(x2-x1, y2-y1); const offset = Math.min(dist * 0.4, Math.max(dx * 0.5, 30));` Also handle the case where x2 < x1 (target is to the left of source) gracefully with a small arc instead of a loop.",
+    "Step 2 - Fix group color modification: The updateGroup function at line ~2610 looks correct, and the group context menu at line ~4306 has color buttons that call updateGroup. However, inspect the updateGroup function - it wraps the result in computeLayout which re-positions groups. The issue might be that updateGroup does not call takeSnapshot() before making the change (the context menu handler does call takeSnapshot). Verify the group header's inline color picker at line ~3058-3062 also calls takeSnapshot before updateGroup. Make sure both color pickers (header and context menu) properly persist the theme change.",
+    "Step 3 - Add image-in-group support: Images currently have no groupId field. Add groupId support to images: (a) When an image is dropped on the canvas, check if its position falls within a group's bounds using the getSpatiallyHoveredGroup logic and assign the groupId. (b) When a group is dragged (in the draggingGroup pointer-up handler around line 2320-2340), also move images that have groupId matching the dragged group or its descendants - similar to how descendantNodeIds are moved with dx/dy. (c) When dragging an image and releasing, check if it landed inside a group and update its groupId accordingly. (d) Add images to the getDescendants function or handle them separately in the group drag logic.",
+    "Step 4 - Add standalone timer widget: Add a floating timer UI element in the bottom-right area of the canvas viewport (fixed position, not affected by pan/zoom). The timer should: (a) Show preset time buttons (5, 10, 15, 20, 30 min) and a custom input. (b) Display a countdown (MM:SS format) when running. (c) Have Start/Pause/Reset controls. (d) Play a Web Audio API beep or use visual flash (CSS animation) when time is up. (e) Be minimal - use a collapsible design that can be toggled with a small clock/timer icon. (f) Use Tailwind classes consistent with the app's design. Import Timer icon from lucide-react."
+  ],
+  "acceptance_criteria": [
+    "Short connections between nearby nodes render as clean short curves or nearly straight lines without looping",
+    "Group color can be changed via both the group header palette button and the right-click context menu",
+    "Images dropped within a group's bounds get associated with that group and move when the group is dragged",
+    "A timer widget is visible in the UI that allows setting time, starting countdown, pausing, resetting, and shows notification when done",
+    "npm run build completes without errors"
+  ],
+  "verification": [
+    "Run cd /projects/sandbox/mind-map4 && npm run build and confirm zero errors"
+  ],
+  "blocked_reason": null,
+  "findings": "All 4 changes implemented successfully. Build passes. Timer icon imported from lucide-react. The outline board group div overflow-hidden was replaced with inline style overflow:visible to allow color picker dropdown to display. Image groupId support added to drop handler, group drag handler, and image drag-end handler. Review fixes applied: (1) Removed timerSeconds from useEffect deps to prevent interval churn, (2) Added audioCtx.close() after oscillator stops to prevent AudioContext leak, (3) Image drop handler now collects all containing groups, sorts by depth, and picks deepest - matching drag-end logic, (4) getDescendants called once in group-drag handler instead of 3 times."
+}

@@ -1,0 +1,7 @@
+{
+  "task_id": "task-fix-connections-groups-images-timer",
+  "task_description": "Fix short connection curves rendering ugly, fix group color modification, allow images inside groups (move with group), and add a standalone timer widget for brainstorming time limits",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001"],
+  "blocked_reason": null
+}

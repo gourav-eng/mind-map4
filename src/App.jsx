@@ -7,6 +7,7 @@ import {
   Grid, Move, Copy, ArrowUp, ArrowDown, RefreshCw, LayoutList, MonitorSpeaker,
   MoreVertical, ImageIcon, ChevronUp, Scissors, ClipboardPaste,
   Lock, Shield, Eye, EyeOff, GitBranch, Map, Timer, Play, Pause, RotateCcw
+  Lock, Shield, Eye, EyeOff, GitBranch, Map, Timer
 } from 'lucide-react';
 import MiniMap from './MiniMap';
 
@@ -398,6 +399,15 @@ export default function WorkflowApp() {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [miniMapOpenedViaShortcut, setMiniMapOpenedViaShortcut] = useState(false);
 
+  // --- Timer States ---
+  const [showTimer, setShowTimer] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [timerPaused, setTimerPaused] = useState(false);
+  const [timerDone, setTimerDone] = useState(false);
+  const [timerCustomMinutes, setTimerCustomMinutes] = useState('');
+  const timerIntervalRef = useRef(null);
+
   // --- Multi-Selection States ---
   const [selectedNodeIds, setSelectedNodeIds] = useState([]);
   const [selectionBox, setSelectionBox] = useState(null);
@@ -746,20 +756,35 @@ export default function WorkflowApp() {
 
   // --- Timer Countdown Effect ---
   useEffect(() => {
-    if (!timerRunning) return;
-    const interval = setInterval(() => {
-      setTimerSeconds(prev => {
-        if (prev <= 1) {
-          setTimerRunning(false);
-          setTimerFinished(true);
-          return 0;
-        }
-        if (prev <= 0) return prev;
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timerRunning]);
+    if (timerRunning && !timerPaused && timerSeconds > 0) {
+      timerIntervalRef.current = setInterval(() => {
+        setTimerSeconds(prev => {
+          if (prev <= 1) {
+            clearInterval(timerIntervalRef.current);
+            setTimerRunning(false);
+            setTimerDone(true);
+            // Play a short beep using Web Audio API
+            try {
+              const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              const oscillator = audioCtx.createOscillator();
+              const gainNode = audioCtx.createGain();
+              oscillator.connect(gainNode);
+              gainNode.connect(audioCtx.destination);
+              oscillator.frequency.value = 800;
+              oscillator.type = 'sine';
+              gainNode.gain.value = 0.3;
+              oscillator.start();
+              oscillator.stop(audioCtx.currentTime + 0.3);
+              setTimeout(() => audioCtx.close(), 500);
+            } catch (e) { /* Audio not available */ }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => { if (timerIntervalRef.current) clearInterval(timerIntervalRef.current); };
+  }, [timerRunning, timerPaused]);
 
   // Keep projectsRef in sync with projects state for debounced localStorage writes
   useEffect(() => {
@@ -2360,18 +2385,18 @@ export default function WorkflowApp() {
         const finalParentId = dragHoveredGroupId;
 
         updateActiveWorkspace(ws => {
+          const { descendantGroupIds, descendantNodeIds } = getDescendants(draggingGroup.id, ws.groups, ws.nodes);
+
           const updatedGroups = ws.groups.map(g => {
             if (g.id === draggingGroup.id) {
               return { ...g, x: g.x + dx, y: g.y + dy, parentGroupId: finalParentId };
             }
-            const { descendantGroupIds } = getDescendants(draggingGroup.id, ws.groups, ws.nodes);
             if (descendantGroupIds.includes(g.id)) {
               return { ...g, x: g.x + dx, y: g.y + dy };
             }
             return g;
           });
 
-          const { descendantNodeIds, descendantGroupIds } = getDescendants(draggingGroup.id, ws.groups, ws.nodes);
           const updatedNodes = ws.nodes.map(n => {
             if (descendantNodeIds.includes(n.id)) {
               return { ...n, x: n.x + dx, y: n.y + dy };
@@ -2379,17 +2404,15 @@ export default function WorkflowApp() {
             return n;
           });
 
-          // Move images that belong to the dragged group or its descendants
-          const groupIdsToMove = [draggingGroup.id, ...descendantGroupIds];
           const updatedImages = (ws.images || []).map(img => {
-            if (img.groupId && groupIdsToMove.includes(img.groupId)) {
+            if (img.groupId === draggingGroup.id || descendantGroupIds.includes(img.groupId)) {
               return { ...img, x: img.x + dx, y: img.y + dy };
             }
             return img;
           });
 
           return {
-            groups: computeLayout(updatedGroups, updatedNodes, updatedImages),
+            groups: computeLayout(updatedGroups, updatedNodes),
             nodes: updatedNodes,
             images: updatedImages
           };
@@ -2413,36 +2436,37 @@ export default function WorkflowApp() {
 
     if (draggingImage) {
       if (draggingImage.currentX !== draggingImage.initialX || draggingImage.currentY !== draggingImage.initialY) {
-        const imgX = draggingImage.currentX;
-        const imgY = draggingImage.currentY;
-        const imgW = draggingImage.width || 280;
-        const imgH = draggingImage.height || 180;
-        const imgCenterX = imgX + imgW / 2;
-        const imgCenterY = imgY + imgH / 2;
-
-        // Find group containing image center
-        let foundGroupId = null;
-        const sortedGroups = [...groups].sort((a, b) => {
-          const depthA = (() => { let d = 0, c = a; while (c && c.parentGroupId) { d++; c = groups.find(p => p.id === c.parentGroupId); } return d; })();
-          const depthB = (() => { let d = 0, c = b; while (c && c.parentGroupId) { d++; c = groups.find(p => p.id === c.parentGroupId); } return d; })();
-          return depthB - depthA;
-        });
-        for (const group of sortedGroups) {
-          const gW = group.width || 440;
-          const gH = group.height || 420;
-          if (imgCenterX >= group.x && imgCenterX <= group.x + gW && imgCenterY >= group.y && imgCenterY <= group.y + gH) {
-            foundGroupId = group.id;
-            break;
-          }
-        }
-
         updateActiveWorkspace(ws => {
-          const updatedImages = (ws.images || []).map(img => img.id === draggingImage.id
-            ? { ...img, x: imgX, y: imgY, groupId: foundGroupId }
-            : img);
+          const imgObj = (ws.images || []).find(img => img.id === draggingImage.id);
+          const imgW = imgObj ? imgObj.width || 280 : 280;
+          const imgH = imgObj ? imgObj.height || 200 : 200;
+          const imgCenterX = draggingImage.currentX + imgW / 2;
+          const imgCenterY = draggingImage.currentY + imgH / 2;
+
+          let newGroupId = null;
+          const containingGroups = [];
+          for (const group of ws.groups) {
+            const gW = group.width || 440;
+            const gH = group.height || 420;
+            if (imgCenterX >= group.x && imgCenterX <= group.x + gW && imgCenterY >= group.y && imgCenterY <= group.y + gH) {
+              containingGroups.push(group);
+            }
+          }
+          if (containingGroups.length > 0) {
+            const getDepth = (g) => {
+              let depth = 0;
+              let curr = g;
+              while (curr && curr.parentGroupId) { depth++; curr = ws.groups.find(p => p.id === curr.parentGroupId); }
+              return depth;
+            };
+            containingGroups.sort((a, b) => getDepth(b) - getDepth(a));
+            newGroupId = containingGroups[0].id;
+          }
+
           return {
-            images: updatedImages,
-            groups: computeLayout(ws.groups, ws.nodes, updatedImages)
+            images: (ws.images || []).map(img => img.id === draggingImage.id
+              ? { ...img, x: draggingImage.currentX, y: draggingImage.currentY, groupId: newGroupId }
+              : img)
           };
         });
         if (dragSnapshot.current) {
@@ -2504,22 +2528,28 @@ export default function WorkflowApp() {
         const displayWidth = 280;
         const displayHeight = Math.round((height / width) * displayWidth);
 
-        // Check if drop point is inside a group
-        const dropCenterX = dropX + displayWidth / 2;
-        const dropCenterY = dropY + displayHeight / 2;
-        let foundGroupId = null;
-        const sortedGroups = [...groups].sort((a, b) => {
-          const depthA = (() => { let d = 0, c = a; while (c && c.parentGroupId) { d++; c = groups.find(p => p.id === c.parentGroupId); } return d; })();
-          const depthB = (() => { let d = 0, c = b; while (c && c.parentGroupId) { d++; c = groups.find(p => p.id === c.parentGroupId); } return d; })();
-          return depthB - depthA;
-        });
-        for (const group of sortedGroups) {
+        // Check if image was dropped inside a group
+        const imgCenterX = dropX + displayWidth / 2;
+        const imgCenterY = dropY + displayHeight / 2;
+        let imageGroupId = null;
+        const currentGroups = stateRef.current.workspaces.find(w => w.id === stateRef.current.activeTab)?.groups || [];
+        const containingGroups = [];
+        for (const group of currentGroups) {
           const gW = group.width || 440;
           const gH = group.height || 420;
-          if (dropCenterX >= group.x && dropCenterX <= group.x + gW && dropCenterY >= group.y && dropCenterY <= group.y + gH) {
-            foundGroupId = group.id;
-            break;
+          if (imgCenterX >= group.x && imgCenterX <= group.x + gW && imgCenterY >= group.y && imgCenterY <= group.y + gH) {
+            containingGroups.push(group);
           }
+        }
+        if (containingGroups.length > 0) {
+          const getDepth = (g) => {
+            let depth = 0;
+            let curr = g;
+            while (curr && curr.parentGroupId) { depth++; curr = currentGroups.find(p => p.id === curr.parentGroupId); }
+            return depth;
+          };
+          containingGroups.sort((a, b) => getDepth(b) - getDepth(a));
+          imageGroupId = containingGroups[0].id;
         }
 
         takeSnapshot();
@@ -2531,7 +2561,7 @@ export default function WorkflowApp() {
             width: displayWidth,
             height: displayHeight,
             src: compressedBase64,
-            groupId: foundGroupId
+            groupId: imageGroupId
           }]
         }));
       };
@@ -2801,27 +2831,51 @@ export default function WorkflowApp() {
     });
   };
 
+  // --- Timer Functions ---
+  const startTimer = (minutes) => {
+    setTimerSeconds(minutes * 60);
+    setTimerRunning(true);
+    setTimerPaused(false);
+    setTimerDone(false);
+  };
+  const pauseTimer = () => { setTimerPaused(true); };
+  const resumeTimer = () => { setTimerPaused(false); };
+  const resetTimer = () => {
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    setTimerRunning(false);
+    setTimerPaused(false);
+    setTimerSeconds(0);
+    setTimerDone(false);
+  };
+  const formatTimerDisplay = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   const clearAllNodes = () => { takeSnapshot(); updateActiveWorkspace(() => ({ nodes: [], edges: [], groups: [] })); setShowConfirmClear(false); };
   const removeEdge = (edgeId) => { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: ws.edges.filter(e => e.id !== edgeId) })); };
 
   const drawCurve = (x1, y1, x2, y2) => {
     const dx = x2 - x1;
     const dy = y2 - y1;
-    const absDx = Math.abs(dx);
-    const absDy = Math.abs(dy);
+    const dist = Math.hypot(dx, dy);
 
-    if (dx >= 0) {
-      // Normal left-to-right: horizontal bezier
-      const offset = Math.max(absDx * 0.5, 80);
+    if (dist < 20) {
+      return `M ${x1} ${y1} L ${x2} ${y2}`;
+    }
+
+    const absDx = Math.abs(dx);
+    const offset = dx > 0
+      ? Math.min(absDx * 0.5, Math.max(dist * 0.3, 20))
+      : Math.max(50, dist * 0.4);
+
+    if (dx > 0) {
       return `M ${x1} ${y1} C ${x1 + offset} ${y1}, ${x2 - offset} ${y2}, ${x2} ${y2}`;
-    } else if (absDx < 60) {
-      // Nearly vertical (nodes stacked): smooth S-curve
-      const cpOffset = Math.max(absDy * 0.4, 80);
-      return `M ${x1} ${y1} C ${x1 + cpOffset} ${y1}, ${x2 - cpOffset} ${y2}, ${x2} ${y2}`;
     } else {
-      // Right-to-left: curve goes backwards, use inverted control points
-      const offset = Math.max(absDx * 0.5, 80);
-      return `M ${x1} ${y1} C ${x1 + offset} ${y1 + (dy > 0 ? offset * 0.5 : -offset * 0.5)}, ${x2 - offset} ${y2 + (dy > 0 ? -offset * 0.5 : offset * 0.5)}, ${x2} ${y2}`;
+      const vertOffset = Math.max(Math.abs(dy) * 0.5, 40);
+      const sign = dy >= 0 ? -1 : 1;
+      return `M ${x1} ${y1} C ${x1 + offset} ${y1 + sign * vertOffset}, ${x2 - offset} ${y2 + sign * vertOffset}, ${x2} ${y2}`;
     }
   };
 
@@ -3160,7 +3214,7 @@ export default function WorkflowApp() {
         const childNodes = nodes.filter(n => n.groupId === group.id);
         const totalChildren = childNodes.length;
         return (
-          <div key={group.id} className={`rounded-2xl border-2 border-dashed overflow-hidden ${theme.groupBg}`}>
+          <div key={group.id} className={`rounded-2xl border-2 border-dashed ${theme.groupBg}`} style={{ overflow: 'visible' }}>
             <div className={`relative flex items-center gap-2 px-4 py-3 ${theme.groupHeader} border-b`}>
               <div className={`w-3 h-3 rounded-full shrink-0 ${theme.port}`} />
               <input className={`bg-transparent font-bold focus:bg-white/60 focus:outline-none rounded px-1 py-0.5 text-xs tracking-wide uppercase flex-1 min-w-0 ${theme.text}`} value={group.name || ''} onChange={(e) => updateGroup(group.id, { name: e.target.value })} />
@@ -4385,7 +4439,75 @@ export default function WorkflowApp() {
           )}
 
           {/* --- Bottom-Right Floating Zoom and Guides --- */}
-          <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-center gap-2 sm:gap-3 z-50">
+          <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-end gap-2 sm:gap-3 z-50">
+
+            {/* Timer Widget */}
+            <div className="flex flex-col items-stretch">
+              {showTimer && (
+                <div className={`mb-2 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200 p-3 min-w-[200px] ${timerDone ? 'animate-pulse ring-2 ring-orange-400' : ''}`}>
+                  {/* Timer Display */}
+                  <div className="text-center mb-2">
+                    <span className={`text-2xl font-bold font-mono ${timerDone ? 'text-orange-600' : timerRunning ? 'text-indigo-700' : 'text-slate-700'}`}>
+                      {formatTimerDisplay(timerSeconds)}
+                    </span>
+                    {timerDone && <div className="text-xs text-orange-600 font-semibold mt-1">Time is up!</div>}
+                  </div>
+
+                  {/* Preset Buttons */}
+                  {!timerRunning && !timerDone && (
+                    <div className="flex flex-wrap gap-1 mb-2 justify-center">
+                      {[5, 10, 15, 20, 30].map(min => (
+                        <button key={min} onClick={() => startTimer(min)} className="px-2 py-1 text-[10px] font-bold bg-slate-100 hover:bg-indigo-100 hover:text-indigo-700 text-slate-600 rounded-md transition-colors">{min}m</button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Custom Input */}
+                  {!timerRunning && !timerDone && (
+                    <div className="flex items-center gap-1 mb-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max="999"
+                        placeholder="Min"
+                        value={timerCustomMinutes}
+                        onChange={(e) => setTimerCustomMinutes(e.target.value)}
+                        className="flex-1 px-2 py-1 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-300"
+                      />
+                      <button
+                        onClick={() => { const m = parseInt(timerCustomMinutes); if (m > 0) { startTimer(m); setTimerCustomMinutes(''); } }}
+                        className="px-2 py-1 text-xs font-semibold bg-indigo-500 hover:bg-indigo-600 text-white rounded-md transition-colors"
+                      >Start</button>
+                    </div>
+                  )}
+
+                  {/* Controls */}
+                  {timerRunning && (
+                    <div className="flex gap-1 justify-center">
+                      {!timerPaused ? (
+                        <button onClick={pauseTimer} className="px-3 py-1 text-xs font-semibold bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-md transition-colors">Pause</button>
+                      ) : (
+                        <button onClick={resumeTimer} className="px-3 py-1 text-xs font-semibold bg-green-100 hover:bg-green-200 text-green-800 rounded-md transition-colors">Resume</button>
+                      )}
+                      <button onClick={resetTimer} className="px-3 py-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors">Reset</button>
+                    </div>
+                  )}
+
+                  {timerDone && (
+                    <div className="flex justify-center">
+                      <button onClick={resetTimer} className="px-3 py-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors">Dismiss</button>
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={() => { setShowTimer(prev => !prev); if (timerDone) setTimerDone(false); }}
+                className={`self-center p-2 rounded-lg shadow-lg border transition-colors ${showTimer ? 'bg-indigo-50 text-indigo-600 border-indigo-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'} ${timerDone ? 'animate-pulse ring-2 ring-orange-400' : ''}`}
+                title="Timer"
+              >
+                <Timer className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
 
             <div className="flex flex-col items-center bg-white rounded-lg shadow-lg border border-slate-200 p-1">
               <button onClick={() => handleZoom(0.25)} className="p-1.5 sm:p-2 hover:bg-slate-100 text-slate-600 rounded-md transition-colors" title="Zoom In"><ZoomIn className="w-4 h-4 sm:w-5 sm:h-5"/></button>
