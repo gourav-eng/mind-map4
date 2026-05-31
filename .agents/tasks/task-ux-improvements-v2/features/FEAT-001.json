@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Increase color intensity, auto-size cards, improve connection UX, and simplify groups - all in one cohesive change to App.jsx and MiniMap.jsx",
+  "status": "in_progress",
+  "steps": [
+    "Step 1 - Higher intensity colors: In src/App.jsx, update the THEMES object (starts at ~line 14). Change all 10 cardBg values from very light pastels to medium-intensity saturated backgrounds. New values: blue='#bfdbfe', green='#bbf7d0', pink='#fbcfe8', yellow='#fef08a', purple='#e9d5ff', orange='#fed7aa', teal='#99f6e4', rose='#fecdd3', indigo='#c7d2fe', slate='#e2e8f0'. These are clearly visible, distinguishable, and work well with dark text. Also update the wrapper, header, tag, groupBg, groupHeader classes to use correspondingly stronger tints (e.g. border-blue-400 instead of border-blue-200/80, bg-blue-200/60 instead of bg-blue-50/10).",
+    "Step 2 - Auto-sizing cards (width AND height): Remove the fixed `width: 280` from the node rendering inline style (around line 3890). Instead, calculate dynamic width/height. Add a helper function (e.g. `getNodeDimensions(node)`) that computes width based on content length: min 180px, max 400px, scaling with title length and content length. For height, let it be auto (remove fixed height, use min-height). The card div should use `style={{ left: displayX, top: displayY, minWidth: 180, maxWidth: 400, width: calculatedWidth }}`. Update ALL references to the hardcoded 280px NODE_WIDTH throughout the file: (a) the `const NODE_WIDTH = 280` at line 2931 should call getNodeDimensions, (b) NODE_WIDTH_VAL = 280 in getSpatiallyHoveredGroup (line 2014) and at line 2244, (c) the selection box NODE_W = 280 at line 2121, (d) the auto-layout NODE_WIDTH = 280 at line 2783. Also update src/MiniMap.jsx NODE_EXPANDED_WIDTH=260 to use a proportional average (e.g. 240). The getConnectionPoint function (line 2934) must use the actual node width for source connection points (right side). Add a `width` field to the node data model or calculate it on the fly from content.",
+    "Step 3 - Fix connection UX (make connecting much easier): (a) Make the connection port hit areas much larger. Change the port divs from `w-4 h-4` (16px) to `w-8 h-8` (32px) but keep the visible circle small by using an inner dot. The outer transparent hit area should be the 32px area. (b) When `connecting` state is active (user is dragging a connection line), make the ENTIRE target card a valid drop zone. Add an `onPointerUp` handler on the main card div that checks if `connecting` is active and the source is different from this node, and if so creates the edge. (c) Add visual feedback: when connecting is active and user hovers over a card, highlight it with a ring/glow. Add a state or check `connecting` presence and add a conditional class to the card div like `ring-2 ring-green-400` when hovered during connection. Use onPointerEnter/onPointerLeave on the card div to track hover-during-connection.",
+    "Step 4 - Simplify groups (no header, no buttons, external label): Completely redesign the group rendering (starting at line 3642). Remove the header div with the Move icon, input, Palette button, Plus button, and X button. Replace it with: (a) A plain colored rectangle with rounded corners, no header bar. The group div should just be the colored area with a subtle border matching the theme color. Make the entire group div draggable (move the onPointerDown from the old header to the group div itself). (b) Add a SEPARATE text element positioned OUTSIDE and ABOVE the group (use absolute positioning with a negative top offset). This label should be an input for the group name, styled with the same background color as the group (using the theme), auto-sized to fit text content (use a technique like measuring text width or using a min-width with the ch unit). (c) Move the color picker and delete functionality to a right-click context menu (the groupContextMenu already exists). (d) Keep the resize handle at bottom-right."
+  ],
+  "acceptance_criteria": [
+    "Running `npm run build` in /projects/sandbox/mind-map4 succeeds with no errors",
+    "All 10 THEMES have clearly visible, medium-intensity cardBg colors (not pastel/washed out)",
+    "Cards dynamically size their width based on content length (short content = narrower, long content = wider)",
+    "Connection ports have a much larger hit area (at least 32px clickable zone)",
+    "When dragging a connection line, dropping anywhere on a target card creates the connection",
+    "Visual feedback (ring/highlight) appears on cards when hovering during active connection drag",
+    "Groups render as plain colored rectangles without any header bar or buttons",
+    "Group names appear as separate text labels positioned above the group with matching color background",
+    "Group name labels auto-size to fit the text content"
+  ],
+  "verification": [
+    "cd /projects/sandbox/mind-map4 && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

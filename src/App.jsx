@@ -14,7 +14,7 @@ import MiniMap from './MiniMap';
 const THEMES = {
   blue: {
     name: 'Ocean Blue',
-    cardBg: '#eff6ff',
+    cardBg: '#bfdbfe',
     wrapper: 'bg-slate-50 border-blue-200/80 hover:border-blue-400/50',
     header: 'bg-blue-50/80 border-blue-200',
     tag: 'bg-blue-100/80 border-blue-300 text-blue-800',
@@ -22,13 +22,13 @@ const THEMES = {
     text: 'text-blue-900',
     line: '#3b82f6',
     border: '#3b82f6',
-    groupBg: 'bg-blue-50/10 border-blue-300/40',
-    groupHeader: 'bg-blue-100/40 border-blue-200/50',
+    groupBg: 'bg-blue-100/40 border-blue-400/60',
+    groupHeader: 'bg-blue-200/60 border-blue-300/50',
     glow: 'shadow-[0_0_20px_rgba(59,130,246,0.15)]'
   },
   green: {
     name: 'Fresh Green',
-    cardBg: '#f0fdf4',
+    cardBg: '#bbf7d0',
     wrapper: 'bg-emerald-50/20 border-emerald-200/80 hover:border-emerald-400/50',
     header: 'bg-emerald-50/80 border-emerald-200',
     tag: 'bg-emerald-100/80 border-emerald-300 text-emerald-800',
@@ -36,13 +36,13 @@ const THEMES = {
     text: 'text-emerald-900',
     line: '#10b981',
     border: '#10b981',
-    groupBg: 'bg-emerald-50/10 border-emerald-300/40',
-    groupHeader: 'bg-emerald-100/40 border-emerald-200/50',
+    groupBg: 'bg-emerald-100/40 border-emerald-400/60',
+    groupHeader: 'bg-emerald-200/60 border-emerald-300/50',
     glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]'
   },
   pink: {
     name: 'Soft Pink',
-    cardBg: '#fdf2f8',
+    cardBg: '#fbcfe8',
     wrapper: 'bg-pink-50/20 border-pink-200/80 hover:border-pink-400/50',
     header: 'bg-pink-50/80 border-pink-200',
     tag: 'bg-pink-100/80 border-pink-300 text-pink-800',
@@ -50,13 +50,13 @@ const THEMES = {
     text: 'text-pink-900',
     line: '#ec4899',
     border: '#ec4899',
-    groupBg: 'bg-pink-50/10 border-pink-300/40',
-    groupHeader: 'bg-pink-100/40 border-pink-200/50',
+    groupBg: 'bg-pink-100/40 border-pink-400/60',
+    groupHeader: 'bg-pink-200/60 border-pink-300/50',
     glow: 'shadow-[0_0_20px_rgba(236,72,153,0.15)]'
   },
   yellow: {
     name: 'Sunny Yellow',
-    cardBg: '#fefce8',
+    cardBg: '#fef08a',
     wrapper: 'bg-yellow-50/20 border-yellow-200/80 hover:border-yellow-400/50',
     header: 'bg-yellow-50/80 border-yellow-200',
     tag: 'bg-yellow-100/80 border-yellow-300 text-yellow-800',
@@ -64,13 +64,13 @@ const THEMES = {
     text: 'text-yellow-900',
     line: '#eab308',
     border: '#eab308',
-    groupBg: 'bg-yellow-50/10 border-yellow-300/40',
-    groupHeader: 'bg-yellow-100/40 border-yellow-200/50',
+    groupBg: 'bg-yellow-100/40 border-yellow-400/60',
+    groupHeader: 'bg-yellow-200/60 border-yellow-300/50',
     glow: 'shadow-[0_0_20px_rgba(234,179,8,0.15)]'
   },
   purple: {
     name: 'Royal Purple',
-    cardBg: '#faf5ff',
+    cardBg: '#e9d5ff',
     wrapper: 'bg-purple-50/20 border-purple-200/80 hover:border-purple-400/50',
     header: 'bg-purple-50/80 border-purple-200',
     tag: 'bg-purple-100/80 border-purple-300 text-purple-800',
@@ -78,13 +78,13 @@ const THEMES = {
     text: 'text-purple-900',
     line: '#8b5cf6',
     border: '#8b5cf6',
-    groupBg: 'bg-purple-50/10 border-purple-300/40',
-    groupHeader: 'bg-purple-100/40 border-purple-200/50',
+    groupBg: 'bg-purple-100/40 border-purple-400/60',
+    groupHeader: 'bg-purple-200/60 border-purple-300/50',
     glow: 'shadow-[0_0_20px_rgba(139,92,246,0.15)]'
   },
   orange: {
     name: 'Warm Orange',
-    cardBg: '#fff7ed',
+    cardBg: '#fed7aa',
     wrapper: 'bg-orange-50/20 border-orange-200/80 hover:border-orange-400/50',
     header: 'bg-orange-50/80 border-orange-200',
     tag: 'bg-orange-100/80 border-orange-300 text-orange-800',
@@ -92,13 +92,13 @@ const THEMES = {
     text: 'text-orange-900',
     line: '#f97316',
     border: '#f97316',
-    groupBg: 'bg-orange-50/10 border-orange-300/40',
-    groupHeader: 'bg-orange-100/40 border-orange-200/50',
+    groupBg: 'bg-orange-100/40 border-orange-400/60',
+    groupHeader: 'bg-orange-200/60 border-orange-300/50',
     glow: 'shadow-[0_0_20px_rgba(249,115,22,0.15)]'
   },
   teal: {
     name: 'Cool Teal',
-    cardBg: '#f0fdfa',
+    cardBg: '#99f6e4',
     wrapper: 'bg-teal-50/20 border-teal-200/80 hover:border-teal-400/50',
     header: 'bg-teal-50/80 border-teal-200',
     tag: 'bg-teal-100/80 border-teal-300 text-teal-800',
@@ -106,13 +106,13 @@ const THEMES = {
     text: 'text-teal-900',
     line: '#14b8a6',
     border: '#14b8a6',
-    groupBg: 'bg-teal-50/10 border-teal-300/40',
-    groupHeader: 'bg-teal-100/40 border-teal-200/50',
+    groupBg: 'bg-teal-100/40 border-teal-400/60',
+    groupHeader: 'bg-teal-200/60 border-teal-300/50',
     glow: 'shadow-[0_0_20px_rgba(20,184,166,0.15)]'
   },
   rose: {
     name: 'Rose Red',
-    cardBg: '#fff1f2',
+    cardBg: '#fecdd3',
     wrapper: 'bg-rose-50/20 border-rose-200/80 hover:border-rose-400/50',
     header: 'bg-rose-50/80 border-rose-200',
     tag: 'bg-rose-100/80 border-rose-300 text-rose-800',
@@ -120,13 +120,13 @@ const THEMES = {
     text: 'text-rose-900',
     line: '#f43f5e',
     border: '#f43f5e',
-    groupBg: 'bg-rose-50/10 border-rose-300/40',
-    groupHeader: 'bg-rose-100/40 border-rose-200/50',
+    groupBg: 'bg-rose-100/40 border-rose-400/60',
+    groupHeader: 'bg-rose-200/60 border-rose-300/50',
     glow: 'shadow-[0_0_20px_rgba(244,63,94,0.15)]'
   },
   indigo: {
     name: 'Deep Indigo',
-    cardBg: '#eef2ff',
+    cardBg: '#c7d2fe',
     wrapper: 'bg-indigo-50/20 border-indigo-200/80 hover:border-indigo-400/50',
     header: 'bg-indigo-50/80 border-indigo-200',
     tag: 'bg-indigo-100/80 border-indigo-300 text-indigo-800',
@@ -134,13 +134,13 @@ const THEMES = {
     text: 'text-indigo-900',
     line: '#6366f1',
     border: '#6366f1',
-    groupBg: 'bg-indigo-50/10 border-indigo-300/40',
-    groupHeader: 'bg-indigo-100/40 border-indigo-200/50',
+    groupBg: 'bg-indigo-100/40 border-indigo-400/60',
+    groupHeader: 'bg-indigo-200/60 border-indigo-300/50',
     glow: 'shadow-[0_0_20px_rgba(99,102,241,0.15)]'
   },
   slate: {
     name: 'Neutral Slate',
-    cardBg: '#f8fafc',
+    cardBg: '#e2e8f0',
     wrapper: 'bg-slate-50/20 border-slate-200/80 hover:border-slate-400/50',
     header: 'bg-slate-50/80 border-slate-200',
     tag: 'bg-slate-100/80 border-slate-300 text-slate-800',
@@ -148,8 +148,8 @@ const THEMES = {
     text: 'text-slate-900',
     line: '#64748b',
     border: '#64748b',
-    groupBg: 'bg-slate-50/10 border-slate-300/40',
-    groupHeader: 'bg-slate-100/40 border-slate-200/50',
+    groupBg: 'bg-slate-100/40 border-slate-400/60',
+    groupHeader: 'bg-slate-200/60 border-slate-300/50',
     glow: 'shadow-[0_0_20px_rgba(100,116,139,0.15)]'
   }
 };
@@ -335,6 +335,7 @@ export default function WorkflowApp() {
   const [dragHoveredGroupId, setDragHoveredGroupId] = useState(null);
 
   const [connecting, setConnecting] = useState(null);
+  const [connectHoverNodeId, setConnectHoverNodeId] = useState(null);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [openColorPicker, setOpenColorPicker] = useState(null);
   const [openLinkPicker, setOpenLinkPicker] = useState(null);
@@ -434,6 +435,16 @@ export default function WorkflowApp() {
       y: (e.clientY - rect.top - transform.y) / transform.scale 
     };
   }, [transform]);
+
+  // --- Node Dimensions Helper ---
+  const getNodeDimensions = useCallback((node) => {
+    const titleLen = (node.title || '').length;
+    const contentLen = (node.content || '').length;
+    const totalLen = titleLen + contentLen;
+    let width = 180 + Math.min(200, totalLen * 1.2);
+    width = Math.max(180, Math.min(380, width));
+    return { width };
+  }, []);
 
   // --- Zoom Helpers ---
   const handleZoom = useCallback((delta) => {
@@ -2943,9 +2954,10 @@ export default function WorkflowApp() {
       };
     }
 
+    const dims = getNodeDimensions(node);
     const coords = getLiveCoordinates(node, false);
     return {
-      x: isSource ? coords.x + NODE_WIDTH : coords.x,
+      x: isSource ? coords.x + dims.width : coords.x,
       y: coords.y + HEADER_CENTER_Y
     };
   };
@@ -3650,98 +3662,65 @@ export default function WorkflowApp() {
               const displayW = group.width || 440;
               const displayH = group.height || 420;
 
-              const innerNodes = nodes.filter(n => n.groupId === group.id);
-              const innerSubgroups = groups.filter(g => g.parentGroupId === group.id);
               const isTargetHover = dragHoveredGroupId === group.id;
 
               return (
                 <div
                   key={group.id}
-                  className={`absolute rounded-2xl border-2 pointer-events-auto group transition-shadow duration-150 ${theme.groupBg} ${
-                    isGrpDragging ? 'shadow-2xl border-indigo-500 z-20' : 'border-slate-300/60 z-0'
+                  className={`absolute rounded-xl border-2 pointer-events-auto group transition-shadow duration-150 cursor-grab active:cursor-grabbing ${theme.groupBg} ${
+                    isGrpDragging ? 'shadow-2xl border-indigo-500 z-20' : 'z-0'
                   } ${isTargetHover ? 'ring-4 ring-indigo-500/30 border-indigo-500 border-solid bg-indigo-50/10' : 'border-dashed'}`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
                     width: displayW,
-                    height: displayH
+                    height: displayH,
+                    backgroundColor: theme.cardBg + '40'
+                  }}
+                  onPointerDown={(e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
+                    e.stopPropagation();
+                    setFocusedGroupId(group.id);
+                    setFocusedNodeId(null);
+                    dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
+                    setDraggingGroup({
+                      id: group.id,
+                      startX: e.clientX,
+                      startY: e.clientY,
+                      initialX: group.x,
+                      initialY: group.y,
+                      currentX: group.x,
+                      currentY: group.y,
+                      width: group.width || 440,
+                      height: group.height || 420
+                    });
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const rect = workspaceRef.current.getBoundingClientRect();
+                    setGroupContextMenu({
+                      x: e.clientX - rect.left,
+                      y: e.clientY - rect.top,
+                      groupId: group.id
+                    });
+                    setContextMenu(null);
+                    setNodeContextMenu(null);
                   }}
                 >
 
-
-                  {/* Figma-Style Header Control */}
+                  {/* External floating label above group */}
                   <div 
-                    className={`flex items-center justify-between px-4 h-12 rounded-t-xl border-b cursor-grab active:cursor-grabbing select-none ${theme.groupHeader}`}
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
-                      setFocusedGroupId(group.id);
-                      setFocusedNodeId(null);
-                      dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
-                      setDraggingGroup({
-                        id: group.id,
-                        startX: e.clientX,
-                        startY: e.clientY,
-                        initialX: group.x,
-                        initialY: group.y,
-                        currentX: group.x,
-                        currentY: group.y,
-                        width: group.width || 440,
-                        height: group.height || 420
-                      });
-                    }}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const rect = workspaceRef.current.getBoundingClientRect();
-                      setGroupContextMenu({
-                        x: e.clientX - rect.left,
-                        y: e.clientY - rect.top,
-                        groupId: group.id
-                      });
-                      setContextMenu(null);
-                      setNodeContextMenu(null);
-                    }}
+                    className="absolute left-0 pointer-events-auto" 
+                    style={{ top: '-32px' }}
+                    onPointerDown={(e) => e.stopPropagation()}
                   >
-                    <div className="flex items-center gap-2 flex-1 overflow-hidden">
-                      <Move className="w-3.5 h-3.5 shrink-0 opacity-50 text-slate-500" />
-                      <input 
-                        className={`bg-transparent font-bold focus:bg-white/50 focus:outline-none rounded px-1.5 py-0.5 text-xs tracking-wide uppercase flex-1 min-w-0 ${theme.text}`}
-                        value={group.name || ''}
-                        onChange={(e) => updateGroup(group.id, { name: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setOpenColorPicker(openColorPicker === group.id ? null : group.id); }}
-                        className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`}
-                        title="Group Color"
-                      >
-                        <Palette className="w-3.5 h-3.5" />
-                      </button>
-                      {openColorPicker === group.id && (
-                        <div className="absolute top-11 right-12 bg-white p-2 rounded-xl shadow-xl border border-slate-100 flex gap-1.5 z-50 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
-                          {Object.keys(THEMES).map(colorKey => (
-                            <button key={colorKey} onClick={() => { takeSnapshot(); updateGroup(group.id, { theme: colorKey }); setOpenColorPicker(null); }} className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${THEMES[colorKey].port}`}>
-                              {group.theme === colorKey && <Check className="w-3 h-3 text-white" />}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); addNode(undefined, undefined, group.id); }}
-                        className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`}
-                        title="Add Card inside Section"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-
-                      <button onClick={() => deleteGroup(group.id)} className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-colors">
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    <input 
+                      className="px-3 py-1 rounded-md font-bold text-xs tracking-wide uppercase border-0 outline-none"
+                      style={{ backgroundColor: theme.cardBg, color: '#1e293b', minWidth: '60px', width: `${Math.max(60, (group.name || '').length * 8 + 24)}px` }}
+                      value={group.name || ''}
+                      onChange={(e) => updateGroup(group.id, { name: e.target.value })}
+                    />
                   </div>
 
                   {/* Resize handle */}
@@ -3882,6 +3861,7 @@ export default function WorkflowApp() {
 
               const theme = THEMES[node.theme] || THEMES.blue;
               const isDragging = draggingNode?.id === node.id;
+              const nodeDims = getNodeDimensions(node);
               
               const coords = getLiveCoordinates(node, false);
               const displayX = coords.x;
@@ -3896,16 +3876,20 @@ export default function WorkflowApp() {
                     isDragging ? 'shadow-lg scale-[1.02] z-[9999]' : 'transition-all duration-150'
                   } ${
                     isFocused ? 'ring-4 ring-indigo-500 animate-[pulse_1.5s_infinite]' : ''
-                  } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-offset-1' : 'border-slate-200 hover:border-slate-300'}`}
+                  } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-offset-1' : 'border-slate-200 hover:border-slate-300'} ${
+                    connectHoverNodeId === node.id ? 'ring-2 ring-green-400 shadow-lg shadow-green-200/50' : ''
+                  }`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
-                    width: 280,
-                    backgroundColor: theme.cardBg || '#eff6ff',
+                    width: nodeDims.width,
+                    backgroundColor: theme.cardBg || '#bfdbfe',
                     padding: 12,
                     ...(selectedNodeIds.includes(node.id) ? { borderColor: theme.border || '#3b82f6' } : {}),
                     zIndex: isDragging ? 9999 : (isFocused ? 999 : 50 + index) 
                   }}
+                  onPointerEnter={() => { if (connecting && connecting.sourceId !== node.id) setConnectHoverNodeId(node.id); }}
+                  onPointerLeave={() => { if (connectHoverNodeId === node.id) setConnectHoverNodeId(null); }}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3951,6 +3935,18 @@ export default function WorkflowApp() {
                     };
                   }}
                   onPointerUp={(e) => {
+                    // Handle connection drop on entire card
+                    if (connecting && connecting.sourceId !== node.id) {
+                      e.stopPropagation();
+                      const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id);
+                      if (!exists) {
+                        takeSnapshot();
+                        updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] }));
+                      }
+                      setConnecting(null);
+                      setConnectHoverNodeId(null);
+                      return;
+                    }
                     if (nodeTapRef.current && nodeTapRef.current.id === node.id && nodeTapRef.current.pointerType === 'touch') {
                       const elapsed = Date.now() - nodeTapRef.current.time;
                       const moved = Math.hypot(e.clientX - nodeTapRef.current.startX, e.clientY - nodeTapRef.current.startY);
@@ -4047,9 +4043,18 @@ export default function WorkflowApp() {
                   </div>
 
                   {/* Connection Ports - visible on hover */}
-                  <div className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-all opacity-0 group-hover:opacity-100 ${theme.port}`} onPointerDown={(e) => e.stopPropagation()} onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== node.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] })); } } setConnecting(null); }}>
+                  <div 
+                    className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
+                    onPointerDown={(e) => e.stopPropagation()} 
+                    onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== node.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] })); } } setConnecting(null); }}
+                  >
+                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
                   </div>
-                  <div className={`absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-all opacity-0 group-hover:opacity-100 ${theme.port}`} onPointerDown={(e) => { e.stopPropagation(); bringToFront(node.id); const coords = getWorkspaceCoords(e); setConnecting({ sourceId: node.id, startX: node.x + NODE_WIDTH, startY: node.y + HEADER_CENTER_Y, currentX: coords.x, currentY: coords.y }); }}>
+                  <div 
+                    className={`absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
+                    onPointerDown={(e) => { e.stopPropagation(); bringToFront(node.id); const coords = getWorkspaceCoords(e); setConnecting({ sourceId: node.id, startX: node.x + nodeDims.width, startY: node.y + HEADER_CENTER_Y, currentX: coords.x, currentY: coords.y }); }}
+                  >
+                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
                   </div>
                 </div>
               );
@@ -4224,6 +4229,23 @@ export default function WorkflowApp() {
             >
               <div className="px-4 py-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">Group Actions</div>
               
+              <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 text-xs font-semibold text-slate-700 flex items-center" onClick={() => { addNode(undefined, undefined, groupContextMenu.groupId); setGroupContextMenu(null); }}>
+                <Plus className="w-3.5 h-3.5 mr-2 text-slate-500" /> Add Card
+              </button>
+
+              <div className="h-px bg-slate-150 my-1 w-full" />
+
+              <div className="px-4 py-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">Color</div>
+              <div className="px-4 py-2 flex gap-1.5 flex-wrap">
+                {Object.keys(THEMES).map(colorKey => (
+                  <button key={colorKey} onClick={() => { takeSnapshot(); updateGroup(groupContextMenu.groupId, { theme: colorKey }); setGroupContextMenu(null); }} className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-transform hover:scale-110 ${THEMES[colorKey].port}`}>
+                    {(() => { const g = groups.find(gr => gr.id === groupContextMenu.groupId); return g && g.theme === colorKey ? <Check className="w-3 h-3 text-white" /> : null; })()}
+                  </button>
+                ))}
+              </div>
+
+              <div className="h-px bg-slate-150 my-1 w-full" />
+
               <button className="w-full text-left px-4 py-2 hover:bg-indigo-50 text-xs font-semibold text-slate-700 flex items-center" onClick={() => { copyGroup(groupContextMenu.groupId); setGroupContextMenu(null); }}>
                 <Copy className="w-3.5 h-3.5 mr-2 text-slate-500" /> Copy Group
               </button>
