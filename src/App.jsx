@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
-  Plus, Trash2, X, ChevronDown, ChevronRight, 
+  Plus, Trash2, X, ChevronDown, 
   FileText, Network, FolderOpen, Palette, Check, ZoomIn, ZoomOut, Focus,
   Download, Upload, Undo2, Redo2, Layers, Link2, ExternalLink, HelpCircle,
   Sparkles, PanelLeftClose, PanelLeft,
@@ -10,59 +10,147 @@ import {
 } from 'lucide-react';
 import MiniMap from './MiniMap';
 
-// --- Premium Color Themes ---
+// --- Premium Color Themes (10 colors) ---
 const THEMES = {
-  amber: { 
-    name: 'Amber Glow', 
-    wrapper: 'bg-[#fdfbf7] border-amber-200/80 hover:border-amber-400/50', 
-    header: 'bg-[#fffbeb] border-amber-200', 
-    tag: 'bg-amber-100/80 border-amber-300 text-amber-800', 
-    port: 'bg-amber-500 hover:bg-amber-400 border-amber-100', 
-    text: 'text-amber-900', 
-    line: '#f59e0b',
-    border: '#f59e0b',
-    groupBg: 'bg-amber-50/10 border-amber-300/40', 
-    groupHeader: 'bg-amber-100/40 border-amber-200/50',
-    glow: 'shadow-[0_0_20px_rgba(245,158,11,0.15)]'
-  },
-  blue: { 
-    name: 'Ocean Blue', 
-    wrapper: 'bg-slate-50 border-blue-200/80 hover:border-blue-400/50', 
-    header: 'bg-blue-50/80 border-blue-200', 
-    tag: 'bg-blue-100/80 border-blue-300 text-blue-800', 
-    port: 'bg-blue-500 hover:bg-blue-400 border-blue-100', 
-    text: 'text-blue-900', 
+  blue: {
+    name: 'Ocean Blue',
+    cardBg: '#eff6ff',
+    wrapper: 'bg-slate-50 border-blue-200/80 hover:border-blue-400/50',
+    header: 'bg-blue-50/80 border-blue-200',
+    tag: 'bg-blue-100/80 border-blue-300 text-blue-800',
+    port: 'bg-blue-500 hover:bg-blue-400 border-blue-100',
+    text: 'text-blue-900',
     line: '#3b82f6',
     border: '#3b82f6',
-    groupBg: 'bg-blue-50/10 border-blue-300/40', 
+    groupBg: 'bg-blue-50/10 border-blue-300/40',
     groupHeader: 'bg-blue-100/40 border-blue-200/50',
     glow: 'shadow-[0_0_20px_rgba(59,130,246,0.15)]'
   },
-  green: { 
-    name: 'Fresh Green', 
-    wrapper: 'bg-emerald-50/20 border-emerald-200/80 hover:border-emerald-400/50', 
-    header: 'bg-emerald-50/80 border-emerald-200', 
-    tag: 'bg-emerald-100/80 border-emerald-300 text-emerald-800', 
-    port: 'bg-emerald-500 hover:bg-emerald-400 border-emerald-100', 
-    text: 'text-emerald-900', 
+  green: {
+    name: 'Fresh Green',
+    cardBg: '#f0fdf4',
+    wrapper: 'bg-emerald-50/20 border-emerald-200/80 hover:border-emerald-400/50',
+    header: 'bg-emerald-50/80 border-emerald-200',
+    tag: 'bg-emerald-100/80 border-emerald-300 text-emerald-800',
+    port: 'bg-emerald-500 hover:bg-emerald-400 border-emerald-100',
+    text: 'text-emerald-900',
     line: '#10b981',
     border: '#10b981',
-    groupBg: 'bg-emerald-50/10 border-emerald-300/40', 
+    groupBg: 'bg-emerald-50/10 border-emerald-300/40',
     groupHeader: 'bg-emerald-100/40 border-emerald-200/50',
     glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]'
   },
-  purple: { 
-    name: 'Royal Purple', 
-    wrapper: 'bg-purple-50/20 border-purple-200/80 hover:border-purple-400/50', 
-    header: 'bg-purple-50/80 border-purple-200', 
-    tag: 'bg-purple-100/80 border-purple-300 text-purple-800', 
-    port: 'bg-purple-500 hover:bg-purple-400 border-purple-100', 
-    text: 'text-purple-900', 
+  pink: {
+    name: 'Soft Pink',
+    cardBg: '#fdf2f8',
+    wrapper: 'bg-pink-50/20 border-pink-200/80 hover:border-pink-400/50',
+    header: 'bg-pink-50/80 border-pink-200',
+    tag: 'bg-pink-100/80 border-pink-300 text-pink-800',
+    port: 'bg-pink-500 hover:bg-pink-400 border-pink-100',
+    text: 'text-pink-900',
+    line: '#ec4899',
+    border: '#ec4899',
+    groupBg: 'bg-pink-50/10 border-pink-300/40',
+    groupHeader: 'bg-pink-100/40 border-pink-200/50',
+    glow: 'shadow-[0_0_20px_rgba(236,72,153,0.15)]'
+  },
+  yellow: {
+    name: 'Sunny Yellow',
+    cardBg: '#fefce8',
+    wrapper: 'bg-yellow-50/20 border-yellow-200/80 hover:border-yellow-400/50',
+    header: 'bg-yellow-50/80 border-yellow-200',
+    tag: 'bg-yellow-100/80 border-yellow-300 text-yellow-800',
+    port: 'bg-yellow-500 hover:bg-yellow-400 border-yellow-100',
+    text: 'text-yellow-900',
+    line: '#eab308',
+    border: '#eab308',
+    groupBg: 'bg-yellow-50/10 border-yellow-300/40',
+    groupHeader: 'bg-yellow-100/40 border-yellow-200/50',
+    glow: 'shadow-[0_0_20px_rgba(234,179,8,0.15)]'
+  },
+  purple: {
+    name: 'Royal Purple',
+    cardBg: '#faf5ff',
+    wrapper: 'bg-purple-50/20 border-purple-200/80 hover:border-purple-400/50',
+    header: 'bg-purple-50/80 border-purple-200',
+    tag: 'bg-purple-100/80 border-purple-300 text-purple-800',
+    port: 'bg-purple-500 hover:bg-purple-400 border-purple-100',
+    text: 'text-purple-900',
     line: '#8b5cf6',
     border: '#8b5cf6',
-    groupBg: 'bg-purple-50/10 border-purple-300/40', 
+    groupBg: 'bg-purple-50/10 border-purple-300/40',
     groupHeader: 'bg-purple-100/40 border-purple-200/50',
     glow: 'shadow-[0_0_20px_rgba(139,92,246,0.15)]'
+  },
+  orange: {
+    name: 'Warm Orange',
+    cardBg: '#fff7ed',
+    wrapper: 'bg-orange-50/20 border-orange-200/80 hover:border-orange-400/50',
+    header: 'bg-orange-50/80 border-orange-200',
+    tag: 'bg-orange-100/80 border-orange-300 text-orange-800',
+    port: 'bg-orange-500 hover:bg-orange-400 border-orange-100',
+    text: 'text-orange-900',
+    line: '#f97316',
+    border: '#f97316',
+    groupBg: 'bg-orange-50/10 border-orange-300/40',
+    groupHeader: 'bg-orange-100/40 border-orange-200/50',
+    glow: 'shadow-[0_0_20px_rgba(249,115,22,0.15)]'
+  },
+  teal: {
+    name: 'Cool Teal',
+    cardBg: '#f0fdfa',
+    wrapper: 'bg-teal-50/20 border-teal-200/80 hover:border-teal-400/50',
+    header: 'bg-teal-50/80 border-teal-200',
+    tag: 'bg-teal-100/80 border-teal-300 text-teal-800',
+    port: 'bg-teal-500 hover:bg-teal-400 border-teal-100',
+    text: 'text-teal-900',
+    line: '#14b8a6',
+    border: '#14b8a6',
+    groupBg: 'bg-teal-50/10 border-teal-300/40',
+    groupHeader: 'bg-teal-100/40 border-teal-200/50',
+    glow: 'shadow-[0_0_20px_rgba(20,184,166,0.15)]'
+  },
+  rose: {
+    name: 'Rose Red',
+    cardBg: '#fff1f2',
+    wrapper: 'bg-rose-50/20 border-rose-200/80 hover:border-rose-400/50',
+    header: 'bg-rose-50/80 border-rose-200',
+    tag: 'bg-rose-100/80 border-rose-300 text-rose-800',
+    port: 'bg-rose-500 hover:bg-rose-400 border-rose-100',
+    text: 'text-rose-900',
+    line: '#f43f5e',
+    border: '#f43f5e',
+    groupBg: 'bg-rose-50/10 border-rose-300/40',
+    groupHeader: 'bg-rose-100/40 border-rose-200/50',
+    glow: 'shadow-[0_0_20px_rgba(244,63,94,0.15)]'
+  },
+  indigo: {
+    name: 'Deep Indigo',
+    cardBg: '#eef2ff',
+    wrapper: 'bg-indigo-50/20 border-indigo-200/80 hover:border-indigo-400/50',
+    header: 'bg-indigo-50/80 border-indigo-200',
+    tag: 'bg-indigo-100/80 border-indigo-300 text-indigo-800',
+    port: 'bg-indigo-500 hover:bg-indigo-400 border-indigo-100',
+    text: 'text-indigo-900',
+    line: '#6366f1',
+    border: '#6366f1',
+    groupBg: 'bg-indigo-50/10 border-indigo-300/40',
+    groupHeader: 'bg-indigo-100/40 border-indigo-200/50',
+    glow: 'shadow-[0_0_20px_rgba(99,102,241,0.15)]'
+  },
+  slate: {
+    name: 'Neutral Slate',
+    cardBg: '#f8fafc',
+    wrapper: 'bg-slate-50/20 border-slate-200/80 hover:border-slate-400/50',
+    header: 'bg-slate-50/80 border-slate-200',
+    tag: 'bg-slate-100/80 border-slate-300 text-slate-800',
+    port: 'bg-slate-500 hover:bg-slate-400 border-slate-100',
+    text: 'text-slate-900',
+    line: '#64748b',
+    border: '#64748b',
+    groupBg: 'bg-slate-50/10 border-slate-300/40',
+    groupHeader: 'bg-slate-100/40 border-slate-200/50',
+    glow: 'shadow-[0_0_20px_rgba(100,116,139,0.15)]'
   }
 };
 
@@ -80,11 +168,11 @@ const defaultWorkspaces = [
   {
     id: 'ws-1', name: 'Product Launch Roadmap',
     groups: [
-      { id: 'g-1', name: 'Phase 1: Discovery & Research', x: 80, y: 80, width: 440, height: 440, expanded: true, theme: 'amber', parentGroupId: null },
-      { id: 'g-2', name: 'Phase 2: Product Design UI', x: 580, y: 80, width: 440, height: 440, expanded: true, theme: 'purple', parentGroupId: null }
+      { id: 'g-1', name: 'Phase 1: Discovery & Research', x: 80, y: 80, width: 440, height: 440, theme: 'orange', parentGroupId: null },
+      { id: 'g-2', name: 'Phase 2: Product Design UI', x: 580, y: 80, width: 440, height: 440, theme: 'purple', parentGroupId: null }
     ],
     nodes: [
-      { id: '1', x: 130, y: 150, title: 'User Interviews', content: 'Synthesize feedback from 15 target users.', theme: 'amber', groupId: 'g-1', cloneSourceId: null },
+      { id: '1', x: 130, y: 150, title: 'User Interviews', content: 'Synthesize feedback from 15 target users.', theme: 'orange', groupId: 'g-1', cloneSourceId: null },
       { id: '2', x: 130, y: 310, title: 'Competitor Benchmark', content: 'Benchmark workflows against Top 3 competitors.', theme: 'blue', groupId: 'g-1', cloneSourceId: null },
       { id: '3', x: 630, y: 150, title: 'Component Library', content: 'Establish design system in Figma.', theme: 'purple', groupId: 'g-2', cloneSourceId: null },
       { id: '4', x: 1100, y: 200, title: 'Launch Strategy Plan', content: 'Define GTM parameters.', theme: 'blue', groupId: null, cloneSourceId: null }
@@ -93,7 +181,8 @@ const defaultWorkspaces = [
       { id: 'e1', source: '1', target: '3' },
       { id: 'e2', source: '2', target: '3' },
       { id: 'e3', source: '3', target: '4' }
-    ]
+    ],
+    images: []
   }
 ];
 
@@ -129,37 +218,11 @@ const getDescendants = (groupId, currentGroups, currentNodes) => {
 };
 
 const isGroupHidden = (groupId, currentGroups) => {
-  let currId = groupId;
-  while (currId) {
-    const pGroup = currentGroups.find(g => g.id === currId);
-    if (!pGroup) break;
-    if (!pGroup.expanded) {
-      return true;
-    }
-    currId = pGroup.parentGroupId;
-  }
   return false;
 };
 
 const shareCollapsedAncestor = (nodeA, nodeB, currentGroups) => {
-  if (!nodeA.groupId || !nodeB.groupId) return false;
-  
-  const getCollapsedAncestors = (groupId) => {
-    const ancestors = [];
-    let currId = groupId;
-    while (currId) {
-      const g = currentGroups.find(x => x.id === currId);
-      if (!g) break;
-      if (!g.expanded) ancestors.push(g.id);
-      currId = g.parentGroupId;
-    }
-    return ancestors;
-  };
-
-  const ancestorsA = getCollapsedAncestors(nodeA.groupId);
-  const ancestorsB = getCollapsedAncestors(nodeB.groupId);
-
-  return ancestorsA.some(id => ancestorsB.includes(id));
+  return false;
 };
 
 
@@ -197,16 +260,6 @@ const computeLayout = (currentGroups, currentNodes) => {
   groupsWithDepth.forEach(group => {
     const innerNodes = currentNodes.filter(n => n.groupId === group.id);
     const innerSubgroups = currentGroups.filter(g => g.parentGroupId === group.id);
-
-    if (!group.expanded) {
-      computed[group.id] = {
-        x: group.x,
-        y: group.y,
-        width: group.width || 340,
-        height: 64
-      };
-      return;
-    }
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     let hasChildren = false;
@@ -286,6 +339,7 @@ export default function WorkflowApp() {
   // --- Dragging & Resizing Interactions ---
   const [draggingNode, setDraggingNode] = useState(null);
   const [draggingGroup, setDraggingGroup] = useState(null);
+  const [draggingImage, setDraggingImage] = useState(null);
   const [resizingGroup, setResizingGroup] = useState(null);
   const [dragHoveredGroupId, setDragHoveredGroupId] = useState(null);
 
@@ -297,9 +351,7 @@ export default function WorkflowApp() {
   const [editingTextNode, setEditingTextNode] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
   const [nodeContextMenu, setNodeContextMenu] = useState(null);
-  const [dragOverNodeId, setDragOverNodeId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [pendingImageDrop, setPendingImageDrop] = useState(null);
   const [focusedNodeId, setFocusedNodeId] = useState(null);
   const [focusedGroupId, setFocusedGroupId] = useState(null);
   const [groupContextMenu, setGroupContextMenu] = useState(null);
@@ -2158,8 +2210,16 @@ export default function WorkflowApp() {
     } else if (connecting) {
       const coords = getWorkspaceCoords(e);
       setConnecting(prev => ({ ...prev, currentX: coords.x, currentY: coords.y }));
+    } else if (draggingImage) {
+      const dx = (e.clientX - draggingImage.startX) / transform.scale;
+      const dy = (e.clientY - draggingImage.startY) / transform.scale;
+      setDraggingImage(prev => ({
+        ...prev,
+        currentX: draggingImage.initialX + dx,
+        currentY: draggingImage.initialY + dy
+      }));
     }
-  }, [draggingNode, draggingGroup, resizingGroup, isPanning, panStart, transform.scale, getWorkspaceCoords, getSpatiallyHoveredGroup, getSpatiallyHoveredGroupForGroup, updateActiveWorkspace, isMultiSelecting, selectionBox, nodes]);
+  }, [draggingNode, draggingGroup, draggingImage, resizingGroup, isPanning, panStart, transform.scale, getWorkspaceCoords, getSpatiallyHoveredGroup, getSpatiallyHoveredGroupForGroup, updateActiveWorkspace, isMultiSelecting, selectionBox, nodes]);
 
 
   const handlePointerUp = useCallback(() => {
@@ -2279,6 +2339,21 @@ export default function WorkflowApp() {
       }
     }
 
+    if (draggingImage) {
+      if (draggingImage.currentX !== draggingImage.initialX || draggingImage.currentY !== draggingImage.initialY) {
+        updateActiveWorkspace(ws => ({
+          images: (ws.images || []).map(img => img.id === draggingImage.id
+            ? { ...img, x: draggingImage.currentX, y: draggingImage.currentY }
+            : img)
+        }));
+        if (dragSnapshot.current) {
+          const snapshotToSave = dragSnapshot.current;
+          const newPast = [...pastRef.current, snapshotToSave];
+          updateHistory(newPast, []);
+        }
+      }
+    }
+
     setDraggingNode(null);
     draggingNodeRef.current = null;
     setDraggingGroup(null);
@@ -2286,11 +2361,74 @@ export default function WorkflowApp() {
     setDragHoveredGroupId(null);
     setConnecting(null);
     setIsPanning(false);
+    setDraggingImage(null);
     dragSnapshot.current = null;
-  }, [draggingNode, draggingGroup, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory, isMultiSelecting]);
+  }, [draggingNode, draggingGroup, draggingImage, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory, isMultiSelecting]);
 
 
   // --- Node, Edge, and Group Creators ---
+  const handleCanvasImageDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        const MAX_SIZE = 1024;
+        if (width > height && width > MAX_SIZE) {
+          height *= MAX_SIZE / width;
+          width = MAX_SIZE;
+        } else if (height > MAX_SIZE) {
+          width *= MAX_SIZE / height;
+          height = MAX_SIZE;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+        const rect = workspaceRef.current.getBoundingClientRect();
+        const dropX = (e.clientX - rect.left - transform.x) / transform.scale;
+        const dropY = (e.clientY - rect.top - transform.y) / transform.scale;
+
+        const displayWidth = 280;
+        const displayHeight = Math.round((height / width) * displayWidth);
+
+        takeSnapshot();
+        updateActiveWorkspace(ws => ({
+          images: [...(ws.images || []), {
+            id: `img-${Date.now()}`,
+            x: dropX,
+            y: dropY,
+            width: displayWidth,
+            height: displayHeight,
+            src: compressedBase64
+          }]
+        }));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const deleteImage = (imgId) => {
+    takeSnapshot();
+    updateActiveWorkspace(ws => ({
+      images: (ws.images || []).filter(i => i.id !== imgId),
+      edges: ws.edges.filter(e => e.source !== imgId && e.target !== imgId)
+    }));
+  };
+
   const addNode = (clientX, clientY, targetGroupId = null) => {
     takeSnapshot();
     const rect = workspaceRef.current.getBoundingClientRect();
@@ -2307,7 +2445,7 @@ export default function WorkflowApp() {
     const newNode = {
       id: nextId.toString(),
       x: targetX, y: targetY,
-      title: 'New Card', content: '', theme: 'amber',
+      title: 'New Card', content: '', theme: 'blue',
       groupId: targetGroupId, cloneSourceId: null
     };
     
@@ -2339,7 +2477,7 @@ export default function WorkflowApp() {
       name: 'Dynamic Section',
       x: targetX, y: targetY,
       width: 440, height: 420,
-      expanded: true, theme: 'blue',
+      theme: 'blue',
       parentGroupId: null
     };
     updateActiveWorkspace(ws => ({ groups: [...ws.groups, newGroup] }));
@@ -2359,8 +2497,7 @@ export default function WorkflowApp() {
       theme: target.theme,
       groupId: target.groupId,
       cloneSourceId: null,
-      linkToTab: target.linkToTab || null,
-      image: target.image || null
+      linkToTab: target.linkToTab || null
     };
 
     updateActiveWorkspace(ws => {
@@ -2506,68 +2643,6 @@ export default function WorkflowApp() {
       });
     });
   };
-
-  const processImage = (file, nodeId, compress) => {
-    if (!compress) {
-      if (file.size > 3 * 1024 * 1024) {
-        setErrorMessage("Original image is too large (>3MB). Choose 'Compress' instead.");
-        setPendingImageDrop(null);
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        takeSnapshot();
-        updateNode(nodeId, { image: event.target.result });
-        setPendingImageDrop(null);
-      };
-      reader.readAsDataURL(file);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        const MAX_SIZE = 1024;
-        if (width > height && width > MAX_SIZE) {
-          height *= MAX_SIZE / width;
-          width = MAX_SIZE;
-        } else if (height > MAX_SIZE) {
-          width *= MAX_SIZE / height;
-          height = MAX_SIZE;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-        
-        takeSnapshot();
-        updateNode(nodeId, { image: compressedBase64 });
-        setPendingImageDrop(null);
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleImageDrop = (e, nodeId) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverNodeId(null);
-
-    const file = e.dataTransfer?.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setPendingImageDrop({ file, nodeId });
-    }
-  };
-
 
   const deleteNode = (id) => {
     takeSnapshot();
@@ -2867,27 +2942,13 @@ export default function WorkflowApp() {
 
   const getConnectionPoint = (nodeId, isSource) => {
     const node = nodes.find(n => n.id === nodeId);
-    if (!node) return null;
-
-    let outermostCollapsedParent = null;
-    let currParentId = node.groupId;
-    while (currParentId) {
-      const parentGroup = groups.find(g => g.id === currParentId);
-      if (!parentGroup) break;
-      if (!parentGroup.expanded) {
-        outermostCollapsedParent = parentGroup;
-      }
-      currParentId = parentGroup.parentGroupId;
-    }
-
-    if (outermostCollapsedParent) {
-      const pGroup = outermostCollapsedParent;
-      const coords = getLiveCoordinates(pGroup, true);
-      const gW = pGroup.width || 440;
-
+    if (!node) {
+      // Check if it's an image object
+      const img = (activeWs?.images || []).find(i => i.id === nodeId);
+      if (!img) return null;
       return {
-        x: isSource ? coords.x + gW : coords.x,
-        y: coords.y + 24
+        x: isSource ? img.x + (img.width || 280) : img.x,
+        y: img.y + (img.height || 180) / 2
       };
     }
 
@@ -2910,7 +2971,7 @@ export default function WorkflowApp() {
 
   // --- Outline Board Content ---
   const renderOutlineCard = (node) => {
-    const nTheme = THEMES[node.theme] || THEMES.amber;
+    const nTheme = THEMES[node.theme] || THEMES.blue;
     const isExpanded = expandedOutlineCards[node.id];
     return (
       <div key={node.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-200">
@@ -2933,17 +2994,6 @@ export default function WorkflowApp() {
               onFocus={() => takeSnapshot()}
               onChange={(e) => updateNode(node.id, { content: e.target.value })}
             />
-            {node.image ? (
-              <div className="relative group rounded-lg overflow-hidden border border-slate-200">
-                <img src={node.image} alt="attachment" className="max-h-32 w-full object-cover" />
-                <button onClick={() => { takeSnapshot(); updateNode(node.id, { image: null }); }} className="absolute top-1.5 right-1.5 p-1 bg-white/90 hover:bg-red-50 hover:text-red-500 text-slate-400 rounded shadow text-xs transition-colors opacity-0 group-hover:opacity-100"><X className="w-3 h-3" /></button>
-              </div>
-            ) : (
-              <label className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 hover:text-indigo-600 cursor-pointer transition-colors">
-                <ImageIcon className="w-3.5 h-3.5" /><span>Upload image</span>
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if(f) setPendingImageDrop({file:f, nodeId: node.id}); e.target.value=null; }} />
-              </label>
-            )}
           </div>
         )}
       </div>
@@ -2953,17 +3003,13 @@ export default function WorkflowApp() {
 
   const outlineBoardContent = (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-3">
-      {groups.filter(g => !g.parentGroupId).map(group => {
-        const theme = THEMES[group.theme] || THEMES.amber;
+      {groups.map(group => {
+        const theme = THEMES[group.theme] || THEMES.blue;
         const childNodes = nodes.filter(n => n.groupId === group.id);
-        const childSubgroups = groups.filter(g2 => g2.parentGroupId === group.id);
-        const totalChildren = childNodes.length + childSubgroups.length;
+        const totalChildren = childNodes.length;
         return (
           <div key={group.id} className={`rounded-2xl border-2 border-dashed overflow-hidden ${theme.groupBg}`}>
             <div className={`relative flex items-center gap-2 px-4 py-3 ${theme.groupHeader} border-b`}>
-              <button onClick={() => updateGroup(group.id, { expanded: !group.expanded })} className="shrink-0 p-0.5 hover:bg-white/50 rounded-md transition-colors">
-                {group.expanded ? <ChevronDown className={`w-4 h-4 ${theme.text}`} /> : <ChevronRight className={`w-4 h-4 ${theme.text}`} />}
-              </button>
               <div className={`w-3 h-3 rounded-full shrink-0 ${theme.port}`} />
               <input className={`bg-transparent font-bold focus:bg-white/60 focus:outline-none rounded px-1 py-0.5 text-xs tracking-wide uppercase flex-1 min-w-0 ${theme.text}`} value={group.name || ''} onChange={(e) => updateGroup(group.id, { name: e.target.value })} />
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/60 border ${theme.tag}`}>{totalChildren} items</span>
@@ -2978,40 +3024,14 @@ export default function WorkflowApp() {
               <button onClick={() => addNode(undefined, undefined, group.id)} className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`} title="Add card"><Plus className="w-3.5 h-3.5" /></button>
               <button onClick={() => deleteGroup(group.id)} className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-colors"><X className="w-3.5 h-3.5" /></button>
             </div>
-            {group.expanded && (
-              <div className="p-3 space-y-2">
-                {childNodes.map(node => renderOutlineCard(node))}
-                {childSubgroups.map(sub => {
-                  const subTheme = THEMES[sub.theme] || THEMES.blue;
-                  const subNodes = nodes.filter(n => n.groupId === sub.id);
-                  return (
-                    <div key={sub.id} className={`rounded-xl border-2 border-dashed ml-3 overflow-hidden ${subTheme.groupBg}`}>
-                      <div className={`flex items-center gap-2 px-3 py-2.5 ${subTheme.groupHeader} border-b`}>
-                        <button onClick={() => updateGroup(sub.id, { expanded: !sub.expanded })} className="shrink-0 p-0.5 hover:bg-white/50 rounded-md">
-                          {sub.expanded ? <ChevronDown className={`w-3.5 h-3.5 ${subTheme.text}`} /> : <ChevronRight className={`w-3.5 h-3.5 ${subTheme.text}`} />}
-                        </button>
-                        <span className={`text-[8px] font-bold uppercase tracking-wider ${subTheme.text} opacity-60`}>SUB</span>
-                        <input className={`bg-transparent font-bold focus:bg-white/60 focus:outline-none rounded px-1 py-0.5 text-xs tracking-wide uppercase flex-1 min-w-0 ${subTheme.text}`} value={sub.name || ''} onChange={(e) => updateGroup(sub.id, { name: e.target.value })} />
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/60 border ${subTheme.tag}`}>{subNodes.length}</span>
-                        <button onClick={() => addNode(undefined, undefined, sub.id)} className={`p-1 hover:bg-white/50 rounded-md ${subTheme.text}`}><Plus className="w-3 h-3" /></button>
-                        <button onClick={() => deleteGroup(sub.id)} className="p-1 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-md"><X className="w-3 h-3" /></button>
-                      </div>
-                      {sub.expanded && (
-                        <div className="p-2 space-y-1.5">
-                          {subNodes.map(n => renderOutlineCard(n))}
-                          {subNodes.length === 0 && <p className="text-[10px] italic text-slate-400 py-2 text-center">No cards in this subgroup</p>}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-                {childNodes.length === 0 && childSubgroups.length === 0 && (
-                  <button onClick={() => addNode(undefined, undefined, group.id)} className="w-full py-3 text-xs font-semibold text-slate-400 hover:text-indigo-600 hover:bg-white/50 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 transition-all flex items-center justify-center gap-1.5">
-                    <Plus className="w-3.5 h-3.5" /> Add first card
-                  </button>
-                )}
-              </div>
-            )}
+            <div className="p-3 space-y-2">
+              {childNodes.map(node => renderOutlineCard(node))}
+              {childNodes.length === 0 && (
+                <button onClick={() => addNode(undefined, undefined, group.id)} className="w-full py-3 text-xs font-semibold text-slate-400 hover:text-indigo-600 hover:bg-white/50 rounded-xl border border-dashed border-slate-300 hover:border-indigo-300 transition-all flex items-center justify-center gap-1.5">
+                  <Plus className="w-3.5 h-3.5" /> Add first card
+                </button>
+              )}
+            </div>
           </div>
         );
       })}
@@ -3610,6 +3630,8 @@ export default function WorkflowApp() {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleCanvasImageDrop}
           style={{ display: viewMode === 'canvas' ? undefined : 'none' }}
         >
           {/* Panning grid backdrop */}
@@ -3631,7 +3653,7 @@ export default function WorkflowApp() {
                 if (isGroupHidden(group.parentGroupId, groups)) return null;
               }
 
-              const theme = THEMES[group.theme] || THEMES.amber;
+              const theme = THEMES[group.theme] || THEMES.blue;
               const isGrpDragging = draggingGroup?.id === group.id;
               
               const coords = getLiveCoordinates(group, true);
@@ -3647,16 +3669,14 @@ export default function WorkflowApp() {
               return (
                 <div
                   key={group.id}
-                  className={`absolute rounded-2xl border-2 pointer-events-auto transition-shadow duration-150 ${theme.groupBg} ${
+                  className={`absolute rounded-2xl border-2 pointer-events-auto group transition-shadow duration-150 ${theme.groupBg} ${
                     isGrpDragging ? 'shadow-2xl border-indigo-500 z-20' : 'border-slate-300/60 z-0'
-                  } ${isTargetHover ? 'ring-4 ring-indigo-500/30 border-indigo-500 border-solid bg-indigo-50/10' : 'border-dashed'} ${
-                    group.parentGroupId ? 'border-indigo-400/50 scale-[0.98] shadow-inner' : ''
-                  }`}
+                  } ${isTargetHover ? 'ring-4 ring-indigo-500/30 border-indigo-500 border-solid bg-indigo-50/10' : 'border-dashed'}`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
                     width: displayW,
-                    height: group.expanded ? displayH : 64
+                    height: displayH
                   }}
                 >
 
@@ -3697,21 +3717,14 @@ export default function WorkflowApp() {
                   >
                     <div className="flex items-center gap-2 flex-1 overflow-hidden">
                       <Move className="w-3.5 h-3.5 shrink-0 opacity-50 text-slate-500" />
-                      <div className="flex flex-col flex-1 overflow-hidden">
-                        {group.parentGroupId && (
-                          <span className="text-[8px] font-bold text-indigo-500 uppercase tracking-wider block -mb-0.5">
-                            Subgroup under {groups.find(parent => parent.id === group.parentGroupId)?.name || 'Parent'}
-                          </span>
-                        )}
-                        <input 
-                          className={`bg-transparent font-bold focus:bg-white/50 focus:outline-none rounded px-1.5 py-0.5 text-xs tracking-wide uppercase w-full ${theme.text}`}
-                          value={group.name || ''}
-                          onChange={(e) => updateGroup(group.id, { name: e.target.value })}
-                        />
-                      </div>
+                      <input 
+                        className={`bg-transparent font-bold focus:bg-white/50 focus:outline-none rounded px-1.5 py-0.5 text-xs tracking-wide uppercase flex-1 min-w-0 ${theme.text}`}
+                        value={group.name || ''}
+                        onChange={(e) => updateGroup(group.id, { name: e.target.value })}
+                      />
                     </div>
                     
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={(e) => { e.stopPropagation(); setOpenColorPicker(openColorPicker === group.id ? null : group.id); }}
                         className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`}
@@ -3737,43 +3750,32 @@ export default function WorkflowApp() {
                         <Plus className="w-3.5 h-3.5" />
                       </button>
 
-                      <button onClick={() => updateGroup(group.id, { expanded: !group.expanded })} className={`p-1.5 hover:bg-white/50 rounded-md transition-colors ${theme.text}`}>
-                        {group.expanded ? <ChevronDown className="w-3.5 h-3.5"/> : <ChevronRight className="w-3.5 h-3.5"/>}
-                      </button>
                       <button onClick={() => deleteGroup(group.id)} className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-colors">
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
-
-                  {!group.expanded && (
-                    <div className="p-3 text-[10px] font-bold text-slate-500 flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-indigo-500" /> {innerNodes.length + innerSubgroups.length} items minimized
-                    </div>
-                  )}
-
-                  {group.expanded && (
-                    <div 
-                      className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize flex items-end justify-end p-0.5 z-30 pointer-events-auto"
-                      onPointerDown={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
-                        setResizingGroup({
-                          id: group.id,
-                          startX: e.clientX,
-                          startY: e.clientY,
-                          initialWidth: group.width || 440,
-                          initialHeight: group.height || 420
-                        });
-                      }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 12 12" className="text-slate-400/80 hover:text-indigo-600 transition-colors">
-                        <path d="M12,0 L0,12 M12,4 L4,12 M12,8 L8,12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
-                    </div>
-                  )}
+                  {/* Resize handle */}
+                  <div 
+                    className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize flex items-end justify-end p-0.5 z-30 pointer-events-auto"
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
+                      setResizingGroup({
+                        id: group.id,
+                        startX: e.clientX,
+                        startY: e.clientY,
+                        initialWidth: group.width || 440,
+                        initialHeight: group.height || 420
+                      });
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" className="text-slate-400/80 hover:text-indigo-600 transition-colors">
+                      <path d="M12,0 L0,12 M12,4 L4,12 M12,8 L8,12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </div>
                 </div>
               );
             })}
@@ -3801,21 +3803,91 @@ export default function WorkflowApp() {
                   if (shareCollapsedAncestor(sourceNode, targetNode, groups)) return null;
                 }
 
-                const sourceTheme = sourceNode ? (THEMES[sourceNode.theme] || THEMES.amber) : THEMES.amber;
+                const sourceTheme = sourceNode ? (THEMES[sourceNode.theme] || THEMES.blue) : THEMES.blue;
 
                 return (
                   <g key={edge.id} className="cursor-pointer group animate-in fade-in" onClick={(e) => { e.stopPropagation(); removeEdge(edge.id); }} style={{ pointerEvents: 'auto' }} title="Click connection to remove">
                     <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke="transparent" strokeWidth={24} fill="none" />
-                    <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke={sourceTheme.line} strokeWidth={3} fill="none" markerEnd={`url(#arrow-${sourceNode?.theme || 'amber'})`} className="transition-all duration-300 group-hover:stroke-red-500 group-hover:stroke-[4px]" />
+                    <path d={drawCurve(startPos.x, startPos.y, endPos.x, endPos.y)} stroke={sourceTheme.line} strokeWidth={3} fill="none" markerEnd={`url(#arrow-${sourceNode?.theme || 'blue'})`} className="transition-all duration-300 group-hover:stroke-red-500 group-hover:stroke-[4px]" />
                   </g>
                 );
               })}
               
               {connecting && (
-                <path d={drawCurve(connecting.startX, connecting.startY, connecting.currentX, connecting.currentY)} stroke={THEMES[nodes.find(n => n.id === connecting.sourceId)?.theme || 'amber'].line} strokeWidth={3} strokeDasharray="8,6" fill="none" className="animate-[dash_1s_linear_infinite]" />
+                <path d={drawCurve(connecting.startX, connecting.startY, connecting.currentX, connecting.currentY)} stroke={THEMES[nodes.find(n => n.id === connecting.sourceId)?.theme || 'blue'].line} strokeWidth={3} strokeDasharray="8,6" fill="none" className="animate-[dash_1s_linear_infinite]" />
               )}
             </svg>
 
+
+            {/* --- Canvas Image Objects --- */}
+            {(activeWs?.images || []).map(img => {
+              const imgX = draggingImage?.id === img.id ? draggingImage.currentX : img.x;
+              const imgY = draggingImage?.id === img.id ? draggingImage.currentY : img.y;
+              const imgW = img.width || 280;
+              const imgH = img.height || 180;
+
+              return (
+                <div
+                  key={img.id}
+                  className="absolute pointer-events-auto group rounded-lg border border-slate-300/60 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
+                  style={{
+                    left: imgX,
+                    top: imgY,
+                    width: imgW,
+                    height: imgH,
+                    zIndex: draggingImage?.id === img.id ? 9999 : 40
+                  }}
+                  onPointerDown={(e) => {
+                    if (e.target.closest('button')) return;
+                    e.stopPropagation();
+                    dragSnapshot.current = JSON.parse(JSON.stringify(stateRef.current));
+                    setDraggingImage({
+                      id: img.id,
+                      startX: e.clientX,
+                      startY: e.clientY,
+                      initialX: img.x,
+                      initialY: img.y,
+                      currentX: img.x,
+                      currentY: img.y
+                    });
+                  }}
+                >
+                  <img src={img.src} alt="Canvas image" className="w-full h-full object-cover" draggable={false} />
+                  {/* Delete button on hover */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteImage(img.id); }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="absolute top-1 right-1 p-1 bg-white/90 hover:bg-red-50 hover:text-red-500 text-slate-400 rounded shadow text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                  {/* Connection Ports */}
+                  <div
+                    className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-all opacity-0 group-hover:opacity-100 bg-indigo-500 hover:bg-indigo-400"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onPointerUp={(e) => {
+                      e.stopPropagation();
+                      if (connecting && connecting.sourceId !== img.id) {
+                        const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === img.id);
+                        if (!exists) {
+                          takeSnapshot();
+                          updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: img.id }] }));
+                        }
+                      }
+                      setConnecting(null);
+                    }}
+                  />
+                  <div
+                    className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-crosshair border-[3px] border-white z-30 shadow transition-all opacity-0 group-hover:opacity-100 bg-indigo-500 hover:bg-indigo-400"
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      const coords = getWorkspaceCoords(e);
+                      setConnecting({ sourceId: img.id, startX: img.x + imgW, startY: img.y + imgH / 2, currentX: coords.x, currentY: coords.y });
+                    }}
+                  />
+                </div>
+              );
+            })}
 
             {/* --- Nodes Layer --- */}
             {nodes.map((node, index) => {
@@ -3823,7 +3895,7 @@ export default function WorkflowApp() {
                 if (isGroupHidden(node.groupId, groups)) return null;
               }
 
-              const theme = THEMES[node.theme] || THEMES.amber;
+              const theme = THEMES[node.theme] || THEMES.blue;
               const isDragging = draggingNode?.id === node.id;
               
               const coords = getLiveCoordinates(node, false);
@@ -3835,16 +3907,16 @@ export default function WorkflowApp() {
               return (
                 <div
                   key={node.id}
-                  className={`absolute rounded-lg bg-white border shadow-sm pointer-events-auto group flex flex-col ${
+                  className={`absolute rounded-lg border shadow-sm pointer-events-auto group flex flex-col ${
                     isDragging ? 'shadow-lg scale-[1.02] z-[9999]' : 'transition-all duration-150'
-                  } ${dragOverNodeId === node.id ? 'ring-4 ring-indigo-400 ring-opacity-50 scale-[1.02]' : ''} ${
+                  } ${
                     isFocused ? 'ring-4 ring-indigo-500 animate-[pulse_1.5s_infinite]' : ''
                   } ${selectedNodeIds.includes(node.id) ? 'ring-2 ring-offset-1' : 'border-slate-200 hover:border-slate-300'}`}
                   style={{ 
                     left: displayX, 
                     top: displayY, 
                     width: 280,
-                    borderLeft: `4px solid ${theme.border || '#3b82f6'}`,
+                    backgroundColor: theme.cardBg || '#eff6ff',
                     padding: 12,
                     ...(selectedNodeIds.includes(node.id) ? { borderColor: theme.border || '#3b82f6' } : {}),
                     zIndex: isDragging ? 9999 : (isFocused ? 999 : 50 + index) 
@@ -3861,9 +3933,6 @@ export default function WorkflowApp() {
                     });
                     setContextMenu(null);
                   }}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverNodeId(node.id); }}
-                  onDragLeave={(e) => { e.preventDefault(); setDragOverNodeId(null); }}
-                  onDrop={(e) => handleImageDrop(e, node.id)}
                   onPointerDown={(e) => {
                     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.closest('button') || e.target.closest('select')) return;
                     e.stopPropagation();
@@ -3951,20 +4020,6 @@ export default function WorkflowApp() {
                     </button>
                   )}
 
-                  {/* Image */}
-                  {node.image && (
-                    <div className="relative mt-2 w-full bg-black/5 rounded-md p-1 border border-black/5 flex items-center justify-center">
-                      <img src={node.image} alt="Node attachment" className="max-h-32 w-auto object-contain rounded" draggable={false} />
-                      <button 
-                        onClick={() => { takeSnapshot(); updateNode(node.id, { image: null }); }}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        className="absolute top-1 right-1 p-1 bg-white text-slate-400 hover:text-red-500 rounded shadow text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  )}
-
                   {/* Clone indicator */}
                   {node.cloneSourceId && (
                     <div className="absolute bottom-2 right-2">
@@ -4034,6 +4089,7 @@ export default function WorkflowApp() {
           <MiniMap
             nodes={nodes}
             groups={groups}
+            images={activeWs?.images || []}
             transform={transform}
             setTransform={setTransform}
             workspaceRef={workspaceRef}
@@ -4247,7 +4303,7 @@ export default function WorkflowApp() {
                     <p className="text-xs text-slate-400 text-center mt-4">No clone nodes yet. Right-click a node and select "Clone Node" to create one.</p>
                   ) : (
                     sourceNodes.map(srcNode => {
-                      const srcTheme = THEMES[srcNode.theme] || THEMES.amber;
+                      const srcTheme = THEMES[srcNode.theme] || THEMES.blue;
                       const isSelected = selectedCloneSourceId === srcNode.id;
                       const totalClones = workspaces.reduce((count, ws) => count + ws.nodes.filter(n => n.cloneSourceId === srcNode.id).length, 0);
                       return (
@@ -4422,43 +4478,12 @@ export default function WorkflowApp() {
         </div>
       )}
 
-      {pendingImageDrop && (
-        <div className="absolute inset-0 bg-slate-900/50 z-[100] flex items-center justify-center backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-lg font-bold text-slate-800 mb-1">Drop Image Options</h3>
-            <p className="text-slate-500 mb-6 text-xs leading-relaxed text-left">
-              How would you like to save this image? Compressing scales down resolution slightly to save browser workspace capacity.
-            </p>
-            <div className="flex flex-col gap-2.5">
-              <button 
-                onClick={() => processImage(pendingImageDrop.file, pendingImageDrop.nodeId, true)}
-                className="w-full px-4 py-2.5 text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
-              >
-                Compress (Recommended)
-              </button>
-              <button 
-                onClick={() => processImage(pendingImageDrop.file, pendingImageDrop.nodeId, false)}
-                className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
-              >
-                Original (Could slow down browser if massive)
-              </button>
-              <button 
-                onClick={() => setPendingImageDrop(null)}
-                className="w-full px-4 py-2.5 text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-transparent rounded-lg transition-colors mt-1"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
 
       {/* --- Mobile Card Action Bottom Sheet --- */}
       {mobileSheet && (() => {
         const sheetNode = nodes.find(n => n.id === mobileSheet);
         if (!sheetNode) return null;
-        const sheetTheme = THEMES[sheetNode.theme] || THEMES.amber;
+        const sheetTheme = THEMES[sheetNode.theme] || THEMES.blue;
         return (
           <div className="fixed inset-0 z-[300] flex flex-col justify-end" onClick={() => setMobileSheet(null)}>
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
@@ -4544,7 +4569,7 @@ export default function WorkflowApp() {
             const newGroupId = `g-${Date.now()}`;
             updateActiveWorkspace(ws => {
               const updatedNodes = ws.nodes.map(n => selectedNodeIds.includes(n.id) ? { ...n, groupId: newGroupId } : n);
-              const newGroup = { id: newGroupId, name: 'New Group', x: groupX, y: groupY, width: groupW, height: groupH, expanded: true, theme: 'blue', parentGroupId: null };
+              const newGroup = { id: newGroupId, name: 'New Group', x: groupX, y: groupY, width: groupW, height: groupH, theme: 'blue', parentGroupId: null };
               const updatedGroups = [...ws.groups, newGroup];
               return { nodes: updatedNodes, groups: computeLayout(updatedGroups, updatedNodes) };
             });
