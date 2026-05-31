@@ -439,9 +439,15 @@ export default function WorkflowApp() {
   // --- Node Dimensions Helper ---
   const getNodeDimensions = useCallback((node) => {
     const titleLen = (node.title || '').length;
-    const contentLen = (node.content || '').length;
+    const content = node.content || '';
+    const contentLen = content.length;
+    const newlineCount = (content.match(/\n/g) || []).length;
     const totalLen = titleLen + contentLen;
     let width = 180 + Math.min(200, totalLen * 1.2);
+    // Multi-line content needs more width to display properly
+    if (newlineCount > 0) {
+      width = Math.max(width, 220 + newlineCount * 20);
+    }
     width = Math.max(180, Math.min(380, width));
     return { width };
   }, []);
@@ -2021,8 +2027,8 @@ export default function WorkflowApp() {
   }, [draggingGroup, getLiveOffset]);
 
   // --- Helper: Node Group Intersection Checker ---
-  const getSpatiallyHoveredGroup = useCallback((nodeX, nodeY) => {
-    const NODE_WIDTH_VAL = 280;
+  const getSpatiallyHoveredGroup = useCallback((nodeX, nodeY, nodeWidth) => {
+    const NODE_WIDTH_VAL = nodeWidth || 280;
     const nodeCenterX = nodeX + NODE_WIDTH_VAL / 2;
     const nodeCenterY = nodeY + 80;
 
@@ -2164,7 +2170,7 @@ export default function WorkflowApp() {
         currentY: newY
       }));
 
-      const activeGroupHoverId = getSpatiallyHoveredGroup(newX, newY);
+      const activeGroupHoverId = getSpatiallyHoveredGroup(newX, newY, getNodeDimensions(nodes.find(n => n.id === draggingNode.id) || {}).width);
       setDragHoveredGroupId(activeGroupHoverId);
 
     } else if (draggingGroup) {
@@ -2221,7 +2227,7 @@ export default function WorkflowApp() {
         currentY: draggingImage.initialY + dy
       }));
     }
-  }, [draggingNode, draggingGroup, draggingImage, resizingGroup, isPanning, panStart, transform.scale, getWorkspaceCoords, getSpatiallyHoveredGroup, getSpatiallyHoveredGroupForGroup, updateActiveWorkspace, isMultiSelecting, selectionBox, nodes]);
+  }, [draggingNode, draggingGroup, draggingImage, resizingGroup, isPanning, panStart, transform.scale, getWorkspaceCoords, getSpatiallyHoveredGroup, getSpatiallyHoveredGroupForGroup, updateActiveWorkspace, isMultiSelecting, selectionBox, nodes, getNodeDimensions]);
 
 
   const handlePointerUp = useCallback(() => {
@@ -2252,7 +2258,8 @@ export default function WorkflowApp() {
             if (originalNode && originalNode.groupId) {
               const originalGroup = ws.groups.find(g => g.id === originalNode.groupId);
               if (originalGroup) {
-                const NODE_WIDTH_VAL = 280;
+                const nodeForDims = ws.nodes.find(n => n.id === draggingNode.id) || {};
+                const NODE_WIDTH_VAL = getNodeDimensions(nodeForDims).width;
                 const nodeCenterX = dragRef.currentX + NODE_WIDTH_VAL / 2;
                 const nodeCenterY = dragRef.currentY + 80;
                 const gW = originalGroup.width || 440;
@@ -2362,10 +2369,11 @@ export default function WorkflowApp() {
     setResizingGroup(null);
     setDragHoveredGroupId(null);
     setConnecting(null);
+    setConnectHoverNodeId(null);
     setIsPanning(false);
     setDraggingImage(null);
     dragSnapshot.current = null;
-  }, [draggingNode, draggingGroup, draggingImage, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory, isMultiSelecting]);
+  }, [draggingNode, draggingGroup, draggingImage, resizingGroup, dragHoveredGroupId, updateActiveWorkspace, updateHistory, isMultiSelecting, getNodeDimensions]);
 
 
   // --- Node, Edge, and Group Creators ---
@@ -2791,7 +2799,7 @@ export default function WorkflowApp() {
           columns[d].push(n);
         });
 
-        const NODE_WIDTH = 280;
+        const NODE_WIDTH = 380;
         const H_GAP = 80;
         const V_GAP = 30;
         const baseX = startX + 40;
@@ -2939,7 +2947,6 @@ export default function WorkflowApp() {
     });
   };
 
-  const NODE_WIDTH = 280;
   const HEADER_CENTER_Y = 24;
 
   const getConnectionPoint = (nodeId, isSource) => {
@@ -3592,7 +3599,7 @@ export default function WorkflowApp() {
                         const centerY = rect.height / 2;
                         
                         setTransform({
-                          x: centerX - n.x * transform.scale - (NODE_WIDTH * transform.scale) / 2,
+                          x: centerX - n.x * transform.scale - (getNodeDimensions(n).width * transform.scale) / 2,
                           y: centerY - n.y * transform.scale - (140 * transform.scale) / 2,
                           scale: transform.scale
                         });
@@ -4046,7 +4053,7 @@ export default function WorkflowApp() {
                   <div 
                     className={`absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full cursor-crosshair z-30 flex items-center justify-center ${connecting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-all`}
                     onPointerDown={(e) => e.stopPropagation()} 
-                    onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== node.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] })); } } setConnecting(null); }}
+                    onPointerUp={(e) => { e.stopPropagation(); if (connecting && connecting.sourceId !== node.id) { const exists = edges.some(edge => edge.source === connecting.sourceId && edge.target === node.id); if (!exists) { takeSnapshot(); updateActiveWorkspace(ws => ({ edges: [...ws.edges, { id: `e-${Date.now()}`, source: connecting.sourceId, target: node.id }] })); } } setConnecting(null); setConnectHoverNodeId(null); }}
                   >
                     <div className={`w-3 h-3 rounded-full border-2 border-white shadow ${theme.port}`} />
                   </div>
